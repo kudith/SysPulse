@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 0%;
+    --foreground: 157 100% 50%;
+
+    --card: 0 0% 10%;
+    --card-foreground: 157 100% 50%;
+
+    --popover: 0 0% 10%;
+    --popover-foreground: 157 100% 50%;
+
+    --primary: 157 100% 50%;
+    --primary-foreground: 0 0% 0%;
+
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 157 100% 50%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 157 100% 40%;
+
+    --accent: 0 0% 15%;
+    --accent-foreground: 157 100% 50%;
+
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 0%;
+
+    --border: 157 100% 30%;
+    --input: 157 100% 30%;
+    --ring: 157 100% 50%;
+
+    --radius: 0.5rem;
+
+    --terminal-green: 157 100% 50%;
+    --terminal-dark: 0 0% 10%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-terminal-dark;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-terminal-green/30 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-terminal-green/50;
+  }
+}
+
+/* Terminal specific styles */
+@layer components {
+  /* Typewriter effect */
+  .typewriter {
+    overflow: hidden;
+    border-right: 2px solid hsl(157, 100%, 50%);
+    white-space: nowrap;
+    margin: 0 auto;
+    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+  }
+
+  @keyframes typing {
+    from {
+      width: 0;
+    }
+    to {
+      width: 100%;
+    }
+  }
+
+  @keyframes blink-caret {
+    from,
+    to {
+      border-color: transparent;
+    }
+    50% {
+      border-color: hsl(157, 100%, 50%);
+    }
+  }
+
+  /* Glow effect */
+  .glow {
+    text-shadow: 0 0 5px rgba(0, 255, 153, 0.5), 0 0 10px rgba(0, 255, 153, 0.3), 0 0 15px rgba(0, 255, 153, 0.1);
+  }
+
+  .glow-blue {
+    text-shadow: 0 0 5px rgba(51, 153, 255, 0.5), 0 0 10px rgba(51, 153, 255, 0.3), 0 0 15px rgba(51, 153, 255, 0.1);
+  }
+
+  .glow-orange {
+    text-shadow: 0 0 5px rgba(255, 111, 0, 0.5), 0 0 10px rgba(255, 111, 0, 0.3), 0 0 15px rgba(255, 111, 0, 0.1);
+  }
+
+  /* Scanline effect */
+  .scanline {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scanline::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: rgba(0, 255, 153, 0.1);
+    animation: scanline 6s linear infinite;
+  }
+
+  @keyframes scanline {
+    0% {
+      top: 0%;
+    }
+    100% {
+      top: 100%;
+    }
+  }
+
+  /* Pulse animation */
+  .pulse {
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+}
