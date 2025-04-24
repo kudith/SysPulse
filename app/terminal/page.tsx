@@ -5,12 +5,12 @@ import { motion } from "framer-motion"
 import { Header } from "@/components/header"
 import { TerminalHeader } from "@/components/terminal/terminal-header"
 import { TerminalWindow } from "@/components/terminal/terminal-window"
-import { TerminalPrompt } from "@/components/terminal/terminal-prompt"
+import { SimpleTerminal } from "@/components/terminal/simple-terminal"
 import { TerminalFooter } from "@/components/terminal/terminal-footer"
 import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
-import { commands } from "@/lib/terminal-commands"
-import type { TerminalOutput, TerminalCommand } from "@/lib/terminal-types"
+import sshService from "@/lib/ssh-service"
+import { Button } from "@/components/ui/button"
 
 export default function TerminalPage() {
   const router = useRouter()
@@ -18,205 +18,160 @@ export default function TerminalPage() {
   const [connected, setConnected] = useState(false)
   const [hostname, setHostname] = useState("server")
   const [username, setUsername] = useState("user")
-  const [currentDirectory, setCurrentDirectory] = useState("~")
-  const [history, setHistory] = useState<(TerminalOutput | TerminalCommand)[]>([])
   const [cpuUsage, setCpuUsage] = useState(0)
   const [memoryUsage, setMemoryUsage] = useState(0)
   const [diskUsage, setDiskUsage] = useState(0)
+  const [useSimpleTerminal, setUseSimpleTerminal] = useState(false)
   const terminalRef = useRef<HTMLDivElement>(null)
+  const connectionCheckedRef = useRef(false)
 
-  // Simulate connection
+  // Handle SSH connection
   useEffect(() => {
-    const connectionSequence = async () => {
-      // Add connection messages
-      addOutput("Establishing SSH connection to server...", "info")
-      await sleep(800)
-      addOutput("SSH connection established", "success")
-      await sleep(400)
-      addOutput("Authenticating...", "info")
-      await sleep(600)
-      addOutput("Authentication successful", "success")
-      await sleep(300)
-      addOutput("Welcome to Ubuntu 22.04.3 LTS (GNU/Linux 5.15.0-91-generic x86_64)", "system")
-      await sleep(200)
-      addOutput("Last login: Wed Apr 23 2025 16:14:03 GMT+0000 (Coordinated Universal Time)", "system")
-      await sleep(200)
-
-      // Show welcome message
-      addOutput(
-        [
-          "┌─────────────────────────────────────────────────┐",
-          "│                                                 │",
-          "│   Welcome to the Modern Terminal Emulator       │",
-          "│                                                 │",
-          "│   Type 'help' to see available commands         │",
-          "│                                                 │",
-          "└─────────────────────────────────────────────────┘",
-        ].join("\n"),
-        "welcome",
-      )
-
-      setConnected(true)
-    }
-
-    connectionSequence()
-
-    // Start system stats simulation
-    const statsInterval = setInterval(() => {
-      setCpuUsage(Math.random() * 100)
-      setMemoryUsage(Math.random() * 100)
-      setDiskUsage(Math.random() * 100)
-    }, 2000)
-
-    return () => clearInterval(statsInterval)
-  }, [])
-
-  // Auto scroll to bottom when new content is added
-  useEffect(() => {
-    if (terminalRef.current) {
-      terminalRef.current.scrollTop = terminalRef.current.scrollHeight
-    }
-  }, [history])
-
-  // Helper function to add command to history
-  const addCommand = (command: string) => {
-    setHistory((prev) => [
-      ...prev,
-      {
-        type: "command",
-        content: command,
-        timestamp: new Date(),
-        directory: currentDirectory,
-      },
-    ])
-  }
-
-  // Helper function to add output to history
-  const addOutput = (content: string, outputType: "success" | "error" | "info" | "system" | "welcome" = "info") => {
-    setHistory((prev) => [
-      ...prev,
-      {
-        type: "output",
-        content,
-        outputType,
-        timestamp: new Date(),
-      },
-    ])
-  }
-
-  // Helper function for sleep
-  const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
-  // Handle command execution
-  const executeCommand = async (command: string) => {
-    if (!command.trim()) return
-
-    // Add command to history
-    addCommand(command)
-
-    // Process command
-    const parts = command.trim().split(" ")
-    const cmd = parts[0]
-    const args = parts.slice(1)
-
-    // Wait a bit to simulate processing
-    await sleep(300)
-
-    // Handle built-in commands
-    if (cmd === "clear") {
-      setHistory([])
-      return
-    }
-
-    if (cmd === "exit") {
-      addOutput("Closing SSH connection...", "info")
-      await sleep(800)
-      addOutput("Connection closed", "success")
-      await sleep(500)
-      router.push("/dashboard")
-      return
-    }
-
-    if (cmd === "help") {
-      addOutput(
-        [
-          "Available commands:",
-          "  help     - Show this help message",
-          "  clear    - Clear the terminal",
-          "  ls       - List directory contents",
-          "  cd       - Change directory",
-          "  cat      - Show file contents",
-          "  ps       - Show running processes",
-          "  top      - Monitor system processes",
-          "  neofetch - Show system information",
-          "  exit     - Close SSH connection",
-        ].join("\n"),
-        "info",
-      )
-      return
-    }
-
-    // Handle other commands from our predefined list
-    const commandHandler = commands[cmd]
-    if (commandHandler) {
-      try {
-        const output = await commandHandler(args)
-        addOutput(output, "success")
-      } catch (error) {
-        if (error instanceof Error) {
-          addOutput(error.message, "error")
-        } else {
-          addOutput("An unknown error occurred", "error")
-        }
+    if (connectionCheckedRef.current) return;
+    connectionCheckedRef.current = true;
+    
+    const checkConnection = () => {
+      // Check if SSH service is connected
+      if (sshService.isSSHConnected()) {
+        setConnected(true);
+        console.log('Terminal page: SSH connection active');
+      } else {
+        console.log('Terminal page: No active SSH connection found');
+        
+        // Don't redirect immediately, give user a chance to see what's happening
+        toast({
+          title: "SSH Status",
+          description: "No active SSH connection found. You can continue in local mode or go back to dashboard.",
+        });
       }
-    } else {
-      addOutput(`Command not found: ${cmd}. Type 'help' to see available commands.`, "error")
+    };
+    
+    // Check connection status after a small delay to allow SSH service to initialize
+    setTimeout(checkConnection, 1000);
+  }, [toast]);
+  
+  // Setup event listeners for SSH service
+  useEffect(() => {
+    // Set up event listeners
+    const connectedHandler = (message: string) => {
+      console.log('SSH Connected:', message);
+      setConnected(true);
+      
+      toast({
+        title: "Connected",
+        description: message,
+      });
+    };
+    
+    const disconnectedHandler = (message: string) => {
+      console.log('SSH Disconnected:', message);
+      setConnected(false);
+      
+      toast({
+        title: "Disconnected",
+        description: message,
+      });
+    };
+    
+    const errorHandler = (error: string) => {
+      console.error('SSH Error:', error);
+      
+      toast({
+        title: "Connection error",
+        description: error,
+        variant: "destructive",
+      });
+    };
+    
+    // Register handlers
+    sshService.onConnected(connectedHandler);
+    sshService.onDisconnected(disconnectedHandler);
+    sshService.onError(errorHandler);
+
+    // Extract connection info from session storage
+    const connectionInfo = window.sessionStorage.getItem('ssh_connection_info');
+    if (connectionInfo) {
+      try {
+        const { host, username: user } = JSON.parse(connectionInfo);
+        setHostname(host);
+        setUsername(user);
+      } catch (e) {
+        console.error('Failed to parse connection info:', e);
+      }
     }
-  }
+
+    // Simulate system stats for display
+    const statsInterval = setInterval(() => {
+      setCpuUsage(Math.random() * 100);
+      setMemoryUsage(Math.random() * 100);
+      setDiskUsage(Math.random() * 100);
+    }, 2000);
+
+    return () => {
+      // Cleanup
+      clearInterval(statsInterval);
+      
+      // Clear handlers
+      sshService.onConnected(() => {});
+      sshService.onDisconnected(() => {});
+      sshService.onError(() => {});
+    };
+  }, [toast]);
 
   // Handle disconnect
   const handleDisconnect = async () => {
     toast({
       title: "Disconnecting",
       description: "Closing SSH connection...",
-    })
+    });
 
-    await sleep(1000)
-    router.push("/dashboard")
-  }
+    sshService.disconnect();
+    
+    // Clear the persistent connection state
+    sessionStorage.removeItem('ssh_persistent_id');
+    sessionStorage.removeItem('ssh_connection_info');
+    
+    router.push("/dashboard");
+  };
 
   return (
     <div className="min-h-screen bg-black flex flex-col">
       <Header />
       <main className="flex-1 container mx-auto p-4 space-y-4">
         <motion.div
-          className="flex-1 flex flex-col max-w-6xl mx-auto w-full"
+          className="flex-1 flex flex-col max-w-7xl mx-auto w-full h-[85vh]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <TerminalHeader
-            connected={connected}
-            hostname={hostname}
-            username={username}
-            onDisconnect={handleDisconnect}
-          />
-
-          <div className="flex-1 flex flex-col overflow-hidden border border-[#333] rounded-b-lg bg-[#121212]">
-            <TerminalWindow history={history} ref={terminalRef} />
-
-            <TerminalPrompt
+          <div className="flex justify-between items-center">
+            <TerminalHeader
               connected={connected}
-              username={username}
               hostname={hostname}
-              currentDirectory={currentDirectory}
-              onExecute={executeCommand}
+              username={username}
+              onDisconnect={handleDisconnect}
             />
+            
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setUseSimpleTerminal(!useSimpleTerminal)}
+            >
+              {useSimpleTerminal ? "Use SSH Terminal" : "Use Debug Terminal"}
+            </Button>
+          </div>
+
+          <div className="flex-1 flex flex-col overflow-hidden border border-[#161616] rounded-b-lg bg-[#121212]">
+            {useSimpleTerminal ? (
+              <SimpleTerminal />
+            ) : (
+              <TerminalWindow connected={connected} ref={terminalRef} />
+            )}
           </div>
 
           <TerminalFooter cpuUsage={cpuUsage} memoryUsage={memoryUsage} diskUsage={diskUsage} />
         </motion.div>
       </main>
     </div>
-  )
+  );
 }
