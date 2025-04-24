@@ -14,7 +14,7 @@ interface TerminalHeaderProps {
 export function TerminalHeader({ connected, hostname, username, onDisconnect }: TerminalHeaderProps) {
   return (
     <motion.div
-      className="flex items-center justify-between px-4 py-2 bg-[#1a1a1a] rounded-t-lg border-t border-l border-r border-[#333]"
+      className="flex items-center justify-between px-4 py-2 bg-[#0c0c0c] rounded-t-lg"
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
@@ -22,29 +22,32 @@ export function TerminalHeader({ connected, hostname, username, onDisconnect }: 
       <div className="flex items-center space-x-3">
         <div className="flex space-x-2">
           <motion.div
-            className="w-3 h-3 rounded-full bg-[#ff6057]"
+            className="w-3 h-3 rounded-full bg-[#ec6a88] shadow-lg shadow-[#ec6a88]/20"
             whileHover={{ scale: 1.2 }}
             transition={{ duration: 0.2 }}
           />
           <motion.div
-            className="w-3 h-3 rounded-full bg-[#ffbd2e]"
+            className="w-3 h-3 rounded-full bg-[#fbc3a7] shadow-lg shadow-[#fbc3a7]/20"
             whileHover={{ scale: 1.2 }}
             transition={{ duration: 0.2 }}
           />
           <motion.div
-            className="w-3 h-3 rounded-full bg-[#27c93f]"
+            className="w-3 h-3 rounded-full bg-[#3fdaa4] shadow-lg shadow-[#3fdaa4]/20"
             whileHover={{ scale: 1.2 }}
             transition={{ duration: 0.2 }}
           />
         </div>
 
         <motion.div
-          className="text-white/80 font-mono text-sm"
+          className="text-[#d8dee9] font-mono text-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
         >
-          {username}@{hostname} — SSH Terminal
+          <span className="text-[#6be5fd]">{username}</span>
+          <span className="text-[#4c566a]">@</span>
+          <span className="text-[#c792ea]">{hostname}</span>
+          <span className="text-[#4c566a]"> — SSH Terminal</span>
         </motion.div>
       </div>
 
@@ -56,19 +59,19 @@ export function TerminalHeader({ connected, hostname, username, onDisconnect }: 
           transition={{ delay: 0.4, duration: 0.5 }}
         >
           {connected ? (
-            <div className="flex items-center text-[#00ff99]">
+            <div className="flex items-center text-[#3fdaa4]">
               <motion.div
                 animate={{ scale: [1, 1.1, 1] }}
                 transition={{ repeat: Number.POSITIVE_INFINITY, duration: 2 }}
               >
-                <Wifi size={16} className="mr-2" />
+                <Wifi size={16} className="mr-2 ml-5" />
               </motion.div>
-              <span className="text-xs">Connected</span>
+              <span className="text-xs font-medium">Connected</span>
             </div>
           ) : (
-            <div className="flex items-center text-[#ff6f00]">
-              <WifiOff size={16} className="mr-2" />
-              <span className="text-xs">Disconnected</span>
+            <div className="flex items-center text-[#ec6a88]">
+              <WifiOff size={16} className="mr-2 ml-5" />
+              <span className="text-xs font-medium">Disconnected</span>
             </div>
           )}
         </motion.div>
@@ -78,7 +81,7 @@ export function TerminalHeader({ connected, hostname, username, onDisconnect }: 
             variant="ghost"
             size="icon"
             onClick={onDisconnect}
-            className="text-white/70 hover:text-white hover:bg-red-500/20"
+            className="text-[#d8dee9]/70 hover:text-[#d8dee9] hover:bg-[#ec6a88]/20"
           >
             <X size={18} />
           </Button>
