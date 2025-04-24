@@ -5,7 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Terminal, Mail, Lock, Eye, EyeOff } from "lucide-react"
+import { Terminal, User, Mail, Lock, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -13,21 +13,33 @@ import { useToast } from "@/components/ui/use-toast"
 import { supabase } from "@/lib/supabase/client"
 import { motion } from "framer-motion"
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter()
   const { toast } = useToast()
+  const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!email || !password) {
+    // Validate form
+    if (!name || !email || !password) {
       toast({
-        title: "Login failed",
-        description: "Please enter both email and password",
+        title: "Registration failed",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (password !== confirmPassword) {
+      toast({
+        title: "Registration failed",
+        description: "Passwords do not match",
         variant: "destructive",
       })
       return
@@ -36,10 +48,15 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      // Login with Supabase
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // Register with Supabase
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            name,
+          },
+        },
       })
 
       if (error) {
@@ -47,16 +64,16 @@ export default function LoginPage() {
       }
 
       toast({
-        title: "Login successful",
-        description: "Redirecting to dashboard...",
+        title: "Registration successful",
+        description: "Please check your email to verify your account",
       })
 
-      // Redirect to dashboard
-      router.push("/dashboard")
+      // Redirect to login page
+      router.push("/login")
     } catch (error: any) {
       toast({
-        title: "Login failed",
-        description: error.message || "Invalid email or password",
+        title: "Registration failed",
+        description: error.message || "An error occurred during registration",
         variant: "destructive",
       })
     } finally {
@@ -77,13 +94,25 @@ export default function LoginPage() {
             <div className="flex items-center justify-center mb-2">
               <Terminal className="h-10 w-10 text-terminal-green" />
             </div>
-            <CardTitle className="text-2xl text-center text-terminal-green">Terminal Dashboard</CardTitle>
+            <CardTitle className="text-2xl text-center text-terminal-green">Create an Account</CardTitle>
             <CardDescription className="text-center text-terminal-green/70">
-              Enter your credentials to access the system
+              Enter your information to create an account
             </CardDescription>
           </CardHeader>
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleRegister}>
             <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <div className="relative">
+                  <User className="absolute left-3 top-2.5 h-4 w-4 text-terminal-green" />
+                  <Input
+                    id="name"
+                    placeholder="Full Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="pl-10 bg-black border-terminal-green/30 text-terminal-green focus-visible:ring-terminal-green"
+                  />
+                </div>
+              </div>
               <div className="space-y-2">
                 <div className="relative">
                   <Mail className="absolute left-3 top-2.5 h-4 w-4 text-terminal-green" />
@@ -117,6 +146,19 @@ export default function LoginPage() {
                   </button>
                 </div>
               </div>
+              <div className="space-y-2">
+                <div className="relative">
+                  <Lock className="absolute left-3 top-2.5 h-4 w-4 text-terminal-green" />
+                  <Input
+                    id="confirmPassword"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Confirm Password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="pl-10 bg-black border-terminal-green/30 text-terminal-green focus-visible:ring-terminal-green"
+                  />
+                </div>
+              </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
               <Button
@@ -124,12 +166,12 @@ export default function LoginPage() {
                 disabled={isLoading}
                 className="w-full bg-terminal-dark hover:bg-terminal-green/20 text-terminal-green border border-terminal-green"
               >
-                {isLoading ? "Logging in..." : "Login"}
+                {isLoading ? "Creating Account..." : "Create Account"}
               </Button>
               <div className="text-center text-terminal-green/70 text-sm">
-                Don't have an account?{" "}
-                <Link href="/register" className="text-terminal-green hover:underline">
-                  Register
+                Already have an account?{" "}
+                <Link href="/login" className="text-terminal-green hover:underline">
+                  Login
                 </Link>
               </div>
             </CardFooter>

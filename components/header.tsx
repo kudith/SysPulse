@@ -1,20 +1,22 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { Terminal, LogOut } from "lucide-react"
+import { Terminal, LogOut, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
+import { useAuth } from "@/components/auth-provider"
 
 export function Header() {
   const router = useRouter()
   const { toast } = useToast()
+  const { user, signOut } = useAuth()
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await signOut()
     toast({
       title: "Logged out successfully",
       description: "Redirecting to login page...",
     })
-    router.push("/login")
   }
 
   return (
@@ -26,7 +28,10 @@ export function Header() {
         </div>
 
         <div className="flex items-center">
-          <span className="text-terminal-green/70 mr-4">user@system:~$</span>
+          <div className="flex items-center mr-4">
+            <User className="h-4 w-4 mr-2 text-terminal-green" />
+            <span className="text-terminal-green/70">{user?.email || "user@system"}</span>
+          </div>
           <Button
             variant="ghost"
             size="sm"
