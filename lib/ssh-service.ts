@@ -15,6 +15,7 @@ interface CommandOptions {
   retry?: number;
   retryDelay?: number;
   stream?: boolean;
+  priority?: 'high' | 'normal' | 'low';
 }
 
 // Default command options
@@ -22,8 +23,197 @@ const DEFAULT_COMMAND_OPTIONS: CommandOptions = {
   timeout: 60000,    // 60 seconds default timeout
   retry: 2,          // 2 retries
   retryDelay: 1000,  // 1 second between retries
-  stream: false      // No streaming by default
+  stream: false,     // No streaming by default
+  priority: 'normal' // Normal priority
 };
+
+/**
+ * Command batch manager - efficiently handles commands in batches
+ */
+class CommandBatchManager {
+  private highPriorityQueue: string[] = [];
+  private normalPriorityQueue: string[] = [];
+  private lowPriorityQueue: string[] = [];
+  private batchTimer: NodeJS.Timeout | null = null;
+  private batchInterval: number = 50;
+  private maxBatchSize: number = 5;
+  private processing: boolean = false;
+  private lastBatchTime: number = 0;
+  private socket: Socket | null = null;
+  private persistentId: string | null = null;
+  
+  constructor(
+    socket: Socket | null,
+    getPersistentId: () => string | null,
+    private onResponse: (results: Map<string, string>) => void,
+    private onError: (error: Error) => void
+  ) {
+    this.socket = socket;
+    this.persistentId = getPersistentId();
+  }
+  
+  public updateSocket(socket: Socket | null): void {
+    this.socket = socket;
+  }
+  
+  public updatePersistentId(id: string | null): void {
+    this.persistentId = id;
+  }
+  
+  public queueCommand(command: string, priority: 'high' | 'normal' | 'low' = 'normal'): void {
+    switch (priority) {
+      case 'high':
+        this.highPriorityQueue.push(command);
+        break;
+      case 'low':
+        this.lowPriorityQueue.push(command);
+        break;
+      default:
+        this.normalPriorityQueue.push(command);
+        break;
+    }
+    
+    this.scheduleBatch();
+  }
+  
+  private scheduleBatch(): void {
+    // If already processing or timer is set, don't schedule another one
+    if (this.processing || this.batchTimer) {
+      return;
+    }
+    
+    // Determine how long to wait before processing
+    const now = Date.now();
+    const timeSinceLastBatch = now - this.lastBatchTime;
+    const waitTime = Math.max(0, this.batchInterval - timeSinceLastBatch);
+    
+    this.batchTimer = setTimeout(() => {
+      this.processBatch();
+    }, waitTime);
+  }
+  
+  private processBatch(): void {
+    if (!this.socket || !this.socket.connected || this.processing) {
+      this.batchTimer = null;
+      return;
+    }
+    
+    this.processing = true;
+    this.batchTimer = null;
+    this.lastBatchTime = Date.now();
+    
+    // Create batch from queues, prioritizing high > normal > low
+    let batch: string[] = [];
+    
+    // First take high priority items
+    while (batch.length < this.maxBatchSize && this.highPriorityQueue.length > 0) {
+      batch.push(this.highPriorityQueue.shift()!);
+    }
+    
+    // Then normal priority
+    while (batch.length < this.maxBatchSize && this.normalPriorityQueue.length > 0) {
+      batch.push(this.normalPriorityQueue.shift()!);
+    }
+    
+    // Finally low priority
+    while (batch.length < this.maxBatchSize && this.lowPriorityQueue.length > 0) {
+      batch.push(this.lowPriorityQueue.shift()!);
+    }
+    
+    // If we have commands to process
+    if (batch.length > 0) {
+      const batchId = `batch_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      
+      // Send the batch
+      this.socket.emit("ssh-execute-batch", {
+        commands: batch,
+        batchId,
+        sessionId: this.persistentId
+      });
+      
+      // Set timeout for batch response
+      const timeoutHandle = setTimeout(() => {
+        console.error(`[CommandBatchManager] Batch ${batchId} timed out`);
+        this.processing = false;
+        this.onError(new Error(`Batch execution timed out for ${batch.length} commands`));
+        
+        // Process next batch if there are pending commands
+        if (this.hasQueuedCommands()) {
+          this.scheduleBatch();
+        }
+      }, 30000); // 30 second timeout
+      
+      // Listen for batch response
+      const handleBatchResult = (data: { batchId: string, results: Array<{command: string, output: string, error?: string}> }) => {
+        if (data.batchId === batchId) {
+          clearTimeout(timeoutHandle);
+          this.socket?.off("command-batch-result", handleBatchResult);
+          
+          // Process results
+          const resultMap = new Map<string, string>();
+          let hasErrors = false;
+          
+          data.results.forEach(result => {
+            if (!result.error) {
+              resultMap.set(result.command, result.output);
+            } else {
+              console.warn(`[CommandBatchManager] Command error: ${result.command} - ${result.error}`);
+              hasErrors = true;
+            }
+          });
+          
+          if (resultMap.size > 0) {
+            this.onResponse(resultMap);
+          }
+          
+          if (hasErrors) {
+            this.onError(new Error(`Some commands in batch failed`));
+          }
+          
+          // Continue processing
+          this.processing = false;
+          
+          // If we have more commands or new commands arrived during processing, schedule next batch
+          if (this.hasQueuedCommands()) {
+            this.scheduleBatch();
+          }
+        }
+      };
+      
+      this.socket.on("command-batch-result", handleBatchResult);
+    } else {
+      this.processing = false;
+    }
+  }
+  
+  public hasQueuedCommands(): boolean {
+    return this.highPriorityQueue.length > 0 || 
+           this.normalPriorityQueue.length > 0 || 
+           this.lowPriorityQueue.length > 0;
+  }
+  
+  public getQueueStatus(): { high: number, normal: number, low: number, total: number } {
+    return {
+      high: this.highPriorityQueue.length,
+      normal: this.normalPriorityQueue.length,
+      low: this.lowPriorityQueue.length,
+      total: this.highPriorityQueue.length + this.normalPriorityQueue.length + this.lowPriorityQueue.length
+    };
+  }
+  
+  public clear(): void {
+    this.highPriorityQueue = [];
+    this.normalPriorityQueue = [];
+    this.lowPriorityQueue = [];
+    
+    if (this.batchTimer) {
+      clearTimeout(this.batchTimer);
+      this.batchTimer = null;
+    }
+    
+    this.processing = false;
+  }
+}
 
 class SSHService {
   private socket: Socket | null = null;
@@ -40,16 +230,30 @@ class SSHService {
   private lastActivityTime: number = Date.now();
   private connectionConfig: SSHConfig | null = null;
   private commandQueue: Array<{id: string, resolve: Function, reject: Function, timeout: NodeJS.Timeout}> = [];
-  private commandBatch: Map<string, {commands: string[], resolve: Function, reject: Function}> = new Map();
-  private batchTimer: NodeJS.Timeout | null = null;
+  private dataBuffer: string = '';
+  private dataTimeout: NodeJS.Timeout | null = null;
+  private dataBufferMaxTime: number = 16; // ms (approx 1 frame at 60FPS)
+  private connectionRetryBackoff: number = 0;
+  
+  // Enhanced command batch manager
+  private batchManager: CommandBatchManager;
 
   // Event callbacks
   private onConnectedCallback: ((message: string) => void) | null = null;
   private onDataCallback: ((data: string) => void) | null = null;
   private onErrorCallback: ((error: string) => void) | null = null;
   private onDisconnectedCallback: ((message: string) => void) | null = null;
+  private debugMode: boolean = false;
 
   constructor() {
+    // Initialize the batch manager
+    this.batchManager = new CommandBatchManager(
+      this.socket,
+      () => this.persistentId,
+      this.handleBatchResults.bind(this),
+      this.handleBatchError.bind(this)
+    );
+    
     // Check for existing connection state
     if (typeof window !== "undefined") {
       this.persistentId = sessionStorage.getItem("ssh_persistent_id");
@@ -66,6 +270,9 @@ class SSHService {
           sessionStorage.removeItem("ssh_connection_config");
         }
       }
+      
+      // Check for debug mode
+      this.debugMode = localStorage.getItem("ssh_debug_mode") === "true";
     }
 
     this.initSocket();
@@ -90,6 +297,12 @@ class SSHService {
     
     // Setup heartbeat to keep connections alive
     this.startHeartbeat();
+  }
+  
+  private logDebug(message: string, ...args: any[]): void {
+    if (this.debugMode) {
+      console.log(`[SSH Debug] ${message}`, ...args);
+    }
   }
 
   private initSocket() {
@@ -122,6 +335,7 @@ class SSHService {
         perMessageDeflate: true,     // Enable compression
         pingTimeout: 30000,          // Increase ping timeout
         pingInterval: 15000,         // More frequent pings
+        autoConnect: true,           // Auto connect socket
         // If we have a persistent ID, use it to reconnect to the same session
         auth: this.persistentId
           ? {
@@ -129,6 +343,9 @@ class SSHService {
             }
           : undefined,
       });
+      
+      // Update the batch manager's socket reference
+      this.batchManager.updateSocket(this.socket);
 
       // Setup event listeners
       this.socket.on("connect", () => {
@@ -138,6 +355,7 @@ class SSHService {
 
         // Reset reconnection attempts on successful connection
         this.reconnectAttempts = 0;
+        this.connectionRetryBackoff = 0;
         
         // If we have a persistent ID, check if the connection still exists on the server
         if (this.persistentId) {
@@ -171,6 +389,9 @@ class SSHService {
             sessionStorage.setItem("ssh_persistent_id", data.sessionId);
             sessionStorage.setItem("ssh_connected_state", "true");
           }
+          
+          // Update batch manager with new session ID
+          this.batchManager.updatePersistentId(data.sessionId);
         }
 
         // Send initial resize if terminal dimensions are available
@@ -196,6 +417,9 @@ class SSHService {
             sessionStorage.setItem("ssh_persistent_id", data.sessionId);
             sessionStorage.setItem("ssh_connected_state", "true");
           }
+          
+          // Update batch manager with session ID
+          this.batchManager.updatePersistentId(data.sessionId);
         }
 
         // Send initial resize if terminal dimensions are available
@@ -209,19 +433,34 @@ class SSHService {
       this.socket.on("ssh-data", (data) => {
         this.lastActivityTime = Date.now();
         
-        // Only log first 100 chars to avoid console overflow
-        const truncated = typeof data === "string" && data.length > 100 
-          ? `${data.substring(0, 100)}... (${data.length} bytes)` 
-          : data;
-        console.log("[SSH Service] Received SSH data:", truncated);
+        if (!data) return;
         
-        if (this.terminal) {
-          this.terminal.write(data);
+        // Improved data buffering
+        this.dataBuffer += data;
+        
+        // Clear any existing timeout
+        if (this.dataTimeout) {
+          clearTimeout(this.dataTimeout);
         }
-
-        if (this.onDataCallback) {
-          this.onDataCallback(data);
+        
+        // For small data chunks, process immediately
+        // For large data chunks, buffer and process after a short delay
+        if (data.length < 1024) {
+          this.processDataBuffer();
+        } else {
+          // Use a minimal delay that won't block UI rendering
+          this.dataTimeout = setTimeout(() => this.processDataBuffer(), this.dataBufferMaxTime);
         }
+      });
+      
+      // Process and render buffered data
+      this.socket.on("ssh-heartbeat", () => {
+        // Process any pending data in buffer on heartbeat
+        if (this.dataBuffer.length > 0) {
+          this.processDataBuffer();
+        }
+        
+        this.lastActivityTime = Date.now();
       });
 
       this.socket.on("ssh-error", (data) => {
@@ -252,12 +491,12 @@ class SSHService {
       this.socket.on("ssh-error-data", (data) => {
         this.lastActivityTime = Date.now();
         // Pass error data to terminal (usually displayed in red)
-        if (this.terminal) {
+        if (this.terminal && data) {
           console.log(`[SSH Service] Received SSH error data: ${data.substring(0, 100)}...`);
           this.terminal.write(`\x1b[31m${data}\x1b[0m`);  // Ensure error text is red
         }
 
-        if (this.onErrorCallback) {
+        if (this.onErrorCallback && data) {
           this.onErrorCallback(data);
         }
       });
@@ -267,6 +506,9 @@ class SSHService {
         this.isConnecting = false;
         this.initialResizeSent = false;
         this.lastActivityTime = Date.now();
+        
+        // Force process any remaining data in buffer
+        this.processDataBuffer();
         
         // Only clear persistent state for normal closures
         if (!data.message?.includes("reconnect")) {
@@ -290,6 +532,10 @@ class SSHService {
         this.isConnecting = false;
         this.initialResizeSent = false;
         this.lastActivityTime = Date.now();
+        
+        // Force process any remaining data in buffer
+        this.processDataBuffer();
+        
         this.clearPersistentState();
         console.log("[SSH Service] SSH connection ended:", data.message);
 
@@ -339,37 +585,7 @@ class SSHService {
       // Handle batch command results
       this.socket.on("command-batch-result", (data: { batchId: string, results: Array<{command: string, output: string, error?: string}> }) => {
         this.lastActivityTime = Date.now();
-        
-        const batchItem = this.commandBatch.get(data.batchId);
-        if (!batchItem) {
-          console.warn(`[SSH Service] Received results for unknown batch ID: ${data.batchId}`);
-          return;
-        }
-        
-        // Process the batch results
-        const resultMap = new Map<string, string>();
-        let hasErrors = false;
-        let errorMessage = "";
-        
-        data.results.forEach(result => {
-          if (result.error) {
-            hasErrors = true;
-            errorMessage += `${result.command}: ${result.error}\n`;
-          } else {
-            resultMap.set(result.command, result.output);
-          }
-        });
-        
-        // Remove the batch
-        this.commandBatch.delete(data.batchId);
-        
-        // Resolve or reject
-        if (hasErrors && resultMap.size === 0) {
-          batchItem.reject(new Error(`Batch execution failed: ${errorMessage}`));
-        } else {
-          // Even if some commands failed, return the successful results
-          batchItem.resolve(resultMap);
-        }
+        // Handled by batch manager
       });
 
       this.socket.on("disconnect", (reason) => {
@@ -401,6 +617,9 @@ class SSHService {
           this.terminal.writeln(`\r\n\x1b[1;32m[Reconnected] Socket connection restored\x1b[0m\r\n`);
         }
         
+        // Update batch manager with new socket
+        this.batchManager.updateSocket(this.socket);
+        
         // Check connection status after reconnection
         this.checkConnectionStatus();
       });
@@ -427,6 +646,52 @@ class SSHService {
     } catch (err) {
       console.error("[SSH Service] Error initializing socket:", err);
     }
+  }
+  
+  // Process and render buffered terminal data efficiently
+  private processDataBuffer(): void {
+    if (this.dataTimeout) {
+      clearTimeout(this.dataTimeout);
+      this.dataTimeout = null;
+    }
+    
+    if (this.dataBuffer.length > 0) {
+      this.logDebug(`Processing ${this.dataBuffer.length} bytes of buffered data`);
+      
+      // Send data to terminal
+      if (this.terminal) {
+        try {
+          this.terminal.write(this.dataBuffer);
+        } catch (err) {
+          console.error("[SSH Service] Error writing to terminal:", err);
+        }
+      }
+      
+      // Call the data callback if registered
+      if (this.onDataCallback) {
+        try {
+          this.onDataCallback(this.dataBuffer);
+        } catch (err) {
+          console.error("[SSH Service] Error in data callback:", err);
+        }
+      }
+      
+      // Clear the buffer
+      this.dataBuffer = '';
+    }
+  }
+  
+  // Handle command batch responses
+  private handleBatchResults(results: Map<string, string>): void {
+    // Nothing to do here - individual services will handle their own responses
+    // The batch manager handles the Socket.io event directly
+    this.lastActivityTime = Date.now();
+  }
+  
+  // Handle command batch errors
+  private handleBatchError(error: Error): void {
+    console.error("[SSH Service] Batch execution error:", error.message);
+    // No need to call error callback here, as individual commands will handle their own errors
   }
   
   // Handle connection retry with exponential backoff
@@ -492,6 +757,11 @@ class SSHService {
             this.refreshConnection();
           }
         }
+        
+        // Process any pending data
+        if (this.dataBuffer.length > 0) {
+          this.processDataBuffer();
+        }
       }
     }, 10000); // Check every 10 seconds
   }
@@ -524,15 +794,17 @@ class SSHService {
     });
     this.commandQueue = [];
     
-    // Clear command batches
-    for (const [batchId, batchItem] of this.commandBatch) {
-      batchItem.reject(new Error(error));
-    }
-    this.commandBatch.clear();
+    // Clear batch manager
+    this.batchManager.clear();
     
-    if (this.batchTimer) {
-      clearTimeout(this.batchTimer);
-      this.batchTimer = null;
+    if (this.dataTimeout) {
+      clearTimeout(this.dataTimeout);
+      this.dataTimeout = null;
+    }
+    
+    // Process any remaining data
+    if (this.dataBuffer.length > 0) {
+      this.processDataBuffer();
     }
   }
 
@@ -548,6 +820,9 @@ class SSHService {
     
     // Clear any pending commands
     this.clearCommandQueue("Connection terminated");
+    
+    // Update batch manager
+    this.batchManager.updatePersistentId(null);
   }
 
   // Send initial resize after connection
@@ -619,6 +894,11 @@ class SSHService {
       this.isConnecting = false;
       this.initialResizeSent = false;
       this.clearPersistentState();
+      
+      // Process any remaining data
+      if (this.dataBuffer.length > 0) {
+        this.processDataBuffer();
+      }
       
       // Remove saved connection config
       if (typeof window !== "undefined") {
@@ -712,6 +992,18 @@ class SSHService {
     return this.isConnecting;
   }
 
+  // Set debug mode
+  public setDebugMode(enabled: boolean): void {
+    this.debugMode = enabled;
+    if (typeof window !== "undefined") {
+      if (enabled) {
+        localStorage.setItem("ssh_debug_mode", "true");
+      } else {
+        localStorage.removeItem("ssh_debug_mode");
+      }
+    }
+  }
+
   // Cleanup method
   public cleanup(): void {
     if (this.pingInterval) {
@@ -724,9 +1016,14 @@ class SSHService {
       this.reconnectTimer = null;
     }
     
-    if (this.batchTimer) {
-      clearTimeout(this.batchTimer);
-      this.batchTimer = null;
+    if (this.dataTimeout) {
+      clearTimeout(this.dataTimeout);
+      this.dataTimeout = null;
+    }
+    
+    // Process any remaining data
+    if (this.dataBuffer.length > 0) {
+      this.processDataBuffer();
     }
     
     // Clear any pending commands
@@ -800,6 +1097,11 @@ class SSHService {
       this.sendInitialResize();
     }, 500);
     
+    // Process any remaining data
+    if (this.dataBuffer.length > 0) {
+      this.processDataBuffer();
+    }
+    
     // Clear any pending commands
     this.clearCommandQueue("Shell restarted");
   }
@@ -813,6 +1115,11 @@ class SSHService {
 
     console.log("[SSH Service] Refreshing SSH connection");
     this.lastActivityTime = Date.now();
+
+    // Process any remaining data
+    if (this.dataBuffer.length > 0) {
+      this.processDataBuffer();
+    }
 
     // Clear terminal display
     if (this.terminal) {
@@ -893,93 +1200,109 @@ class SSHService {
     });
   }
   
-  // Execute multiple commands in a batch for better performance
-  public async executeBatch(commands: string[]): Promise<Map<string, string>> {
+  /**
+   * Queue a command to be executed in batch mode for better performance
+   * @param command Command to execute
+   * @param priority Priority of the command
+   */
+  public queueCommand(command: string, priority: 'high' | 'normal' | 'low' = 'normal'): void {
+    if (!this.socket || !this.isConnected) {
+      console.warn('[SSH Service] Cannot queue command: not connected');
+      return;
+    }
+    
+    this.batchManager.queueCommand(command, priority);
+  }
+  
+  /**
+   * Get the status of command queues
+   */
+  public getQueueStatus(): { high: number, normal: number, low: number, total: number } {
+    return this.batchManager.getQueueStatus();
+  }
+  
+  // Advanced executeCommandBatch method with prioritized queuing
+  public async executeCommandBatch(commands: string[], priority: 'high' | 'normal' | 'low' = 'normal'): Promise<Map<string, string>> {
+    if (!commands || commands.length === 0) {
+      return new Map<string, string>();
+    }
+    
     return new Promise((resolve, reject) => {
       if (!this.socket || !this.isConnected) {
         reject(new Error("SSH not connected"));
         return;
       }
       
-      if (!commands || commands.length === 0) {
-        resolve(new Map<string, string>());
-        return;
-      }
-      
       // Generate batch ID
       const batchId = `batch_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-      
-      // Store batch information
-      this.commandBatch.set(batchId, {
-        commands,
-        resolve,
-        reject
-      });
       
       // Send the batch request
       this.socket.emit("ssh-execute-batch", {
         commands,
         batchId,
-        sessionId: this.persistentId
+        sessionId: this.persistentId,
+        priority
       });
       
       this.lastActivityTime = Date.now();
       
-      // Set a timeout for the batch
-      setTimeout(() => {
-        if (this.commandBatch.has(batchId)) {
-          const batchItem = this.commandBatch.get(batchId);
-          this.commandBatch.delete(batchId);
-          if (batchItem) {
-            batchItem.reject(new Error("Batch execution timed out"));
+      // Create timeout handler
+      const timeoutHandler = setTimeout(() => {
+        this.socket?.off("command-batch-result", resultHandler);
+        reject(new Error("Batch execution timed out"));
+      }, 60000); // 60 second timeout
+      
+      // Create result handler
+      const resultHandler = (data: { batchId: string, results: Array<{command: string, output: string, error?: string}> }) => {
+        if (data.batchId === batchId) {
+          clearTimeout(timeoutHandler);
+          this.socket?.off("command-batch-result", resultHandler);
+          
+          const resultMap = new Map<string, string>();
+          let hasErrors = false;
+          
+          data.results.forEach(result => {
+            if (result.error) {
+              hasErrors = true;
+              console.warn(`[SSH Service] Command error in batch: ${result.command} - ${result.error}`);
+            } else {
+              resultMap.set(result.command, result.output);
+            }
+          });
+          
+          if (hasErrors && resultMap.size === 0) {
+            reject(new Error("All commands in batch failed"));
+          } else {
+            resolve(resultMap);
           }
         }
-      }, 60000); // 60 second timeout for batches
+      };
+      
+      this.socket.on("command-batch-result", resultHandler);
     });
   }
   
-  // Queue commands to be sent as a batch (more efficient)
-  public queueCommand(command: string): void {
-    // Create batch array if it doesn't exist
-    if (!this._batchCommands) {
-      this._batchCommands = [];
-    }
-    
-    // Add command to queue
-    this._batchCommands.push(command);
-    
-    // If this is the first command, set a timer to flush the batch
-    if (this._batchCommands.length === 1 && !this.batchTimer) {
-      this.batchTimer = setTimeout(() => this.flushCommandQueue(), 50);
-    }
-    
-    // If we've reached batch size, flush immediately
-    if (this._batchCommands.length >= 10) {
-      this.flushCommandQueue();
-    }
-  }
-  
-  private _batchCommands: string[] = [];
-  
-  // Flush queued commands as a batch
-  private flushCommandQueue(): void {
-    if (this.batchTimer) {
-      clearTimeout(this.batchTimer);
-      this.batchTimer = null;
-    }
-    
-    if (!this._batchCommands || this._batchCommands.length === 0) {
-      return;
-    }
-    
-    // Get commands from queue
-    const commands = [...this._batchCommands];
-    this._batchCommands = [];
-    
-    // Execute as batch
-    this.executeBatch(commands).catch(error => {
-      console.error("[SSH Service] Batch execution failed:", error);
-    });
+  /**
+   * Get diagnostics information
+   */
+  public getDiagnostics(): { 
+    connected: boolean, 
+    connecting: boolean,
+    sessionId: string | null,
+    queueStatus: ReturnType<CommandBatchManager['getQueueStatus']>,
+    socketConnected: boolean,
+    lastActivity: Date,
+    bufferSize: number
+  } {
+    return {
+      connected: this.isConnected,
+      connecting: this.isConnecting,
+      sessionId: this.persistentId,
+      queueStatus: this.batchManager.getQueueStatus(),
+      socketConnected: this.socket?.connected || false,
+      lastActivity: new Date(this.lastActivityTime),
+      bufferSize: this.dataBuffer.length
+    };
   }
 }
 

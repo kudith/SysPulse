@@ -28,73 +28,190 @@ export function SSHForm() {
   const { toast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
   
-  // New state for the connected card
+  // Connection state
   const [isConnected, setIsConnected] = useState(false)
-  const [connectionTimestamp, setConnectionTimestamp] = useState<string | null>(null)
   const [connectionInfo, setConnectionInfo] = useState<{
     host: string;
     username: string;
     port: number;
     timestamp: string;
   } | null>(null)
+  const [durationDisplay, setDurationDisplay] = useState("0s")
 
-  // Check if already connected when the component mounts
+  // Refs to avoid dependency issues
+  const connectionTimestampRef = useRef<string | null>(null)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Update the duration display
+  const updateDurationDisplay = () => {
+    if (!connectionTimestampRef.current) return;
+    
+    try {
+      const connectedTime = new Date(connectionTimestampRef.current);
+      const now = new Date();
+      const diffMs = now.getTime() - connectedTime.getTime();
+      
+      // Format duration
+      const diffSecs = Math.floor(diffMs / 1000);
+      const minutes = Math.floor(diffSecs / 60);
+      const seconds = diffSecs % 60;
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      
+      let durationText: string;
+      if (hours > 0) {
+        durationText = `${hours}h ${mins}m ${seconds}s`;
+      } else if (mins > 0) {
+        durationText = `${mins}m ${seconds}s`;
+      } else {
+        durationText = `${seconds}s`;
+      }
+      
+      setDurationDisplay(durationText);
+    } catch (e) {
+      setDurationDisplay("Unknown");
+    }
+  }
+
+  // Check connection status once when component mounts
   useEffect(() => {
-    // Check if SSH service is already connected
-    if (sshService.isSSHConnected()) {
+    // Clean up function
+    const cleanup = () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+    
+    // Check if SSH is connected
+    const isSSHConnected = sshService.isSSHConnected();
+    console.log("[SSHForm] Initial connection check:", isSSHConnected);
+    setIsConnected(isSSHConnected);
+    
+    if (isSSHConnected) {
       // Get connection info from session storage
       const connectionInfoStr = sessionStorage.getItem('ssh_connection_info');
       if (connectionInfoStr) {
         try {
           const info = JSON.parse(connectionInfoStr);
-          setIsConnected(true);
           setConnectionInfo(info);
-          setConnectionTimestamp(info.timestamp);
-          setHost(info.host);
-          setUsername(info.username);
-          setPort(info.port.toString());
+          connectionTimestampRef.current = info.timestamp;
+          setHost(info.host || "");
+          setUsername(info.username || "");
+          setPort((info.port || 22).toString());
+          
+          // Start duration timer
+          updateDurationDisplay();
+          timerRef.current = setInterval(updateDurationDisplay, 1000);
         } catch (error) {
-          console.error("Failed to parse connection info from session storage:", error);
+          console.error("[SSHForm] Failed to parse connection info:", error);
         }
       } else {
-        setIsConnected(true);
-        setConnectionTimestamp(new Date().toISOString());
+        // Create minimal info
+        const now = new Date().toISOString();
+        connectionTimestampRef.current = now;
+        const minimalInfo = {
+          host: "Unknown",
+          username: "Unknown",
+          port: 22,
+          timestamp: now
+        };
+        setConnectionInfo(minimalInfo);
+        
+        // Start duration timer
+        updateDurationDisplay();
+        timerRef.current = setInterval(updateDurationDisplay, 1000);
       }
     }
     
-    // Set up event handlers for SSH connection
-    sshService.onConnected((message) => {
+    return cleanup;
+  }, []); // Empty dependency array means this runs once on mount
+
+  // Set up event handlers for SSH connection - separate from the initial check
+  useEffect(() => {
+    const handleConnected = (message: string) => {
+      console.log("[SSHForm] Connected event:", message);
       setIsConnecting(false);
       setIsConnected(true);
-      setConnectionTimestamp(new Date().toISOString());
+      
+      // Clear connection timeout if any
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      
+      // Set timestamp and start timer if not already running
+      const now = new Date().toISOString();
+      connectionTimestampRef.current = now;
+      updateDurationDisplay();
+      
+      if (!timerRef.current) {
+        timerRef.current = setInterval(updateDurationDisplay, 1000);
+      }
       
       toast({
         title: "Connection successful",
         description: message,
       });
-    });
-
-    sshService.onDisconnected((message) => {
+    };
+    
+    const handleDisconnected = (message: string) => {
+      console.log("[SSHForm] Disconnected event:", message);
       setIsConnecting(false);
       setIsConnected(false);
-      setConnectionTimestamp(null);
+      connectionTimestampRef.current = null;
+      
+      // Clear any timers
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
       
       toast({
         title: "Disconnected",
         description: message,
       });
-    });
-
-    sshService.onError((error) => {
+    };
+    
+    const handleError = (error: string) => {
+      console.log("[SSHForm] Error event:", error);
       setIsConnecting(false);
+      
+      // Clear connection timeout if any
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
       
       toast({
         title: "Connection failed",
         description: error,
         variant: "destructive",
       });
-    });
-  }, [toast]);
+    };
+
+    // Register event handlers
+    sshService.onConnected(handleConnected);
+    sshService.onDisconnected(handleDisconnected);
+    sshService.onError(handleError);
+
+    return () => {
+      // Cleanup
+      sshService.onConnected(null);
+      sshService.onDisconnected(null);
+      sshService.onError(null);
+    };
+  }, [toast]); // Only depend on toast which is stable
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -116,16 +233,18 @@ export function SSHForm() {
 
   const handleConnect = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Double check we're not already connected
+    if (sshService.isSSHConnected()) {
+      console.log("[SSHForm] Already connected, not attempting new connection");
+      return;
+    }
+    
     setIsConnecting(true);
 
-    // Validate connection parameters before attempting to connect
+    // Validate connection parameters
     if (!host || !username || !privateKey || !port) {
-      console.error('[SSHForm] Missing required connection parameters:', {
-        host,
-        username,
-        privateKey: privateKey ? 'Provided' : 'Missing',
-        port
-      });
+      console.error('[SSHForm] Missing required connection parameters');
       toast({
         title: "Connection failed",
         description: "Missing required connection parameters. Please fill in all fields.",
@@ -136,15 +255,26 @@ export function SSHForm() {
     }
 
     console.log('[SSHForm] Attempting to connect with parameters:', {
-      host,
-      username,
-      port,
+      host, username, port, 
       privateKey: privateKey ? 'Provided' : 'Missing',
       passphrase: usePassphrase ? 'Provided' : 'Not used'
     });
 
+    // Set connection timeout
+    timeoutRef.current = setTimeout(() => {
+      if (isConnecting) {
+        console.log("[SSHForm] Connection timeout after 10s");
+        setIsConnecting(false);
+        toast({
+          title: "Connection timeout",
+          description: "SSH connection attempt took too long. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }, 10000);
+
     try {
-      // Save connection info to session storage for terminal page to use
+      // Save connection info to session storage
       const connectionInfo = {
         host,
         username,
@@ -167,6 +297,13 @@ export function SSHForm() {
     } catch (error) {
       console.error('[SSHForm] Error during connection attempt:', error);
       setIsConnecting(false);
+      
+      // Clear timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      
       toast({
         title: "Connection failed",
         description: error instanceof Error ? error.message : "An unknown error occurred",
@@ -178,7 +315,13 @@ export function SSHForm() {
   const handleDisconnect = () => {
     sshService.disconnect();
     setIsConnected(false);
-    setConnectionTimestamp(null);
+    connectionTimestampRef.current = null;
+    
+    // Stop the duration timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
     
     // Clear connection info from session storage
     sessionStorage.removeItem('ssh_persistent_id');
@@ -202,37 +345,9 @@ export function SSHForm() {
       return "Unknown";
     }
   }
-  
-  // Calculate connected duration
-  const getConnectedDuration = () => {
-    if (!connectionTimestamp) return "Unknown";
-    
-    try {
-      const connectedTime = new Date(connectionTimestamp);
-      const now = new Date();
-      const diffMs = now.getTime() - connectedTime.getTime();
-      
-      // Format duration
-      const diffSecs = Math.floor(diffMs / 1000);
-      const minutes = Math.floor(diffSecs / 60);
-      const seconds = diffSecs % 60;
-      const hours = Math.floor(minutes / 60);
-      const mins = minutes % 60;
-      
-      if (hours > 0) {
-        return `${hours}h ${mins}m ${seconds}s`;
-      } else if (mins > 0) {
-        return `${mins}m ${seconds}s`;
-      } else {
-        return `${seconds}s`;
-      }
-    } catch (e) {
-      return "Unknown";
-    }
-  }
-  
+
   // Connection Status Card
-  if (isConnected && connectionInfo) {
+  if (isConnected && (connectionInfo || sshService.isSSHConnected())) {
     return (
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -264,7 +379,7 @@ export function SSHForm() {
                   <Server className="h-4 w-4 text-[#6be5fd]" />
                   <span className="text-[#d8dee9]/70">Host:</span>
                 </div>
-                <span className="font-mono text-[#d8dee9]">{connectionInfo.host}</span>
+                <span className="font-mono text-[#d8dee9]">{connectionInfo?.host || host || "Unknown"}</span>
               </div>
               <Separator className="bg-zinc-800/30" />
               <div className="flex justify-between items-center">
@@ -272,7 +387,7 @@ export function SSHForm() {
                   <Hash className="h-4 w-4 text-[#6be5fd]" />
                   <span className="text-[#d8dee9]/70">Port:</span>
                 </div>
-                <span className="font-mono text-[#d8dee9]">{connectionInfo.port}</span>
+                <span className="font-mono text-[#d8dee9]">{connectionInfo?.port || port || "22"}</span>
               </div>
               <Separator className="bg-zinc-800/30" />
               <div className="flex justify-between items-center">
@@ -280,7 +395,7 @@ export function SSHForm() {
                   <User className="h-4 w-4 text-[#c792ea]" />
                   <span className="text-[#d8dee9]/70">Username:</span>
                 </div>
-                <span className="font-mono text-[#d8dee9]">{connectionInfo.username}</span>
+                <span className="font-mono text-[#d8dee9]">{connectionInfo?.username || username || "Unknown"}</span>
               </div>
               <Separator className="bg-zinc-800/30" />
               <div className="flex justify-between items-center">
@@ -288,7 +403,7 @@ export function SSHForm() {
                   <Clock className="h-4 w-4 text-[#fbc3a7]" />
                   <span className="text-[#d8dee9]/70">Connected at:</span>
                 </div>
-                <span className="font-mono text-[#d8dee9]">{formatDate(connectionTimestamp || connectionInfo.timestamp)}</span>
+                <span className="font-mono text-[#d8dee9]">{formatDate(connectionTimestampRef.current || connectionInfo?.timestamp || new Date().toISOString())}</span>
               </div>
               <Separator className="bg-zinc-800/30" />
               <div className="flex justify-between items-center">
@@ -296,7 +411,7 @@ export function SSHForm() {
                   <RefreshCcw className="h-4 w-4 text-[#fbc3a7]" />
                   <span className="text-[#d8dee9]/70">Duration:</span>
                 </div>
-                <span className="font-mono text-[#d8dee9]">{getConnectedDuration()}</span>
+                <span className="font-mono text-[#d8dee9]">{durationDisplay}</span>
               </div>
               <Separator className="bg-zinc-800/30" />
               <div className="flex justify-between items-center">
@@ -330,8 +445,10 @@ export function SSHForm() {
     );
   }
 
+  // Login Form
   return (
     <form onSubmit={handleConnect} className="space-y-3">
+      {/* Form content - unchanged */}
       <div className="space-y-2">
         <Label htmlFor="host" className="text-[#d8dee9]">
           Host
@@ -392,8 +509,7 @@ export function SSHForm() {
             ref={fileInputRef}
             onChange={handleFileUpload}
             className="hidden"
-            // accept=".pem,.key,.pub,.ppk,.p12,.crt,.csr,.der,.txt,text/plain,application/x-pem-file,application/x-ssh-key,application/x-pkcs12"
-            />
+          />
           <Button
             type="button"
             onClick={handleSelectFile}

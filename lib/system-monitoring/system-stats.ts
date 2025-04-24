@@ -23,6 +23,9 @@ class SystemMonitoringService {
   private listeners: Set<(data: SystemStats) => void> = new Set();
   private pollingInterval: NodeJS.Timeout | null = null;
   private isPolling = false;
+  private lastPollingStartTime = 0;
+  private minimumPollingInterval = 5000; // 5 seconds minimum between polls
+  private pollingDelay = 15000; // 15 seconds between regular polls (increased from 5s)
   
   // Command to get CPU usage (top for 1 cycle in batch mode, with CPU summary)
   private CPU_COMMAND = "top -bn1 | grep '%Cpu' | awk '{print $2}'";
@@ -32,6 +35,13 @@ class SystemMonitoringService {
   
   // Command to get process list with CPU and memory usage
   private PROCESS_COMMAND = "ps aux --sort=-%cpu | head -20";
+  
+  // Batch commands for efficiency
+  private BATCH_COMMANDS = [
+    "top -bn1 | grep '%Cpu' | awk '{print $2}'",
+    "free | grep Mem | awk '{print ($3/$2) * 100.0}'",
+    "ps aux --sort=-%cpu | head -20"
+  ];
   
   constructor() {
     // Initialize with empty data sets
@@ -73,7 +83,11 @@ class SystemMonitoringService {
     const stats = { ...this.statsCache };
     
     this.listeners.forEach(listener => {
-      listener(stats);
+      try {
+        listener(stats);
+      } catch (err) {
+        console.error('Error notifying listener:', err);
+      }
     });
   }
   
@@ -81,12 +95,14 @@ class SystemMonitoringService {
     if (this.isPolling) return;
     
     this.isPolling = true;
+    
+    // Initial poll immediately
     this.pollSystemStats();
     
-    // Poll every 5 seconds
+    // Set up regular polling interval with a longer delay (15s instead of 5s)
     this.pollingInterval = setInterval(() => {
       this.pollSystemStats();
-    }, 5000);
+    }, this.pollingDelay);
   }
   
   private stopPolling() {
@@ -106,10 +122,18 @@ class SystemMonitoringService {
       return;
     }
     
+    // Implement rate limiting to prevent too frequent polls
+    const now = Date.now();
+    if (now - this.lastPollingStartTime < this.minimumPollingInterval) {
+      console.log(`Skipping poll: too soon (${now - this.lastPollingStartTime}ms since last poll)`);
+      return;
+    }
+    
+    this.lastPollingStartTime = now;
+    
     try {
-      await this.fetchCpuStats();
-      await this.fetchMemoryStats();
-      await this.fetchProcessList();
+      // Use batch command execution for efficiency
+      await this.fetchStatsInBatch();
       
       this.notifyListeners();
     } catch (error) {
@@ -117,9 +141,111 @@ class SystemMonitoringService {
     }
   }
   
+  private async fetchStatsInBatch() {
+    try {
+      // Queue commands in the batch system with low priority (non-interactive data)
+      const results = await sshService.executeCommandBatch(this.BATCH_COMMANDS, 'low');
+      
+      // Process CPU data
+      const cpuResponse = results.get(this.CPU_COMMAND);
+      if (cpuResponse) {
+        const cpuUsage = parseFloat(cpuResponse.trim());
+        
+        if (!isNaN(cpuUsage)) {
+          const currentTime = new Date().toLocaleTimeString();
+          
+          // Add new data point
+          this.statsCache.cpu.push({
+            time: currentTime,
+            value: cpuUsage
+          });
+          
+          // Keep only the last 20 data points
+          if (this.statsCache.cpu.length > 20) {
+            this.statsCache.cpu.shift();
+          }
+        }
+      }
+      
+      // Process Memory data
+      const memoryResponse = results.get(this.MEMORY_COMMAND);
+      if (memoryResponse) {
+        const memoryUsage = parseFloat(memoryResponse.trim());
+        
+        if (!isNaN(memoryUsage)) {
+          const currentTime = new Date().toLocaleTimeString();
+          
+          // Add new data point
+          this.statsCache.memory.push({
+            time: currentTime,
+            value: memoryUsage
+          });
+          
+          // Keep only the last 20 data points
+          if (this.statsCache.memory.length > 20) {
+            this.statsCache.memory.shift();
+          }
+        }
+      }
+      
+      // Process Process list
+      const processResponse = results.get(this.PROCESS_COMMAND);
+      if (processResponse) {
+        const lines = processResponse.split('\n').filter(line => line.trim() !== '');
+        
+        // Skip the header line
+        const processes: Process[] = [];
+        
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+          
+          // Parse ps aux output format
+          const parts = line.split(/\s+/);
+          
+          if (parts.length >= 11) {
+            const user = parts[0];
+            const pid = parseInt(parts[1]);
+            const cpu = parseFloat(parts[2]);
+            const memory = parseFloat(parts[3]);
+            // Join remaining parts as the command
+            const command = parts.slice(10).join(' ');
+            
+            if (!isNaN(pid) && !isNaN(cpu) && !isNaN(memory)) {
+              processes.push({
+                pid,
+                user,
+                command,
+                cpu,
+                memory,
+                status: 'running'
+              });
+            }
+          }
+        }
+        
+        // Update the processes list
+        this.statsCache.processes = processes;
+      }
+    } catch (error) {
+      console.error("Error fetching stats in batch:", error);
+      
+      // If batch fails, we could try individual fetches as fallback
+      // but for now we'll just throw to be handled by caller
+      throw error;
+    }
+  }
+  
+  // Legacy methods using individual commands - kept for backward compatibility
   private async fetchCpuStats() {
     try {
-      const response = await sshService.executeCommand(this.CPU_COMMAND);
+      // Use low priority for monitoring commands
+      const response = await sshService.executeCommand(this.CPU_COMMAND, { 
+        priority: 'low',
+        retry: 1,
+        retryDelay: 1000
+      });
+      
       const cpuUsage = parseFloat(response.trim());
       
       if (!isNaN(cpuUsage)) {
@@ -143,7 +269,13 @@ class SystemMonitoringService {
   
   private async fetchMemoryStats() {
     try {
-      const response = await sshService.executeCommand(this.MEMORY_COMMAND);
+      // Use low priority for monitoring commands
+      const response = await sshService.executeCommand(this.MEMORY_COMMAND, { 
+        priority: 'low',
+        retry: 1,
+        retryDelay: 1000
+      });
+      
       const memoryUsage = parseFloat(response.trim());
       
       if (!isNaN(memoryUsage)) {
@@ -167,7 +299,13 @@ class SystemMonitoringService {
   
   private async fetchProcessList() {
     try {
-      const response = await sshService.executeCommand(this.PROCESS_COMMAND);
+      // Use low priority for monitoring commands
+      const response = await sshService.executeCommand(this.PROCESS_COMMAND, { 
+        priority: 'low',
+        retry: 1,
+        retryDelay: 1000
+      });
+      
       const lines = response.split('\n').filter(line => line.trim() !== '');
       
       // Skip the header line
@@ -213,10 +351,26 @@ class SystemMonitoringService {
     return { ...this.statsCache };
   }
   
-  // Force an immediate refresh
+  // Force an immediate refresh with rate limiting
   public async refreshStats(): Promise<SystemStats> {
-    await this.pollSystemStats();
+    const now = Date.now();
+    // Only allow refresh if enough time has passed since last poll
+    if (now - this.lastPollingStartTime >= this.minimumPollingInterval) {
+      await this.pollSystemStats();
+    } else {
+      console.log(`Refresh throttled: ${now - this.lastPollingStartTime}ms since last poll`);
+    }
     return { ...this.statsCache };
+  }
+  
+  // Check if we're currently polling
+  public isActive(): boolean {
+    return this.isPolling;
+  }
+  
+  // Get number of subscribers
+  public getSubscriberCount(): number {
+    return this.listeners.size;
   }
 }
 
