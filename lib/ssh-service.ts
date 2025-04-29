@@ -310,7 +310,7 @@ class SSHService {
       // Connect to the WebSocket server with environment-specific URL
       const socketUrl =
         process.env.NODE_ENV === "production"
-          ? "https://your-production-domain.com"
+          ? process.env.SSH_SERVER_URL
           : "http://localhost:3001";
 
       console.log(
