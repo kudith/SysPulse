@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from "@/components/auth-provider"
 import { Header } from "@/components/header"
 import { Providers } from "./providers"
+import { Footer } from "./components/footer"
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -31,9 +32,10 @@ export default function RootLayout({
           <AuthProvider>
             <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
               <Header />
-              <main className="pt-16">
+              <main className="min-h-screen">
                 {children}
               </main>
+              <Footer />
               <Toaster />
             </ThemeProvider>
           </AuthProvider>

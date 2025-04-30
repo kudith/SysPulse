@@ -1,75 +1,134 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, Terminal, Gauge, Shield, Zap, Code, Server } from 'lucide-react'
+import { ArrowRight, Terminal, Gauge, Shield, Zap, Code, Server, ChevronRight } from 'lucide-react'
+import { AnimatedTerminal } from './components/animated-terminal'
+import { WaveAnimation } from './components/wave-animation'
+import { AnimatedText } from './components/animated-text'
+import { useEffect, useState } from 'react'
 
 export default function Home() {
+  const [stars, setStars] = useState<Array<{top: string, left: string, opacity: number, animation: string}>>([]);
+  const [gridCells, setGridCells] = useState<Array<{opacity: number, animation: string}>>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+  
+  useEffect(() => {
+    // Generate random stars for the background
+    const newStars = Array.from({ length: 20 }).map(() => ({
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+      opacity: Math.random() * 0.7,
+      animation: `twinkle ${3 + Math.random() * 7}s infinite ${Math.random() * 5}s`
+    }));
+    setStars(newStars);
+    
+    // Generate random grid cells for the CTA section
+    const newGridCells = Array.from({ length: 12 * 6 }).map(() => ({
+      opacity: Math.random() * 0.5 + 0.1,
+      animation: `pulse ${2 + Math.random() * 4}s infinite ${Math.random() * 2}s`
+    }));
+    setGridCells(newGridCells);
+    
+    // Set loaded state
+    setIsLoaded(true);
+  }, []);
+
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative pt-36 pb-20 overflow-hidden">
+      <section className="relative pt-24 lg:pt-32 pb-20 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-[#121212] z-0"></div>
+          <div className="absolute inset-0 bg-[#090909] z-0"></div>
           <div className="absolute inset-0 bg-gradient-to-br from-[#121212] via-[#161616] to-[#121212] z-0"></div>
           <div className="absolute top-0 left-0 right-0 h-[500px] bg-gradient-to-b from-[#3fdaa4]/10 via-transparent to-transparent blur-3xl opacity-20 z-0"></div>
-          <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-[#6be5fd]/5 blur-3xl opacity-20 z-0"></div>
-          <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-gradient-to-tl from-[#3fdaa4]/10 via-transparent to-transparent blur-3xl opacity-20 z-0"></div>
+          <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 w-[1200px] h-[1200px] rounded-full bg-[#6be5fd]/5 blur-3xl opacity-20 z-0"></div>
+          <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-gradient-to-tl from-[#3fdaa4]/10 via-transparent to-transparent blur-3xl opacity-20 z-0"></div>
+          
+          {/* Animated particles */}
+          <div className="stars absolute inset-0 z-0">
+            {stars.map((star, i) => (
+              <div 
+                key={i} 
+                className="star absolute w-1 h-1 rounded-full bg-white" 
+                style={{
+                  top: star.top,
+                  left: star.left,
+                  opacity: star.opacity,
+                  animation: star.animation
+                }}
+              />
+            ))}
+          </div>
         </div>
 
         <div className="container relative mx-auto px-4 z-10">
           <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#1e1e1e] border border-[#3fdaa4]/20 mb-6">
-              <span className="text-[#3fdaa4] text-sm font-medium">System Monitoring Reimagined</span>
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#1e1e1e] border border-[#3fdaa4]/20 mb-6 backdrop-blur-lg">
+              <span className="text-[#3fdaa4] text-sm font-medium tracking-wide">System Monitoring Reimagined</span>
             </div>
             
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-[#d8dee9] via-[#ffffff] to-[#d8dee9]">
-              Modern System Monitoring & Control
-            </h1>
+            <div className="mb-6">
+              {isLoaded ? (
+                <AnimatedText 
+                  text="Modern System Monitoring & Control"
+                  className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#d8dee9] via-[#ffffff] to-[#d8dee9]"
+                />
+              ) : (
+                <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#d8dee9] via-[#ffffff] to-[#d8dee9]">
+                  Modern System Monitoring & Control
+                </h1>
+              )}
+            </div>
             
-            <p className="text-[#a8aebb] text-lg md:text-xl max-w-3xl mb-10">
+            <p className="text-[#a8aebb] text-lg md:text-xl max-w-3xl mb-10" style={{ 
+              opacity: isLoaded ? 0 : 1,
+              animation: isLoaded ? 'fadeIn 0.8s ease-out 0.8s forwards' : 'none'
+            }}>
               SysPulse provides real-time monitoring, intuitive terminal access, and comprehensive analytics 
               for all your systems in one secure dashboard.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <Link href="/register" className="w-full sm:w-auto">
-                <button className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-[#6be5fd] to-[#3fdaa4] text-[#161616] font-medium shadow-lg shadow-[#3fdaa4]/20 hover:shadow-xl hover:shadow-[#3fdaa4]/30 transition-all duration-300 flex items-center justify-center gap-2 group">
-                  Get Started
-                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto" style={{
+              opacity: isLoaded ? 0 : 1,
+              animation: isLoaded ? 'fadeIn 0.8s ease-out 1.2s forwards' : 'none'
+            }}>
+              <Link href="/register" className="w-full sm:w-auto group">
+                <button className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-[#6be5fd] to-[#3fdaa4] text-[#161616] font-medium shadow-lg shadow-[#3fdaa4]/20 hover:shadow-xl hover:shadow-[#3fdaa4]/30 transition-all duration-300 flex items-center justify-center gap-2 relative overflow-hidden">
+                  <span className="relative z-10">Get Started</span>
+                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 relative z-10" />
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-[#6be5fd] via-white to-[#3fdaa4] blur-md"></div>
                 </button>
               </Link>
-              <Link href="/docs" className="w-full sm:w-auto">
-                <button className="w-full px-6 py-3 rounded-lg border border-[#6be5fd]/30 bg-[#161616]/50 text-[#d8dee9] hover:bg-[#1e1e1e] hover:border-[#6be5fd]/50 transition-all duration-300">
-                  View Documentation
+              <Link href="/docs" className="w-full sm:w-auto group">
+                <button className="w-full px-6 py-3 rounded-lg border border-[#6be5fd]/30 bg-[#161616]/50 text-[#d8dee9] hover:bg-[#1e1e1e] hover:border-[#6be5fd]/50 transition-all duration-300 relative overflow-hidden flex items-center justify-center">
+                  <span className="relative z-10">View Documentation</span>
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[#6be5fd]/5"></div>
                 </button>
               </Link>
             </div>
             
-            <div className="mt-16 max-w-5xl w-full">
-              <div className="relative rounded-xl overflow-hidden border border-[#3fdaa4]/20 shadow-2xl shadow-[#3fdaa4]/5">
-                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#6be5fd]/50 to-transparent"></div>
-                <div className="bg-[#161616] rounded-xl overflow-hidden">
-                  <div className="h-6 bg-[#1e1e1e] flex items-center px-4">
-                    <div className="flex space-x-2">
-                      <div className="w-3 h-3 rounded-full bg-[#ff5f57]"></div>
-                      <div className="w-3 h-3 rounded-full bg-[#febc2e]"></div>
-                      <div className="w-3 h-3 rounded-full bg-[#28c840]"></div>
-                    </div>
-                  </div>
-                  <div className="p-4 h-[300px] overflow-hidden bg-[#121212] border-t border-[#3fdaa4]/10 flex items-center justify-center text-[#6be5fd]">
-                    <Terminal size={120} className="opacity-20" />
-                  </div>
-                </div>
-              </div>
+            <div className="mt-20 max-w-5xl w-full" style={{
+              opacity: isLoaded ? 0 : 1,
+              animation: isLoaded ? 'slideUp 0.8s ease-out 1.5s forwards' : 'none'
+            }}>
+              <AnimatedTerminal />
             </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-[#161616]">
-        <div className="container mx-auto px-4">
+      <section className="py-20 bg-[#121212] relative overflow-hidden">
+        <WaveAnimation />
+        
+        <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#d8dee9] mb-4">Powerful Features</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-[#d8dee9] mb-4">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#6be5fd] to-[#3fdaa4]">
+                Powerful Features
+              </span>
+            </h2>
             <p className="text-[#a8aebb] max-w-2xl mx-auto">
               SysPulse combines best-in-class monitoring with intuitive controls 
               to keep your systems running smoothly.
@@ -78,99 +137,139 @@ export default function Home() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Feature 1 */}
-            <div className="bg-[#1e1e1e] rounded-xl p-6 border border-[#3fdaa4]/10 hover:border-[#3fdaa4]/30 transition-all duration-300 group">
-              <div className="w-12 h-12 rounded-lg bg-[#3fdaa4]/10 flex items-center justify-center mb-5 group-hover:bg-[#3fdaa4]/20 transition-colors duration-300">
-                <Gauge className="h-6 w-6 text-[#3fdaa4]" />
+            <div className="bg-gradient-to-b from-[#1a1a1a] to-[#121212] rounded-xl p-7 border border-[#3fdaa4]/10 hover:border-[#3fdaa4]/30 transition-all duration-500 group hover:translate-y-[-5px]">
+              <div className="w-14 h-14 rounded-2xl bg-[#3fdaa4]/10 flex items-center justify-center mb-5 group-hover:bg-[#3fdaa4]/20 transition-colors duration-300 group-hover:scale-110 transform">
+                <Gauge className="h-7 w-7 text-[#3fdaa4]" />
               </div>
-              <h3 className="text-xl font-semibold text-[#d8dee9] mb-3">Real-time Monitoring</h3>
-              <p className="text-[#a8aebb]">
+              <h3 className="text-xl font-semibold text-[#d8dee9] mb-3 group-hover:text-[#3fdaa4] transition-colors duration-300">Real-time Monitoring</h3>
+              <p className="text-[#a8aebb] group-hover:text-[#bec6d3] transition-colors duration-300">
                 Track CPU, memory, disk, and network performance with millisecond precision and customizable alerts.
               </p>
+              <div className="mt-4 flex items-center text-[#3fdaa4]/70 group-hover:text-[#3fdaa4] transition-colors duration-300">
+                <span className="text-sm font-medium">Learn more</span>
+                <ChevronRight className="h-4 w-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-300" />
+              </div>
             </div>
             
             {/* Feature 2 */}
-            <div className="bg-[#1e1e1e] rounded-xl p-6 border border-[#6be5fd]/10 hover:border-[#6be5fd]/30 transition-all duration-300 group">
-              <div className="w-12 h-12 rounded-lg bg-[#6be5fd]/10 flex items-center justify-center mb-5 group-hover:bg-[#6be5fd]/20 transition-colors duration-300">
-                <Terminal className="h-6 w-6 text-[#6be5fd]" />
+            <div className="bg-gradient-to-b from-[#1a1a1a] to-[#121212] rounded-xl p-7 border border-[#6be5fd]/10 hover:border-[#6be5fd]/30 transition-all duration-500 group hover:translate-y-[-5px]">
+              <div className="w-14 h-14 rounded-2xl bg-[#6be5fd]/10 flex items-center justify-center mb-5 group-hover:bg-[#6be5fd]/20 transition-colors duration-300 group-hover:scale-110 transform">
+                <Terminal className="h-7 w-7 text-[#6be5fd]" />
               </div>
-              <h3 className="text-xl font-semibold text-[#d8dee9] mb-3">Interactive Terminal</h3>
-              <p className="text-[#a8aebb]">
+              <h3 className="text-xl font-semibold text-[#d8dee9] mb-3 group-hover:text-[#6be5fd] transition-colors duration-300">Interactive Terminal</h3>
+              <p className="text-[#a8aebb] group-hover:text-[#bec6d3] transition-colors duration-300">
                 Access and control your systems through our secure web-based terminal with command history and autocomplete.
               </p>
+              <div className="mt-4 flex items-center text-[#6be5fd]/70 group-hover:text-[#6be5fd] transition-colors duration-300">
+                <span className="text-sm font-medium">Learn more</span>
+                <ChevronRight className="h-4 w-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-300" />
+              </div>
             </div>
             
             {/* Feature 3 */}
-            <div className="bg-[#1e1e1e] rounded-xl p-6 border border-[#3fdaa4]/10 hover:border-[#3fdaa4]/30 transition-all duration-300 group">
-              <div className="w-12 h-12 rounded-lg bg-[#3fdaa4]/10 flex items-center justify-center mb-5 group-hover:bg-[#3fdaa4]/20 transition-colors duration-300">
-                <Shield className="h-6 w-6 text-[#3fdaa4]" />
+            <div className="bg-gradient-to-b from-[#1a1a1a] to-[#121212] rounded-xl p-7 border border-[#3fdaa4]/10 hover:border-[#3fdaa4]/30 transition-all duration-500 group hover:translate-y-[-5px]">
+              <div className="w-14 h-14 rounded-2xl bg-[#3fdaa4]/10 flex items-center justify-center mb-5 group-hover:bg-[#3fdaa4]/20 transition-colors duration-300 group-hover:scale-110 transform">
+                <Shield className="h-7 w-7 text-[#3fdaa4]" />
               </div>
-              <h3 className="text-xl font-semibold text-[#d8dee9] mb-3">Enterprise Security</h3>
-              <p className="text-[#a8aebb]">
+              <h3 className="text-xl font-semibold text-[#d8dee9] mb-3 group-hover:text-[#3fdaa4] transition-colors duration-300">Enterprise Security</h3>
+              <p className="text-[#a8aebb] group-hover:text-[#bec6d3] transition-colors duration-300">
                 End-to-end encryption, role-based access control, and detailed audit logs for maximum security.
               </p>
+              <div className="mt-4 flex items-center text-[#3fdaa4]/70 group-hover:text-[#3fdaa4] transition-colors duration-300">
+                <span className="text-sm font-medium">Learn more</span>
+                <ChevronRight className="h-4 w-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-300" />
+              </div>
             </div>
             
             {/* Feature 4 */}
-            <div className="bg-[#1e1e1e] rounded-xl p-6 border border-[#6be5fd]/10 hover:border-[#6be5fd]/30 transition-all duration-300 group">
-              <div className="w-12 h-12 rounded-lg bg-[#6be5fd]/10 flex items-center justify-center mb-5 group-hover:bg-[#6be5fd]/20 transition-colors duration-300">
-                <Zap className="h-6 w-6 text-[#6be5fd]" />
+            <div className="bg-gradient-to-b from-[#1a1a1a] to-[#121212] rounded-xl p-7 border border-[#6be5fd]/10 hover:border-[#6be5fd]/30 transition-all duration-500 group hover:translate-y-[-5px]">
+              <div className="w-14 h-14 rounded-2xl bg-[#6be5fd]/10 flex items-center justify-center mb-5 group-hover:bg-[#6be5fd]/20 transition-colors duration-300 group-hover:scale-110 transform">
+                <Zap className="h-7 w-7 text-[#6be5fd]" />
               </div>
-              <h3 className="text-xl font-semibold text-[#d8dee9] mb-3">Instant Alerts</h3>
-              <p className="text-[#a8aebb]">
+              <h3 className="text-xl font-semibold text-[#d8dee9] mb-3 group-hover:text-[#6be5fd] transition-colors duration-300">Instant Alerts</h3>
+              <p className="text-[#a8aebb] group-hover:text-[#bec6d3] transition-colors duration-300">
                 Configure smart notifications via email, SMS, or webhook when systems need attention.
               </p>
+              <div className="mt-4 flex items-center text-[#6be5fd]/70 group-hover:text-[#6be5fd] transition-colors duration-300">
+                <span className="text-sm font-medium">Learn more</span>
+                <ChevronRight className="h-4 w-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-300" />
+              </div>
             </div>
             
             {/* Feature 5 */}
-            <div className="bg-[#1e1e1e] rounded-xl p-6 border border-[#3fdaa4]/10 hover:border-[#3fdaa4]/30 transition-all duration-300 group">
-              <div className="w-12 h-12 rounded-lg bg-[#3fdaa4]/10 flex items-center justify-center mb-5 group-hover:bg-[#3fdaa4]/20 transition-colors duration-300">
-                <Code className="h-6 w-6 text-[#3fdaa4]" />
+            <div className="bg-gradient-to-b from-[#1a1a1a] to-[#121212] rounded-xl p-7 border border-[#3fdaa4]/10 hover:border-[#3fdaa4]/30 transition-all duration-500 group hover:translate-y-[-5px]">
+              <div className="w-14 h-14 rounded-2xl bg-[#3fdaa4]/10 flex items-center justify-center mb-5 group-hover:bg-[#3fdaa4]/20 transition-colors duration-300 group-hover:scale-110 transform">
+                <Code className="h-7 w-7 text-[#3fdaa4]" />
               </div>
-              <h3 className="text-xl font-semibold text-[#d8dee9] mb-3">API Integration</h3>
-              <p className="text-[#a8aebb]">
+              <h3 className="text-xl font-semibold text-[#d8dee9] mb-3 group-hover:text-[#3fdaa4] transition-colors duration-300">API Integration</h3>
+              <p className="text-[#a8aebb] group-hover:text-[#bec6d3] transition-colors duration-300">
                 Comprehensive API for seamless integration with your existing tools and workflows.
               </p>
+              <div className="mt-4 flex items-center text-[#3fdaa4]/70 group-hover:text-[#3fdaa4] transition-colors duration-300">
+                <span className="text-sm font-medium">Learn more</span>
+                <ChevronRight className="h-4 w-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-300" />
+              </div>
             </div>
             
             {/* Feature 6 */}
-            <div className="bg-[#1e1e1e] rounded-xl p-6 border border-[#6be5fd]/10 hover:border-[#6be5fd]/30 transition-all duration-300 group">
-              <div className="w-12 h-12 rounded-lg bg-[#6be5fd]/10 flex items-center justify-center mb-5 group-hover:bg-[#6be5fd]/20 transition-colors duration-300">
-                <Server className="h-6 w-6 text-[#6be5fd]" />
+            <div className="bg-gradient-to-b from-[#1a1a1a] to-[#121212] rounded-xl p-7 border border-[#6be5fd]/10 hover:border-[#6be5fd]/30 transition-all duration-500 group hover:translate-y-[-5px]">
+              <div className="w-14 h-14 rounded-2xl bg-[#6be5fd]/10 flex items-center justify-center mb-5 group-hover:bg-[#6be5fd]/20 transition-colors duration-300 group-hover:scale-110 transform">
+                <Server className="h-7 w-7 text-[#6be5fd]" />
               </div>
-              <h3 className="text-xl font-semibold text-[#d8dee9] mb-3">Multi-server Support</h3>
-              <p className="text-[#a8aebb]">
+              <h3 className="text-xl font-semibold text-[#d8dee9] mb-3 group-hover:text-[#6be5fd] transition-colors duration-300">Multi-server Support</h3>
+              <p className="text-[#a8aebb] group-hover:text-[#bec6d3] transition-colors duration-300">
                 Monitor and manage hundreds of servers from a single unified dashboard.
               </p>
+              <div className="mt-4 flex items-center text-[#6be5fd]/70 group-hover:text-[#6be5fd] transition-colors duration-300">
+                <span className="text-sm font-medium">Learn more</span>
+                <ChevronRight className="h-4 w-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-300" />
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-[#121212] relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute right-0 bottom-0 w-1/2 h-1/2 bg-gradient-to-tl from-[#3fdaa4]/5 via-transparent to-transparent blur-3xl opacity-30 z-0"></div>
-          <div className="absolute left-0 top-0 w-1/2 h-1/2 bg-gradient-to-br from-[#6be5fd]/5 via-transparent to-transparent blur-3xl opacity-30 z-0"></div>
+      <section className="py-20 bg-[#0a0a0a] relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none z-0">
+          <div className="absolute right-0 bottom-0 w-1/2 h-1/2 bg-gradient-to-tl from-[#3fdaa4]/5 via-transparent to-transparent blur-3xl opacity-30"></div>
+          <div className="absolute left-0 top-0 w-1/2 h-1/2 bg-gradient-to-br from-[#6be5fd]/5 via-transparent to-transparent blur-3xl opacity-30"></div>
+          
+          {/* Dynamic grid pattern */}
+          <div className="absolute inset-0 grid grid-cols-12 grid-rows-6 gap-0.5 opacity-10">
+            {gridCells.map((cell, i) => (
+              <div 
+                key={i} 
+                className="bg-white" 
+                style={{
+                  opacity: cell.opacity,
+                  animation: cell.animation
+                }}
+              />
+            ))}
+          </div>
         </div>
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#d8dee9] mb-6">
-              Ready to take control of your systems?
+            <h2 className="text-3xl md:text-5xl font-bold text-[#d8dee9] mb-6 leading-tight">
+              Ready to <span className="text-[#6be5fd]">take control</span> of your systems?
             </h2>
             <p className="text-[#a8aebb] text-lg mb-10 max-w-2xl mx-auto">
               Join thousands of system administrators who trust SysPulse 
               for reliable monitoring and control.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link href="/register" className="w-full sm:w-auto">
-                <button className="w-full px-8 py-4 rounded-lg bg-gradient-to-r from-[#6be5fd] to-[#3fdaa4] text-[#161616] font-medium shadow-lg shadow-[#3fdaa4]/20 hover:shadow-xl hover:shadow-[#3fdaa4]/30 transition-all duration-300">
-                  Get Started For Free
+              <Link href="/register" className="w-full sm:w-auto group">
+                <button className="w-full px-8 py-4 rounded-lg bg-gradient-to-r from-[#6be5fd] to-[#3fdaa4] text-[#161616] font-medium shadow-lg shadow-[#3fdaa4]/20 hover:shadow-xl hover:shadow-[#3fdaa4]/30 transition-all duration-300 relative overflow-hidden">
+                  <span className="relative z-10">Get Started For Free</span>
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-[#6be5fd] via-white to-[#3fdaa4] blur-md"></div>
                 </button>
               </Link>
-              <Link href="/docs" className="w-full sm:w-auto">
-                <button className="w-full px-8 py-4 rounded-lg border border-[#6be5fd]/30 bg-[#161616]/50 text-[#d8dee9] hover:bg-[#1e1e1e] hover:border-[#6be5fd]/50 transition-all duration-300">
-                  Learn More
+              <Link href="/docs" className="w-full sm:w-auto group">
+                <button className="w-full px-8 py-4 rounded-lg border border-[#6be5fd]/30 bg-[#161616]/50 text-[#d8dee9] hover:bg-[#1e1e1e] hover:border-[#6be5fd]/50 transition-all duration-300 relative overflow-hidden">
+                  <span className="relative z-10">Learn More</span>
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[#6be5fd]/5"></div>
                 </button>
               </Link>
             </div>
@@ -178,33 +277,27 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-[#161616] py-10 border-t border-[#3fdaa4]/10">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center mb-6 md:mb-0">
-              <Terminal className="h-5 w-5 text-[#6be5fd] mr-2" />
-              <span className="text-[#d8dee9] font-bold text-lg">
-                Sys<span className="text-[#6be5fd]">Pulse</span>
-              </span>
-            </div>
-            <div className="flex space-x-6">
-              <Link href="/docs" className="text-[#a8aebb] hover:text-[#d8dee9] transition-colors">
-                Documentation
-              </Link>
-              <Link href="/login" className="text-[#a8aebb] hover:text-[#d8dee9] transition-colors">
-                Login
-              </Link>
-              <Link href="/register" className="text-[#a8aebb] hover:text-[#d8dee9] transition-colors">
-                Register
-              </Link>
-            </div>
-            <div className="mt-6 md:mt-0 text-[#a8aebb] text-sm">
-              © {new Date().getFullYear()} SysPulse. All rights reserved.
-            </div>
-          </div>
-        </div>
-      </footer>
+      <style jsx>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 0.1; }
+          50% { opacity: 0.3; }
+        }
+        
+        @keyframes twinkle {
+          0%, 100% { opacity: 0.1; transform: scale(0.8); }
+          50% { opacity: 0.8; transform: scale(1.2); }
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   )
 }
