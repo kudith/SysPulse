@@ -281,7 +281,7 @@ class SSHService {
     if (typeof window !== "undefined") {
       window.addEventListener("beforeunload", () => {
         // Clean up resources when the page is unloaded
-        this.cleanup();
+          this.cleanup();
       });
       
       // Register visibility change handler to reconnect when tab becomes visible

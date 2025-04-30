@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { ArrowRight, Terminal, Gauge, Shield, Zap, Code, Server, ChevronRight } from 'lucide-react'
 import { AnimatedTerminal } from './components/animated-terminal'
 import { WaveAnimation } from './components/wave-animation'
-import { AnimatedText } from './components/animated-text'
 import { useEffect, useState } from 'react'
 
 export default function Home() {
@@ -69,16 +68,9 @@ export default function Home() {
             </div>
             
             <div className="mb-6">
-              {isLoaded ? (
-                <AnimatedText 
-                  text="Modern System Monitoring & Control"
-                  className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#d8dee9] via-[#ffffff] to-[#d8dee9]"
-                />
-              ) : (
-                <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#d8dee9] via-[#ffffff] to-[#d8dee9]">
-                  Modern System Monitoring & Control
-                </h1>
-              )}
+              <h1 className="text-4xl max-w-3xl md:text-6xl font-bold uppercase bg-clip-text text-transparent bg-gradient-to-r from-[#6be5fd] via-[#3fdaa4] to-[#d8dee9] animate-gradient">
+                Modern System Monitoring & Control
+              </h1>
             </div>
             
             <p className="text-[#a8aebb] text-lg md:text-xl max-w-3xl mb-10" style={{ 
@@ -135,94 +127,38 @@ export default function Home() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className="bg-gradient-to-b from-[#1a1a1a] to-[#121212] rounded-xl p-7 border border-[#3fdaa4]/10 hover:border-[#3fdaa4]/30 transition-all duration-500 group hover:translate-y-[-5px]">
-              <div className="w-14 h-14 rounded-2xl bg-[#3fdaa4]/10 flex items-center justify-center mb-5 group-hover:bg-[#3fdaa4]/20 transition-colors duration-300 group-hover:scale-110 transform">
-                <Gauge className="h-7 w-7 text-[#3fdaa4]" />
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
+              {/* Feature 1 */}
+              <div className="flex flex-col items-center md:items-start text-center md:text-left">
+                <div className="flex items-center justify-center mb-6">
+                  <div className="w-16 h-16 rounded-full bg-[#3fdaa4]/10 flex items-center justify-center mr-4">
+                    <Gauge className="h-8 w-8 text-[#3fdaa4]" />
+                  </div>
+                  <h3 className="text-2xl font-semibold text-[#3fdaa4]">Real-time Monitoring</h3>
+                </div>
+                
+                <div className="h-0.5 w-16 bg-gradient-to-r from-[#3fdaa4] to-transparent mb-6"></div>
+                
+                <p className="text-[#a8aebb] text-lg">
+                  Track CPU, memory, disk, and network performance with millisecond precision and customizable alerts.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-[#d8dee9] mb-3 group-hover:text-[#3fdaa4] transition-colors duration-300">Real-time Monitoring</h3>
-              <p className="text-[#a8aebb] group-hover:text-[#bec6d3] transition-colors duration-300">
-                Track CPU, memory, disk, and network performance with millisecond precision and customizable alerts.
-              </p>
-              <div className="mt-4 flex items-center text-[#3fdaa4]/70 group-hover:text-[#3fdaa4] transition-colors duration-300">
-                <span className="text-sm font-medium">Learn more</span>
-                <ChevronRight className="h-4 w-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-300" />
-              </div>
-            </div>
-            
-            {/* Feature 2 */}
-            <div className="bg-gradient-to-b from-[#1a1a1a] to-[#121212] rounded-xl p-7 border border-[#6be5fd]/10 hover:border-[#6be5fd]/30 transition-all duration-500 group hover:translate-y-[-5px]">
-              <div className="w-14 h-14 rounded-2xl bg-[#6be5fd]/10 flex items-center justify-center mb-5 group-hover:bg-[#6be5fd]/20 transition-colors duration-300 group-hover:scale-110 transform">
-                <Terminal className="h-7 w-7 text-[#6be5fd]" />
-              </div>
-              <h3 className="text-xl font-semibold text-[#d8dee9] mb-3 group-hover:text-[#6be5fd] transition-colors duration-300">Interactive Terminal</h3>
-              <p className="text-[#a8aebb] group-hover:text-[#bec6d3] transition-colors duration-300">
-                Access and control your systems through our secure web-based terminal with command history and autocomplete.
-              </p>
-              <div className="mt-4 flex items-center text-[#6be5fd]/70 group-hover:text-[#6be5fd] transition-colors duration-300">
-                <span className="text-sm font-medium">Learn more</span>
-                <ChevronRight className="h-4 w-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-300" />
-              </div>
-            </div>
-            
-            {/* Feature 3 */}
-            <div className="bg-gradient-to-b from-[#1a1a1a] to-[#121212] rounded-xl p-7 border border-[#3fdaa4]/10 hover:border-[#3fdaa4]/30 transition-all duration-500 group hover:translate-y-[-5px]">
-              <div className="w-14 h-14 rounded-2xl bg-[#3fdaa4]/10 flex items-center justify-center mb-5 group-hover:bg-[#3fdaa4]/20 transition-colors duration-300 group-hover:scale-110 transform">
-                <Shield className="h-7 w-7 text-[#3fdaa4]" />
-              </div>
-              <h3 className="text-xl font-semibold text-[#d8dee9] mb-3 group-hover:text-[#3fdaa4] transition-colors duration-300">Enterprise Security</h3>
-              <p className="text-[#a8aebb] group-hover:text-[#bec6d3] transition-colors duration-300">
-                End-to-end encryption, role-based access control, and detailed audit logs for maximum security.
-              </p>
-              <div className="mt-4 flex items-center text-[#3fdaa4]/70 group-hover:text-[#3fdaa4] transition-colors duration-300">
-                <span className="text-sm font-medium">Learn more</span>
-                <ChevronRight className="h-4 w-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-300" />
-              </div>
-            </div>
-            
-            {/* Feature 4 */}
-            <div className="bg-gradient-to-b from-[#1a1a1a] to-[#121212] rounded-xl p-7 border border-[#6be5fd]/10 hover:border-[#6be5fd]/30 transition-all duration-500 group hover:translate-y-[-5px]">
-              <div className="w-14 h-14 rounded-2xl bg-[#6be5fd]/10 flex items-center justify-center mb-5 group-hover:bg-[#6be5fd]/20 transition-colors duration-300 group-hover:scale-110 transform">
-                <Zap className="h-7 w-7 text-[#6be5fd]" />
-              </div>
-              <h3 className="text-xl font-semibold text-[#d8dee9] mb-3 group-hover:text-[#6be5fd] transition-colors duration-300">Instant Alerts</h3>
-              <p className="text-[#a8aebb] group-hover:text-[#bec6d3] transition-colors duration-300">
-                Configure smart notifications via email, SMS, or webhook when systems need attention.
-              </p>
-              <div className="mt-4 flex items-center text-[#6be5fd]/70 group-hover:text-[#6be5fd] transition-colors duration-300">
-                <span className="text-sm font-medium">Learn more</span>
-                <ChevronRight className="h-4 w-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-300" />
-              </div>
-            </div>
-            
-            {/* Feature 5 */}
-            <div className="bg-gradient-to-b from-[#1a1a1a] to-[#121212] rounded-xl p-7 border border-[#3fdaa4]/10 hover:border-[#3fdaa4]/30 transition-all duration-500 group hover:translate-y-[-5px]">
-              <div className="w-14 h-14 rounded-2xl bg-[#3fdaa4]/10 flex items-center justify-center mb-5 group-hover:bg-[#3fdaa4]/20 transition-colors duration-300 group-hover:scale-110 transform">
-                <Code className="h-7 w-7 text-[#3fdaa4]" />
-              </div>
-              <h3 className="text-xl font-semibold text-[#d8dee9] mb-3 group-hover:text-[#3fdaa4] transition-colors duration-300">API Integration</h3>
-              <p className="text-[#a8aebb] group-hover:text-[#bec6d3] transition-colors duration-300">
-                Comprehensive API for seamless integration with your existing tools and workflows.
-              </p>
-              <div className="mt-4 flex items-center text-[#3fdaa4]/70 group-hover:text-[#3fdaa4] transition-colors duration-300">
-                <span className="text-sm font-medium">Learn more</span>
-                <ChevronRight className="h-4 w-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-300" />
-              </div>
-            </div>
-            
-            {/* Feature 6 */}
-            <div className="bg-gradient-to-b from-[#1a1a1a] to-[#121212] rounded-xl p-7 border border-[#6be5fd]/10 hover:border-[#6be5fd]/30 transition-all duration-500 group hover:translate-y-[-5px]">
-              <div className="w-14 h-14 rounded-2xl bg-[#6be5fd]/10 flex items-center justify-center mb-5 group-hover:bg-[#6be5fd]/20 transition-colors duration-300 group-hover:scale-110 transform">
-                <Server className="h-7 w-7 text-[#6be5fd]" />
-              </div>
-              <h3 className="text-xl font-semibold text-[#d8dee9] mb-3 group-hover:text-[#6be5fd] transition-colors duration-300">Multi-server Support</h3>
-              <p className="text-[#a8aebb] group-hover:text-[#bec6d3] transition-colors duration-300">
-                Monitor and manage hundreds of servers from a single unified dashboard.
-              </p>
-              <div className="mt-4 flex items-center text-[#6be5fd]/70 group-hover:text-[#6be5fd] transition-colors duration-300">
-                <span className="text-sm font-medium">Learn more</span>
-                <ChevronRight className="h-4 w-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-300" />
+              
+              {/* Feature 2 */}
+              <div className="flex flex-col items-center md:items-start text-center md:text-left">
+                <div className="flex items-center justify-center mb-6">
+                  <div className="w-16 h-16 rounded-full bg-[#6be5fd]/10 flex items-center justify-center mr-4">
+                    <Terminal className="h-8 w-8 text-[#6be5fd]" />
+                  </div>
+                  <h3 className="text-2xl font-semibold text-[#6be5fd]">Interactive Terminal</h3>
+                </div>
+                
+                <div className="h-0.5 w-16 bg-gradient-to-r from-[#6be5fd] to-transparent mb-6"></div>
+                
+                <p className="text-[#a8aebb] text-lg">
+                  Access and control your systems through our secure web-based terminal with command history and autocomplete.
+                </p>
               </div>
             </div>
           </div>

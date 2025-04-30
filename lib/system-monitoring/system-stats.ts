@@ -3,7 +3,7 @@ import type { Process } from "@/lib/types";
 
 export type StatPoint = {
   time: string; // Using string instead of Date to be compatible with existing code
-  value: number;
+    value: number;
 };
 
 export type SystemStats = {
@@ -475,7 +475,7 @@ class SystemMonitoringService {
     
     try {
       await this.pollSystemStats();
-      return { ...this.statsCache };
+    return { ...this.statsCache };
     } catch (error) {
       console.error("[SystemMonitoringService] Error refreshing stats:", error);
       return this.statsCache;

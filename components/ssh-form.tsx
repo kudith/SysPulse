@@ -317,13 +317,13 @@ export function SSHForm() {
           setIsConnected(true);
           console.log("[SSHForm] Actually connected, ignoring timeout");
         } else {
-          setIsConnecting(false);
-          toast({
-            title: "Connection timeout",
-            description: "SSH connection attempt took too long. Please try again.",
-            variant: "destructive",
-          });
-        }
+        setIsConnecting(false);
+        toast({
+          title: "Connection timeout",
+          description: "SSH connection attempt took too long. Please try again.",
+          variant: "destructive",
+        });
+      }
       }
     }, 15000); // Extended from 10s to 15s
 

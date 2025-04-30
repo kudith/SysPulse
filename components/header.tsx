@@ -194,21 +194,21 @@ export function Header() {
                 
                 <Link 
                   href="/terminal" 
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 relative overflow-hidden group ${
-                    pathname === "/terminal" 
-                      ? "bg-[#1e1e1e] text-[#3fdaa4]" 
-                      : "text-[#d8dee9] hover:text-[#3fdaa4]"
-                  }`}
-                >
-                  <div className="flex items-center space-x-2 relative z-10">
-                    <Terminal className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
-                    <span className="group-hover:tracking-wide transition-all duration-300">Terminal</span>
-                  </div>
-                  <div className="absolute bottom-0 left-0 w-full h-0 bg-gradient-to-r from-[#3fdaa4]/5 to-[#6be5fd]/5 
-                               transition-all duration-300 group-hover:h-full rounded-md -z-0"></div>
-                  <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#3fdaa4] to-[#6be5fd] 
-                               transition-all duration-300 group-hover:w-full"></div>
-                </Link>
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 relative overflow-hidden group ${
+                pathname === "/terminal" 
+                  ? "bg-[#1e1e1e] text-[#3fdaa4]" 
+                  : "text-[#d8dee9] hover:text-[#3fdaa4]"
+              }`}
+            >
+              <div className="flex items-center space-x-2 relative z-10">
+                <Terminal className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+                <span className="group-hover:tracking-wide transition-all duration-300">Terminal</span>
+              </div>
+              <div className="absolute bottom-0 left-0 w-full h-0 bg-gradient-to-r from-[#3fdaa4]/5 to-[#6be5fd]/5 
+                           transition-all duration-300 group-hover:h-full rounded-md -z-0"></div>
+              <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#3fdaa4] to-[#6be5fd] 
+                           transition-all duration-300 group-hover:w-full"></div>
+            </Link>
               </>
             )}
           </nav>
@@ -253,13 +253,13 @@ export function Header() {
             </DropdownMenu>
           ) : (
             <div className="flex items-center space-x-3">
-              <Button
-                onClick={() => router.push('/login')}
+            <Button
+              onClick={() => router.push('/login')}
                 variant="ghost"
                 className="text-[#d8dee9] hover:text-[#ffffff] hover:bg-[#3fdaa4]/10 transition-all duration-300"
-              >
-                Login
-              </Button>
+            >
+              Login
+            </Button>
               <Button
                 onClick={() => router.push('/register')}
                 className="bg-gradient-to-r from-[#6be5fd] to-[#3fdaa4] hover:from-[#8ff4ff] hover:to-[#5eefc0] text-[#161616] font-medium shadow-md hover:shadow-lg hover:shadow-[#3fdaa4]/20 transition-all duration-300"

@@ -39,7 +39,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0c0c0c] flex flex-col">
+    <div className="min-h-screen bg-[#0c0c0c] flex flex-col my-20">
       <Header />
       <motion.main 
         className="flex-1 container mx-auto p-4 space-y-4 pt-6"

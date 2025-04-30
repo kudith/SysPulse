@@ -145,7 +145,7 @@ export default function TerminalPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col">
+    <div className="min-h-scree flex flex-col max-w-5xl mx-auto mt-20">
       <Header />
       <main className="flex-1 container mx-auto p-4 space-y-4">
         <motion.div
