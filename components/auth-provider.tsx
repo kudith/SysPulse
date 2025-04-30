@@ -27,15 +27,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (status === "loading") {
       setIsLoading(true)
-    } else {
-      setUser(session?.user || null)
+    } else if (status === "authenticated" && session?.user) {
+      setUser(session.user)
       setIsLoading(false)
+    } else {
+      setUser(null)
+      setIsLoading(false)
+      // Check if we're on a protected route
+      const path = window.location.pathname
+      if (path !== "/" && path !== "/login" && path !== "/register" && !path.startsWith("/docs")) {
+        router.push("/login")
+      }
     }
-  }, [session, status])
+  }, [session, status, router])
 
   const signOut = async () => {
-    await nextAuthSignOut()
-    router.push("/login")
+    await nextAuthSignOut({ callbackUrl: "/login" })
   }
 
   return <AuthContext.Provider value={{ user, isLoading, signOut }}>{children}</AuthContext.Provider>
