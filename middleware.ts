@@ -27,10 +27,10 @@ export async function middleware(request: NextRequest) {
   
   // If no token, redirect to login page
   if (!token) {
-    const loginUrl = new URL('/login', request.url);
+    const url = new URL('/login', request.url);
     // Add the current path as redirect parameter
-    loginUrl.searchParams.set('redirectTo', path);
-    return NextResponse.redirect(loginUrl);
+    url.searchParams.set('redirectTo', path);
+    return NextResponse.redirect(url);
   }
   
   // User is authenticated, allow access to protected route
@@ -41,6 +41,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
   // Match all routes except for API routes, _next (Next.js files), and certain file types
   matcher: [
-    '/((?!api|_next/static|_next/image|_next/data|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };
