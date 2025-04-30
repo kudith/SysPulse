@@ -1,37 +1,60 @@
 import sshService from "../ssh-service";
 import type { Process } from "@/lib/types";
 
-export interface SystemStats {
-  cpu: {
-    time: string;
-    value: number;
-  }[];
-  memory: {
-    time: string;
-    value: number;
-  }[];
-  processes: Process[];
-}
+export type StatPoint = {
+  time: string; // Using string instead of Date to be compatible with existing code
+  value: number;
+};
+
+export type SystemStats = {
+  cpu: StatPoint[];
+  memory: StatPoint[];
+  disk: StatPoint[];
+  uptime: number;
+  processes: Process[]; // Keep Process[] type as per existing code
+  users: number;
+  hostname: string;
+};
 
 class SystemMonitoringService {
   private statsCache: SystemStats = {
     cpu: [],
     memory: [],
-    processes: []
+    disk: [],
+    uptime: 0,
+    processes: [],
+    users: 0,
+    hostname: ''
   };
   
   private listeners: Set<(data: SystemStats) => void> = new Set();
   private pollingInterval: NodeJS.Timeout | null = null;
   private isPolling = false;
   private lastPollingStartTime = 0;
-  private minimumPollingInterval = 5000; // 5 seconds minimum between polls
-  private pollingDelay = 15000; // 15 seconds between regular polls (increased from 5s)
+  private minimumPollingInterval = 2000; // Reduced from 5s to 2s for more responsive updates
+  private pollingDelay = 5000; // 5 seconds between regular polls (decreased from 15s for more real-time feel)
+  private lastUpdateTime = 0;
+  private isFetching = false;
+  private forceRefreshQueued = false;
+  private MAX_POINTS = 60;
   
   // Command to get CPU usage (top for 1 cycle in batch mode, with CPU summary)
   private CPU_COMMAND = "top -bn1 | grep '%Cpu' | awk '{print $2}'";
   
   // Command to get memory usage percentage
   private MEMORY_COMMAND = "free | grep Mem | awk '{print ($3/$2) * 100.0}'";
+  
+  // Command to get disk usage percentage
+  private DISK_COMMAND = "df -h / | awk 'NR==2 {print $5}' | tr -d '%'";
+  
+  // Command to get uptime in seconds
+  private UPTIME_COMMAND = "cat /proc/uptime | awk '{print $1}'";
+  
+  // Command to get users count
+  private USERS_COMMAND = "who | wc -l";
+  
+  // Command to get hostname
+  private HOSTNAME_COMMAND = "hostname";
   
   // Command to get process list with CPU and memory usage
   private PROCESS_COMMAND = "ps aux --sort=-%cpu | head -20";
@@ -40,6 +63,10 @@ class SystemMonitoringService {
   private BATCH_COMMANDS = [
     "top -bn1 | grep '%Cpu' | awk '{print $2}'",
     "free | grep Mem | awk '{print ($3/$2) * 100.0}'",
+    "df -h / | awk 'NR==2 {print $5}' | tr -d '%'",
+    "cat /proc/uptime | awk '{print $1}'",
+    "who | wc -l",
+    "hostname",
     "ps aux --sort=-%cpu | head -20"
   ];
   
@@ -56,6 +83,24 @@ class SystemMonitoringService {
       this.statsCache.memory.push({
         time: initialTimePoint,
         value: 0
+      });
+      
+      this.statsCache.disk.push({
+        time: initialTimePoint,
+        value: 0
+      });
+    }
+    
+    // Add connection state listener to automatically refresh when connected
+    if (typeof window !== 'undefined') {
+      sshService.onConnected((message: string) => {
+        console.log("[SystemMonitoringService] SSH connected, refreshing stats");
+        this.refreshStats();
+        
+        // Start polling if we have listeners
+        if (this.listeners.size > 0 && !this.isPolling) {
+          this.startPolling();
+        }
       });
     }
   }
@@ -81,6 +126,8 @@ class SystemMonitoringService {
   
   private notifyListeners() {
     const stats = { ...this.statsCache };
+    const now = Date.now();
+    this.lastUpdateTime = now;
     
     this.listeners.forEach(listener => {
       try {
@@ -94,12 +141,18 @@ class SystemMonitoringService {
   private startPolling() {
     if (this.isPolling) return;
     
+    if (!sshService.isSSHConnected()) {
+      console.log("[SystemMonitoringService] Not starting polling: SSH not connected");
+      return;
+    }
+    
+    console.log("[SystemMonitoringService] Starting polling");
     this.isPolling = true;
     
     // Initial poll immediately
     this.pollSystemStats();
     
-    // Set up regular polling interval with a longer delay (15s instead of 5s)
+    // Set up regular polling interval with a more frequent update
     this.pollingInterval = setInterval(() => {
       this.pollSystemStats();
     }, this.pollingDelay);
@@ -107,6 +160,8 @@ class SystemMonitoringService {
   
   private stopPolling() {
     if (!this.isPolling) return;
+    
+    console.log("[SystemMonitoringService] Stopping polling");
     
     if (this.pollingInterval) {
       clearInterval(this.pollingInterval);
@@ -118,26 +173,42 @@ class SystemMonitoringService {
   
   private async pollSystemStats() {
     if (!sshService.isSSHConnected()) {
-      console.warn("Cannot poll system stats: SSH not connected");
+      console.warn("[SystemMonitoringService] Cannot poll system stats: SSH not connected");
+      this.stopPolling();
+      return;
+    }
+    
+    // If already fetching data, queue a refresh for when it's done
+    if (this.isFetching) {
+      this.forceRefreshQueued = true;
       return;
     }
     
     // Implement rate limiting to prevent too frequent polls
     const now = Date.now();
     if (now - this.lastPollingStartTime < this.minimumPollingInterval) {
-      console.log(`Skipping poll: too soon (${now - this.lastPollingStartTime}ms since last poll)`);
+      console.log(`[SystemMonitoringService] Skipping poll: too soon (${now - this.lastPollingStartTime}ms since last poll)`);
       return;
     }
     
     this.lastPollingStartTime = now;
     
     try {
+      this.isFetching = true;
       // Use batch command execution for efficiency
       await this.fetchStatsInBatch();
       
       this.notifyListeners();
     } catch (error) {
-      console.error("Error polling system stats:", error);
+      console.error("[SystemMonitoringService] Error polling system stats:", error);
+    } finally {
+      this.isFetching = false;
+      
+      // If a refresh was queued while we were fetching, do it now
+      if (this.forceRefreshQueued) {
+        this.forceRefreshQueued = false;
+        setTimeout(() => this.pollSystemStats(), 100);
+      }
     }
   }
   
@@ -188,6 +259,45 @@ class SystemMonitoringService {
         }
       }
       
+      // Process Disk data
+      const diskResponse = results.get(this.DISK_COMMAND);
+      if (diskResponse) {
+        const diskUsage = parseFloat(diskResponse.trim());
+        
+        if (!isNaN(diskUsage)) {
+          const currentTime = new Date().toLocaleTimeString();
+          
+          // Add new data point
+          this.statsCache.disk.push({
+            time: currentTime,
+            value: diskUsage
+          });
+          
+          // Keep only the last 20 data points
+          if (this.statsCache.disk.length > 20) {
+            this.statsCache.disk.shift();
+          }
+        }
+      }
+      
+      // Process uptime
+      const uptimeResponse = results.get(this.UPTIME_COMMAND);
+      if (uptimeResponse) {
+        this.statsCache.uptime = Math.floor(parseFloat(uptimeResponse.trim()));
+      }
+      
+      // Process users count
+      const usersResponse = results.get(this.USERS_COMMAND);
+      if (usersResponse) {
+        this.statsCache.users = parseInt(usersResponse.trim(), 10);
+      }
+      
+      // Process hostname
+      const hostnameResponse = results.get(this.HOSTNAME_COMMAND);
+      if (hostnameResponse) {
+        this.statsCache.hostname = hostnameResponse.trim();
+      }
+      
       // Process Process list
       const processResponse = results.get(this.PROCESS_COMMAND);
       if (processResponse) {
@@ -228,7 +338,7 @@ class SystemMonitoringService {
         this.statsCache.processes = processes;
       }
     } catch (error) {
-      console.error("Error fetching stats in batch:", error);
+      console.error("[SystemMonitoringService] Error fetching stats in batch:", error);
       
       // If batch fails, we could try individual fetches as fallback
       // but for now we'll just throw to be handled by caller
@@ -263,7 +373,7 @@ class SystemMonitoringService {
         }
       }
     } catch (error) {
-      console.error("Error fetching CPU stats:", error);
+      console.error('Error fetching CPU stats:', error);
     }
   }
   
@@ -293,7 +403,7 @@ class SystemMonitoringService {
         }
       }
     } catch (error) {
-      console.error("Error fetching memory stats:", error);
+      console.error('Error fetching memory stats:', error);
     }
   }
   
@@ -342,37 +452,60 @@ class SystemMonitoringService {
       // Update the processes list
       this.statsCache.processes = processes;
     } catch (error) {
-      console.error("Error fetching process list:", error);
+      console.error('Error fetching process list:', error);
     }
   }
   
-  // Method to get the current cached stats without polling
+  // Public API
   public getCurrentStats(): SystemStats {
     return { ...this.statsCache };
   }
   
-  // Force an immediate refresh with rate limiting
   public async refreshStats(): Promise<SystemStats> {
-    const now = Date.now();
-    // Only allow refresh if enough time has passed since last poll
-    if (now - this.lastPollingStartTime >= this.minimumPollingInterval) {
-      await this.pollSystemStats();
-    } else {
-      console.log(`Refresh throttled: ${now - this.lastPollingStartTime}ms since last poll`);
+    if (!sshService.isSSHConnected()) {
+      console.warn("[SystemMonitoringService] Cannot refresh stats: SSH not connected");
+      return this.statsCache;
     }
-    return { ...this.statsCache };
+    
+    // If already fetching, wait until it's done and then get the latest stats
+    if (this.isFetching) {
+      this.forceRefreshQueued = true;
+      return this.statsCache;
+    }
+    
+    try {
+      await this.pollSystemStats();
+      return { ...this.statsCache };
+    } catch (error) {
+      console.error("[SystemMonitoringService] Error refreshing stats:", error);
+      return this.statsCache;
+    }
   }
   
-  // Check if we're currently polling
   public isActive(): boolean {
     return this.isPolling;
   }
   
-  // Get number of subscribers
   public getSubscriberCount(): number {
     return this.listeners.size;
   }
+  
+  // Get the time of the last successful update
+  public getLastUpdateTime(): number {
+    return this.lastUpdateTime;
+  }
+  
+  // Force restart polling if it should be running but isn't
+  public ensurePollingActive(): void {
+    if (this.listeners.size > 0 && !this.isPolling && sshService.isSSHConnected()) {
+      console.log("[SystemMonitoringService] Restarting polling");
+      this.startPolling();
+    }
+  }
 }
 
+// Create a singleton instance
 const systemMonitoring = new SystemMonitoringService();
+
+// Export the singleton
 export default systemMonitoring;

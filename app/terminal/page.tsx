@@ -10,6 +10,7 @@ import { TerminalFooter } from "@/components/terminal/terminal-footer"
 import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
 import sshService from "@/lib/ssh-service"
+import systemMonitoring from "@/lib/system-monitoring/system-stats"
 import { Button } from "@/components/ui/button"
 
 export default function TerminalPage() {
@@ -35,6 +36,9 @@ export default function TerminalPage() {
       if (sshService.isSSHConnected()) {
         setConnected(true);
         console.log('Terminal page: SSH connection active');
+        
+        // Start system monitoring if connected
+        systemMonitoring.refreshStats();
       } else {
         console.log('Terminal page: No active SSH connection found');
         
@@ -56,6 +60,9 @@ export default function TerminalPage() {
     const connectedHandler = (message: string) => {
       console.log('SSH Connected:', message);
       setConnected(true);
+      
+      // Trigger system monitoring refresh
+      systemMonitoring.refreshStats();
       
       toast({
         title: "Connected",
@@ -100,16 +107,19 @@ export default function TerminalPage() {
       }
     }
 
-    // Simulate system stats for display
-    const statsInterval = setInterval(() => {
-      setCpuUsage(Math.random() * 100);
-      setMemoryUsage(Math.random() * 100);
-      setDiskUsage(Math.random() * 100);
-    }, 2000);
+    // Subscribe to system monitoring updates
+    const unsubscribe = systemMonitoring.subscribe((stats) => {
+      if (stats.cpu.length > 0) {
+        setCpuUsage(stats.cpu[stats.cpu.length - 1].value);
+      }
+      if (stats.memory.length > 0) {
+        setMemoryUsage(stats.memory[stats.memory.length - 1].value);
+      }
+    });
 
     return () => {
       // Cleanup
-      clearInterval(statsInterval);
+      unsubscribe();
       
       // Clear handlers
       sshService.onConnected(() => {});

@@ -277,13 +277,11 @@ class SSHService {
 
     this.initSocket();
 
-    // Setup page unload handler to detect when page is actually closed vs refreshed
+    // Setup page unload handler to detect when page is closed
     if (typeof window !== "undefined") {
-      window.addEventListener("beforeunload", (event) => {
-        // Only if the user is actually closing the browser/tab, not refreshing
-        if (event.persisted === false) {
-          this.cleanup();
-        }
+      window.addEventListener("beforeunload", () => {
+        // Clean up resources when the page is unloaded
+        this.cleanup();
       });
       
       // Register visibility change handler to reconnect when tab becomes visible
@@ -293,6 +291,12 @@ class SSHService {
           this.checkConnectionStatus();
         }
       });
+    }
+    
+    // Expose the service instance for debugging in dev mode
+    if (process.env.NODE_ENV === 'development') {
+      // @ts-ignore
+      window.__sshService = this;
     }
     
     // Setup heartbeat to keep connections alive
@@ -306,7 +310,15 @@ class SSHService {
   }
 
   private initSocket() {
+    if (typeof window === 'undefined') return;
+    
     try {
+      // Add a beforeunload event listener to clean up socket
+      window.addEventListener("beforeunload", () => {
+        // Attempt to properly close connection when closing the browser/tab
+        this.cleanup();
+      });
+      
       // Connect to the WebSocket server with environment-specific URL
       const socketUrl =
         process.env.NODE_ENV === "production"
@@ -324,18 +336,13 @@ class SSHService {
 
       // Enhanced socketio configuration for better performance
       this.socket = io(socketUrl, {
-        reconnectionAttempts: 10,
-        reconnectionDelay: 1000,
-        reconnectionDelayMax: 10000,
-        timeout: 45000,              // Increased timeout
-        transports: ["websocket"],   // Use websocket only for better performance
-        forceNew: false,             // Allow reuse of existing connection
-        upgrade: true,               // Allow transport upgrade
-        rememberUpgrade: true,       // Remember successful upgrades
-        perMessageDeflate: true,     // Enable compression
-        pingTimeout: 30000,          // Increase ping timeout
-        pingInterval: 15000,         // More frequent pings
-        autoConnect: true,           // Auto connect socket
+        reconnectionAttempts: 5,      // Limit reconnection attempts
+        reconnectionDelay: 1000,      // Start with 1s delay
+        reconnectionDelayMax: 5000,   // Max 5s delay
+        timeout: 20000,               // Connection timeout
+        transports: ["websocket"],    // Use websocket only
+        forceNew: true,               // Force new connection
+        autoConnect: true,            // Auto connect socket
         // If we have a persistent ID, use it to reconnect to the same session
         auth: this.persistentId
           ? {
@@ -643,8 +650,8 @@ class SSHService {
         // Clear connection state since we failed to reconnect
         this.clearPersistentState();
       });
-    } catch (err) {
-      console.error("[SSH Service] Error initializing socket:", err);
+    } catch (error) {
+      console.error("Failed to initialize socket:", error);
     }
   }
   
@@ -985,7 +992,9 @@ class SSHService {
 
   // Check connection status
   public isSSHConnected(): boolean {
-    return this.isConnected;
+    // Get the persisted state from storage if available
+    const persistedConnected = sessionStorage.getItem('ssh_connected_state') === 'true';
+    return this.isConnected || persistedConnected;
   }
 
   public isSSHConnecting(): boolean {
@@ -1303,6 +1312,19 @@ class SSHService {
       lastActivity: new Date(this.lastActivityTime),
       bufferSize: this.dataBuffer.length
     };
+  }
+
+  // Add a method to emit the current connection state
+  public emitConnectionState(): void {
+    const isConnected = this.isSSHConnected();
+    
+    if (isConnected && this.onConnectedCallback) {
+      this.logDebug("Re-emitting connected state");
+      this.onConnectedCallback("Connection established");
+    } else if (!isConnected && this.onDisconnectedCallback) {
+      this.logDebug("Re-emitting disconnected state");
+      this.onDisconnectedCallback("Not connected");
+    }
   }
 }
 

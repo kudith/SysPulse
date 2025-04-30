@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
-import { supabase } from "@/lib/supabase/client"
 import { motion } from "framer-motion"
 
 export default function RegisterPage() {
@@ -48,24 +47,28 @@ export default function RegisterPage() {
     setIsLoading(true)
 
     try {
-      // Register with Supabase
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            name,
-          },
+      // Register with our API
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      })
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
+      });
 
-      if (error) {
-        throw error
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Registration failed");
       }
 
       toast({
         title: "Registration successful",
-        description: "Please check your email to verify your account",
+        description: "You can now log in with your credentials",
       })
 
       // Redirect to login page

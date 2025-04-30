@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { Terminal, LogOut, BarChart2, Settings, ChevronDown } from "lucide-react"
+import { Terminal, LogOut, BarChart2, Settings, ChevronDown, BookOpen, Home } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { useAuth } from "@/components/auth-provider"
@@ -17,8 +17,6 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
 import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase/client"
-import { User } from "@supabase/supabase-js"
 
 export function Header() {
   const router = useRouter()
@@ -26,8 +24,8 @@ export function Header() {
   const { toast } = useToast()
   const { user, signOut } = useAuth()
   const [userProfile, setUserProfile] = useState<any | null>(null)
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   // Add scroll effect detection
   useEffect(() => {
@@ -50,122 +48,17 @@ export function Header() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  // Fetch user profile details from Supabase
+  // Use NextAuth user data directly
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (!user) return
-      
-      try {
-        // Check if profiles table exists by attempting to select a single row
-        const { error: tableCheckError } = await supabase
-          .from('profiles')
-          .select('id')
-          .limit(1)
-        
-        // If table doesn't exist or there's another issue, create a local profile instead
-        if (tableCheckError) {
-          console.log('Profiles table might not exist:', tableCheckError.message)
-          // Use user data directly without attempting to fetch from profiles
-          setUserProfile({
-            id: user.id,
-            email: user.email,
-            full_name: user.user_metadata?.full_name || user.email?.split('@')[0],
-            role: 'User'
-          })
-          return
-        }
-        
-        // Now try to get the specific user profile
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single()
-          
-        if (error) {
-          if (error.code === 'PGRST116') { // Record not found error code
-            console.log('User profile not found, will create one if profiles table exists')
-            
-            // Create a profile for this user if the table exists but the profile doesn't
-            try {
-              const { data: newProfile, error: insertError } = await supabase
-                .from('profiles')
-                .insert([
-                  { 
-                    id: user.id, 
-                    email: user.email,
-                    full_name: user.user_metadata?.full_name || user.email?.split('@')[0],
-                    role: 'User',
-                    created_at: new Date().toISOString()
-                  }
-                ])
-                .select()
-                
-              if (insertError) {
-                console.error('Error creating profile:', insertError)
-                // Fall back to using auth user data
-                setUserProfile({
-                  id: user.id,
-                  email: user.email,
-                  full_name: user.user_metadata?.full_name || user.email?.split('@')[0],
-                  role: 'User'
-                })
-              } else {
-                console.log('Created new profile:', newProfile)
-                setUserProfile(newProfile[0])
-              }
-            } catch (insertErr) {
-              console.error('Exception creating profile:', insertErr)
-              // Fall back to using auth user data
-              setUserProfile({
-                id: user.id,
-                email: user.email,
-                full_name: user.user_metadata?.full_name || user.email?.split('@')[0],
-                role: 'User'
-              })
-            }
-          } else {
-            console.error('Error fetching user profile:', error)
-            // Fall back to using auth user data
-            setUserProfile({
-              id: user.id,
-              email: user.email,
-              full_name: user.user_metadata?.full_name || user.email?.split('@')[0],
-              role: 'User'
-            })
-          }
-          return
-        }
-        
-        console.log('Found existing profile:', data)
-        setUserProfile(data)
-        
-        // If there's an avatar URL in the profile, get a public URL for it
-        if (data?.avatar_url) {
-          try {
-            const { data: publicUrlData } = await supabase
-              .storage
-              .from('avatars')
-              .getPublicUrl(data.avatar_url)
-              
-            setAvatarUrl(publicUrlData.publicUrl)
-          } catch (avatarErr) {
-            console.error('Error getting avatar URL:', avatarErr)
-          }
-        }
-      } catch (err) {
-        console.error('Exception in profile fetch:', err)
-        // Fall back to using auth user data in case of any exception
-        setUserProfile({
-          id: user.id,
-          email: user.email,
-          full_name: user.user_metadata?.full_name || user.email?.split('@')[0],
-          role: 'User'
-        })
-      }
+    if (user) {
+      setUserProfile({
+        id: user.id,
+        email: user.email,
+        full_name: user.name || user.email?.split('@')[0],
+        image: user.image,
+        role: 'User'
+      })
     }
-    
-    fetchUserProfile()
   }, [user])
 
   const handleLogout = async () => {
@@ -205,7 +98,7 @@ export function Header() {
         <div className="group flex items-center space-x-2 cursor-pointer relative">
           <Terminal className="h-6 w-6 font-bold text-[#6be5fd] group-hover:text-[#8ff4ff] transition-all duration-300 transform group-hover:scale-110 group-hover:rotate-3" />
           <Link 
-            href="/dashboard" 
+            href="/" 
             className="text-[#d8dee9] text-xl font-bold relative z-10 
                       transition-all duration-300 ease-in-out
                       group-hover:text-[#ffffff]
@@ -221,127 +114,268 @@ export function Header() {
                         rounded-lg blur opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-all duration-500"></div>
         </div>
 
-        <div className="flex items-center space-x-6">
-          <nav className="hidden md:flex items-center space-x-4">
+        {/* Mobile menu button */}
+        <button 
+          className="md:hidden flex items-center p-1 text-[#d8dee9] hover:text-[#6be5fd] transition-colors"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          <svg 
+            className="w-6 h-6" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24" 
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            {isMobileMenuOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            )}
+          </svg>
+        </button>
+
+        <div className="hidden md:flex items-center space-x-6">
+          <nav className="flex items-center space-x-4">
             <Link 
-              href="/dashboard" 
+              href="/" 
               className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 relative overflow-hidden group ${
-                pathname === "/dashboard" 
+                pathname === "/" 
                   ? "bg-[#1e1e1e] text-[#6be5fd]" 
                   : "text-[#d8dee9] hover:text-[#6be5fd]"
               }`}
             >
               <div className="flex items-center space-x-2 relative z-10">
-                <BarChart2 className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
-                <span className="group-hover:tracking-wide transition-all duration-300">Dashboard</span>
+                <Home className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+                <span className="group-hover:tracking-wide transition-all duration-300">Home</span>
               </div>
-              {/* Subtle background hover effect */}
               <div className="absolute bottom-0 left-0 w-full h-0 bg-gradient-to-r from-[#6be5fd]/5 to-[#3fdaa4]/5 
                            transition-all duration-300 group-hover:h-full rounded-md -z-0"></div>
-              {/* Bottom border animation */}
               <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#6be5fd] to-[#3fdaa4] 
                            transition-all duration-300 group-hover:w-full"></div>
             </Link>
+
             <Link 
-              href="/terminal" 
+              href="/docs" 
               className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 relative overflow-hidden group ${
-                pathname === "/terminal" 
-                  ? "bg-[#1e1e1e] text-[#3fdaa4]" 
-                  : "text-[#d8dee9] hover:text-[#3fdaa4]"
+                pathname === "/docs" 
+                  ? "bg-[#1e1e1e] text-[#6be5fd]" 
+                  : "text-[#d8dee9] hover:text-[#6be5fd]"
               }`}
             >
               <div className="flex items-center space-x-2 relative z-10">
-                <Terminal className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
-                <span className="group-hover:tracking-wide transition-all duration-300">Terminal</span>
+                <BookOpen className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+                <span className="group-hover:tracking-wide transition-all duration-300">Docs</span>
               </div>
-              {/* Subtle background hover effect */}
-              <div className="absolute bottom-0 left-0 w-full h-0 bg-gradient-to-r from-[#3fdaa4]/5 to-[#6be5fd]/5 
+              <div className="absolute bottom-0 left-0 w-full h-0 bg-gradient-to-r from-[#6be5fd]/5 to-[#3fdaa4]/5 
                            transition-all duration-300 group-hover:h-full rounded-md -z-0"></div>
-              {/* Bottom border animation */}
-              <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#3fdaa4] to-[#6be5fd] 
+              <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#6be5fd] to-[#3fdaa4] 
                            transition-all duration-300 group-hover:w-full"></div>
             </Link>
-          </nav>
 
-          {user && (
+            {user && (
+              <>
+                <Link 
+                  href="/dashboard" 
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 relative overflow-hidden group ${
+                    pathname === "/dashboard" 
+                      ? "bg-[#1e1e1e] text-[#6be5fd]" 
+                      : "text-[#d8dee9] hover:text-[#6be5fd]"
+                  }`}
+                >
+                  <div className="flex items-center space-x-2 relative z-10">
+                    <BarChart2 className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+                    <span className="group-hover:tracking-wide transition-all duration-300">Dashboard</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 w-full h-0 bg-gradient-to-r from-[#6be5fd]/5 to-[#3fdaa4]/5 
+                               transition-all duration-300 group-hover:h-full rounded-md -z-0"></div>
+                  <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#6be5fd] to-[#3fdaa4] 
+                               transition-all duration-300 group-hover:w-full"></div>
+                </Link>
+                
+                <Link 
+                  href="/terminal" 
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 relative overflow-hidden group ${
+                    pathname === "/terminal" 
+                      ? "bg-[#1e1e1e] text-[#3fdaa4]" 
+                      : "text-[#d8dee9] hover:text-[#3fdaa4]"
+                  }`}
+                >
+                  <div className="flex items-center space-x-2 relative z-10">
+                    <Terminal className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+                    <span className="group-hover:tracking-wide transition-all duration-300">Terminal</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 w-full h-0 bg-gradient-to-r from-[#3fdaa4]/5 to-[#6be5fd]/5 
+                               transition-all duration-300 group-hover:h-full rounded-md -z-0"></div>
+                  <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#3fdaa4] to-[#6be5fd] 
+                               transition-all duration-300 group-hover:w-full"></div>
+                </Link>
+              </>
+            )}
+          </nav>
+          
+          {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="p-0 h-8 gap-2 group">
-                  <div className="flex items-center space-x-2 rounded-md px-2 py-1 
-                                  hover:bg-gradient-to-r hover:from-[#1e1e1e] hover:to-[#252525] 
-                                  transition-all duration-300 ease-in-out relative overflow-hidden">
-                    <Avatar className="h-8 w-8 border border-zinc-800/50 group-hover:border-[#6be5fd]/30 transition-all duration-300">
-                      <AvatarImage src={avatarUrl || undefined} />
-                      <AvatarFallback className="bg-[#1e1e1e] text-[#6be5fd] text-xs group-hover:bg-[#1b2029] transition-colors duration-300">
-                        {getUserInitials()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="hidden sm:flex flex-col items-start">
-                      <p className="text-sm font-medium text-[#d8dee9] group-hover:text-white transition-all duration-300">
-                        {userProfile?.full_name || user.email?.split('@')[0] || 'User'}
-                      </p>
-                      <p className="text-xs text-[#6272a4] line-clamp-1 group-hover:text-[#8295c2] transition-all duration-300">
-                        {/* {userProfile?.email} */}
-                      </p>
-                    </div>
-                    <ChevronDown className="h-4 w-4 text-[#6272a4] group-hover:text-[#d8dee9] transition-colors duration-300 group-hover:rotate-180" />
-                    
-                    {/* Subtle glow effect on hover */}
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-[#6be5fd]/0 via-[#6be5fd]/5 to-[#3fdaa4]/0 
-                                opacity-0 group-hover:opacity-100 rounded-md blur-sm transition-all duration-500"></div>
-                  </div>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-[#1e1e1e] border-zinc-800/50 text-[#d8dee9]
-                                          animate-in slide-in-from-top-5 duration-200">
-                <DropdownMenuLabel className="text-xs text-[#6272a4]">
-                  {user.email}
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-zinc-800/50" />
-                <DropdownMenuItem 
-                  className="text-[#d8dee9] focus:bg-[#282a36] focus:text-[#d8dee9] cursor-pointer
-                            group relative overflow-hidden hover:bg-gradient-to-r hover:from-[#282a36]/80 hover:to-[#282a36]/60
-                            transition-all duration-300"
-                  onClick={() => router.push('/profile')}
-                >
-                  <div className="absolute left-0 top-0 h-full w-0 bg-gradient-to-r from-[#6be5fd]/10 to-transparent 
-                                 group-hover:w-full transition-all duration-500"></div>
-                  <Avatar className="h-4 w-4 mr-2 relative z-10 group-hover:scale-110 transition-transform duration-300">
-                    <AvatarImage src={avatarUrl || undefined} />
-                    <AvatarFallback className="bg-[#1e1e1e] text-[#6be5fd] text-[10px] group-hover:bg-[#1b2029] transition-colors duration-300">
+                <Button variant="outline" size="icon" className="rounded-full w-10 h-10 p-0 border-[#3fdaa4] bg-transparent hover:bg-[#3fdaa4]/10 transition-colors">
+                  <Avatar className="h-9 w-9">
+                    {userProfile?.image ? (
+                      <AvatarImage 
+                        src={userProfile.image} 
+                        alt={userProfile.full_name || ""} 
+                      />
+                    ) : null}
+                    <AvatarFallback className="bg-[#1e1e1e] text-[#3fdaa4] text-xs">
                       {getUserInitials()}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="relative z-10 group-hover:translate-x-1 transition-transform duration-300">Profile</span>
-                </DropdownMenuItem>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="border-[#3fdaa4] bg-[#161616] shadow-lg shadow-[#3fdaa4]/10">
+                <DropdownMenuLabel className="text-[#3fdaa4]">
+                  {userProfile?.full_name || "User"}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-[#3fdaa4]/20" />
                 <DropdownMenuItem 
-                  className="text-[#d8dee9] focus:bg-[#282a36] focus:text-[#d8dee9] cursor-pointer
-                            group relative overflow-hidden hover:bg-gradient-to-r hover:from-[#282a36]/80 hover:to-[#282a36]/60
-                            transition-all duration-300"
                   onClick={() => router.push('/settings')}
+                  className="text-[#d8dee9] hover:bg-[#3fdaa4]/10 cursor-pointer flex items-center gap-2"
                 >
-                  <div className="absolute left-0 top-0 h-full w-0 bg-gradient-to-r from-[#70e1e8]/10 to-transparent 
-                                 group-hover:w-full transition-all duration-500"></div>
-                  <Settings className="h-4 w-4 mr-2 text-[#70e1e8] relative z-10 group-hover:rotate-45 group-hover:scale-110 transition-all duration-300" />
-                  <span className="relative z-10 group-hover:translate-x-1 transition-transform duration-300">Settings</span>
+                  <Settings className="h-4 w-4" />
+                  <span>Settings</span>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-zinc-800/50" />
                 <DropdownMenuItem 
-                  className="text-[#ec6a88] focus:bg-[#282a36] focus:text-[#ec6a88] cursor-pointer
-                            group relative overflow-hidden hover:bg-gradient-to-r hover:from-[#282a36]/80 hover:to-[#282a36]/60
-                            transition-all duration-300"
                   onClick={handleLogout}
+                  className="text-[#d8dee9] hover:bg-[#3fdaa4]/10 cursor-pointer flex items-center gap-2"
                 >
-                  <div className="absolute left-0 top-0 h-full w-0 bg-gradient-to-r from-[#ec6a88]/10 to-transparent 
-                                 group-hover:w-full transition-all duration-500"></div>
-                  <LogOut className="h-4 w-4 mr-2 relative z-10 group-hover:translate-x-[-2px] group-hover:scale-110 transition-all duration-300" />
-                  <span className="relative z-10 group-hover:translate-x-1 transition-transform duration-300">Logout</span>
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+          ) : (
+            <div className="flex items-center space-x-3">
+              <Button
+                onClick={() => router.push('/login')}
+                variant="ghost"
+                className="text-[#d8dee9] hover:text-[#ffffff] hover:bg-[#3fdaa4]/10 transition-all duration-300"
+              >
+                Login
+              </Button>
+              <Button
+                onClick={() => router.push('/register')}
+                className="bg-gradient-to-r from-[#6be5fd] to-[#3fdaa4] hover:from-[#8ff4ff] hover:to-[#5eefc0] text-[#161616] font-medium shadow-md hover:shadow-lg hover:shadow-[#3fdaa4]/20 transition-all duration-300"
+              >
+                Sign Up
+              </Button>
+            </div>
           )}
         </div>
       </div>
+
+      {/* Mobile menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-[#161616] border-t border-[#3fdaa4]/10 shadow-lg">
+          <div className="px-4 pt-2 pb-4 space-y-2">
+            <Link 
+              href="/" 
+              className={`block px-3 py-2 rounded-md text-base font-medium ${
+                pathname === "/" 
+                  ? "bg-[#1e1e1e] text-[#6be5fd]" 
+                  : "text-[#d8dee9] hover:bg-[#1e1e1e]"
+              }`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <div className="flex items-center space-x-3">
+                <Home className="h-5 w-5" />
+                <span>Home</span>
+              </div>
+            </Link>
+
+            <Link 
+              href="/docs" 
+              className={`block px-3 py-2 rounded-md text-base font-medium ${
+                pathname === "/docs" 
+                  ? "bg-[#1e1e1e] text-[#6be5fd]" 
+                  : "text-[#d8dee9] hover:bg-[#1e1e1e]"
+              }`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <div className="flex items-center space-x-3">
+                <BookOpen className="h-5 w-5" />
+                <span>Docs</span>
+              </div>
+            </Link>
+            
+            {user && (
+              <>
+                <Link 
+                  href="/dashboard" 
+                  className={`block px-3 py-2 rounded-md text-base font-medium ${
+                    pathname === "/dashboard" 
+                      ? "bg-[#1e1e1e] text-[#6be5fd]" 
+                      : "text-[#d8dee9] hover:bg-[#1e1e1e]"
+                  }`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <div className="flex items-center space-x-3">
+                    <BarChart2 className="h-5 w-5" />
+                    <span>Dashboard</span>
+                  </div>
+                </Link>
+                <Link 
+                  href="/terminal" 
+                  className={`block px-3 py-2 rounded-md text-base font-medium ${
+                    pathname === "/terminal" 
+                      ? "bg-[#1e1e1e] text-[#3fdaa4]" 
+                      : "text-[#d8dee9] hover:bg-[#1e1e1e]"
+                  }`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <div className="flex items-center space-x-3">
+                    <Terminal className="h-5 w-5" />
+                    <span>Terminal</span>
+                  </div>
+                </Link>
+              </>
+            )}
+
+            {!user ? (
+              <div className="flex flex-col space-y-2 pt-2">
+                <Button
+                  onClick={() => {
+                    router.push('/login')
+                    setIsMobileMenuOpen(false)
+                  }}
+                  variant="outline"
+                  className="w-full border-[#3fdaa4] text-[#d8dee9] hover:bg-[#3fdaa4]/10"
+                >
+                  Login
+                </Button>
+                <Button
+                  onClick={() => {
+                    router.push('/register')
+                    setIsMobileMenuOpen(false)
+                  }}
+                  className="w-full bg-gradient-to-r from-[#6be5fd] to-[#3fdaa4] text-[#161616]"
+                >
+                  Sign Up
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={() => {
+                  handleLogout()
+                  setIsMobileMenuOpen(false)
+                }}
+                variant="outline"
+                className="w-full mt-4 border-[#3fdaa4] text-[#d8dee9] hover:bg-[#3fdaa4]/10"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   )
 }

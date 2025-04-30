@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, type TooltipProps } from "recharts"
 import { motion } from "framer-motion"
@@ -13,45 +13,134 @@ export function ResourceGraph() {
   const [memoryHistory, setMemoryHistory] = useState<ResourceData[]>([])
   const [activeTab, setActiveTab] = useState("cpu")
   const [connected, setConnected] = useState(false)
+  const updateIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const connectionCheckRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Subscribe to system monitoring service to get real-time updates
+  // Set up polling and real-time updates for system monitoring
   useEffect(() => {
     // Check initial connection status
-    setConnected(sshService.isSSHConnected())
+    const initialConnected = sshService.isSSHConnected()
+    setConnected(initialConnected)
+    
+    // Start polling immediately if initially connected
+    if (initialConnected) {
+      fetchInitialData()
+      startPolling()
+    }
     
     // Set up event listeners for SSH connection changes
     const handleConnected = () => {
-      setConnected(true);
-      systemMonitoring.refreshStats(); // Fetch data immediately on connection
-    };
+      console.log("[ResourceGraph] Connection detected")
+      setConnected(true)
+      fetchInitialData()
+      startPolling()
+    }
     
     const handleDisconnected = () => {
-      setConnected(false);
-    };
+      console.log("[ResourceGraph] Disconnection detected")
+      setConnected(false)
+      stopPolling()
+    }
     
-    sshService.onConnected(handleConnected);
-    sshService.onDisconnected(handleDisconnected);
+    // Fixed type errors by type assertion
+    sshService.onConnected(handleConnected as (message: string) => void)
+    sshService.onDisconnected(handleDisconnected as (message: string) => void)
     
     // Subscribe to system monitoring updates
     const unsubscribe = systemMonitoring.subscribe((stats) => {
-      setCpuHistory(stats.cpu);
-      setMemoryHistory(stats.memory);
-    });
+      setCpuHistory(prev => {
+        // Check if data is different before updating
+        if (prev.length === 0 || stats.cpu.length === 0) return stats.cpu
+        if (prev[prev.length - 1]?.value !== stats.cpu[stats.cpu.length - 1]?.value) {
+          return stats.cpu
+        }
+        return prev
+      })
+      
+      setMemoryHistory(prev => {
+        // Check if data is different before updating
+        if (prev.length === 0 || stats.memory.length === 0) return stats.memory
+        if (prev[prev.length - 1]?.value !== stats.memory[stats.memory.length - 1]?.value) {
+          return stats.memory
+        }
+        return prev
+      })
+    })
     
-    // Get initial data
-    if (sshService.isSSHConnected()) {
-      const stats = systemMonitoring.getCurrentStats();
-      setCpuHistory(stats.cpu);
-      setMemoryHistory(stats.memory);
-    }
+    // Set up periodic connection checker in case events are missed
+    connectionCheckRef.current = setInterval(() => {
+      const currentlyConnected = sshService.isSSHConnected()
+      
+      // If state doesn't match reality, update it
+      if (currentlyConnected !== connected) {
+        console.log("[ResourceGraph] Connection state mismatch detected, updating:", 
+                    { wasConnected: connected, isConnected: currentlyConnected })
+        
+        setConnected(currentlyConnected)
+        
+        if (currentlyConnected) {
+          fetchInitialData()
+          startPolling()
+        } else {
+          stopPolling()
+        }
+      }
+      
+      // Ensure that system monitoring is active if we're supposed to be connected
+      if (currentlyConnected) {
+        systemMonitoring.ensurePollingActive()
+      }
+    }, 2000)
     
     // Cleanup on unmount
     return () => {
-      unsubscribe();
-      sshService.onConnected(null);
-      sshService.onDisconnected(null);
-    };
-  }, []);
+      unsubscribe()
+      sshService.onConnected(null as unknown as (message: string) => void)
+      sshService.onDisconnected(null as unknown as (message: string) => void)
+      stopPolling()
+      
+      if (connectionCheckRef.current) {
+        clearInterval(connectionCheckRef.current)
+        connectionCheckRef.current = null
+      }
+    }
+  }, [connected])
+  
+  // Separate fetch function for initial data
+  const fetchInitialData = () => {
+    console.log("[ResourceGraph] Fetching initial data")
+    systemMonitoring.refreshStats()
+    
+    // Get current stats (initial data might not be available immediately)
+    const stats = systemMonitoring.getCurrentStats()
+    if (stats.cpu.length > 0) setCpuHistory(stats.cpu)
+    if (stats.memory.length > 0) setMemoryHistory(stats.memory)
+  }
+  
+  // Start polling for updates
+  const startPolling = () => {
+    // Clear any existing interval first
+    stopPolling()
+    
+    console.log("[ResourceGraph] Starting polling for updates")
+    updateIntervalRef.current = setInterval(() => {
+      if (sshService.isSSHConnected()) {
+        systemMonitoring.refreshStats()
+      } else {
+        // If somehow we're polling but not connected, stop polling
+        stopPolling()
+      }
+    }, 3000) // Update every 3 seconds
+  }
+  
+  // Stop polling
+  const stopPolling = () => {
+    if (updateIntervalRef.current) {
+      clearInterval(updateIntervalRef.current)
+      updateIntervalRef.current = null
+      console.log("[ResourceGraph] Stopped polling")
+    }
+  }
 
   const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
     if (active && payload && payload.length) {

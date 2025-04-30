@@ -47,7 +47,7 @@ export default function DashboardPage() {
         initial="hidden"
         animate="show"
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-7xl mx-auto">
           <motion.div 
             className="md:col-span-2"
             variants={itemVariants}
@@ -75,7 +75,7 @@ export default function DashboardPage() {
         </div>
 
         <motion.div variants={itemVariants}>
-          <Card className="border border-zinc-800/50 bg-[#1e1e1e] shadow-lg overflow-hidden">
+          <Card className="border border-zinc-800/50 bg-[#1e1e1e] shadow-lg overflow-hidden mx-auto max-w-7xl">
             <CardHeader className="pb-2 border-b border-zinc-800/30 flex flex-row items-center justify-between">
               <CardTitle className="text-[#3fdaa4] text-lg font-medium">Process Management</CardTitle>
               {selectedProcess && <ControlPanel process={selectedProcess} />}

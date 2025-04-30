@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from "@/components/auth-provider"
 import { Header } from "@/components/header"
+import { Providers } from "./providers"
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -13,8 +14,8 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Linux Terminal Dashboard",
-  description: "A Linux monitoring dashboard inspired by the terminal view",
+  title: "SysPulse",
+  description: "A Linux monitoring dashboard that connects via SSH for real-time monitoring and terminal-inspired views.",
   generator: 'v0.dev'
 }
 
@@ -26,15 +27,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${jetbrainsMono.variable} font-mono bg-[#0c0c0c] text-terminal-green`}>
-        <AuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
-            <Header />
-            <main className="pt-16">
-              {children}
-            </main>
-            <Toaster />
-          </ThemeProvider>
-        </AuthProvider>
+        <Providers>
+          <AuthProvider>
+            <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
+              <Header />
+              <main className="pt-16">
+                {children}
+              </main>
+              <Toaster />
+            </ThemeProvider>
+          </AuthProvider>
+        </Providers>
       </body>
     </html>
   )

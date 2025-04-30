@@ -2,24 +2,34 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Terminal, Mail, Lock, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
-import { supabase } from "@/lib/supabase/client"
+import { signIn, useSession } from "next-auth/react"
 import { motion } from "framer-motion"
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirectTo') || '/dashboard'
   const { toast } = useToast()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const { status } = useSession()
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push(redirectTo)
+    }
+  }, [status, redirectTo, router])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,23 +46,25 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      // Login with Supabase
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // Login with NextAuth
+      const result = await signIn("credentials", {
+        redirect: false,
         email,
         password,
+        callbackUrl: redirectTo,
       })
 
-      if (error) {
-        throw error
+      if (result?.error) {
+        throw new Error(result.error)
       }
 
       toast({
         title: "Login successful",
-        description: "Redirecting to dashboard...",
+        description: "Redirecting...",
       })
 
-      // Redirect to dashboard
-      router.push("/dashboard")
+      // Redirect to the requested page or dashboard
+      router.push(redirectTo)
     } catch (error: any) {
       toast({
         title: "Login failed",
