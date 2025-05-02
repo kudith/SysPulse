@@ -14,6 +14,9 @@
 
 SysPulse is a modern web-based dashboard interface for managing Linux processes through Secure Shell (SSH). It provides a user-friendly interface for monitoring, controlling, and managing system processes remotely, offering real-time data and command execution capabilities.
 
+**Related Repositories:**
+- [SysPulse_websocket](https://github.com/kudith/SysPulse_websocket) - WebSocket server for real-time communication
+
 ## ✨ Features
 
 - **Remote Process Management**: Monitor and manage Linux processes through a secure SSH connection
@@ -47,7 +50,7 @@ git clone https://github.com/kudith/SysPulse.git
 cd SysPulse
 ```
 
-2. Clone the WebSocket repository:
+2. Clone the WebSocket repository ([SysPulse_websocket](https://github.com/kudith/SysPulse_websocket)):
 ```bash
 git clone https://github.com/kudith/SysPulse_websocket.git
 ```
@@ -111,7 +114,7 @@ npm run ssh-server
 ### Real-time Communication
 - **WebSockets**: Protocol for real-time communication between client and server
 - **Socket.io**: Real-time bidirectional event-based communication for live updates
-- **SysPulse_websocket**: Dedicated WebSocket server in a separate repository
+- **[SysPulse_websocket](https://github.com/kudith/SysPulse_websocket)**: Dedicated WebSocket server in a separate repository
 
 ### UI Components
 - **XTerm.js**: Terminal emulator component for browser-based command execution
@@ -140,6 +143,17 @@ graph TD
 - **Job Scheduling**: Schedule and manage cron jobs
 - **User Management**: Control SSH user access and permissions
 
+## 🔌 WebSocket Server
+
+The real-time functionality is powered by a separate WebSocket server repository:
+- Repository: [https://github.com/kudith/SysPulse_websocket](https://github.com/kudith/SysPulse_websocket)
+- Purpose: Handles real-time communication between clients and Linux servers
+- Features:
+  - Live system metrics streaming
+  - Real-time process updates
+  - Terminal session management
+  - Event-based notifications
+
 ## 🚀 Project Structure
 
 ```
@@ -150,7 +164,7 @@ SysPulse/
 ├── public/            # Static assets
 └── server/            # Server-side code for SSH connections
 
-SysPulse_websocket/    # Separate repository
+SysPulse_websocket/    # Separate repository: https://github.com/kudith/SysPulse_websocket
 ├── src/               # WebSocket server source code
 ├── lib/               # WebSocket utilities
 └── config/            # WebSocket server configuration
