@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { motion } from "framer-motion"
 import { Input } from "@/components/ui/input"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
+import { ServerHealthScore } from "@/components/ServerHealthScore"
 
 export default function EnhancedDashboardPage() {
   const [selectedProcess, setSelectedProcess] = useState<Process | null>(null)
@@ -18,6 +19,13 @@ export default function EnhancedDashboardPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [refreshInterval, setRefreshInterval] = useState(30000)
   const [lastUpdated, setLastUpdated] = useState(Date.now())
+
+  const serverMetrics = {
+    cpu: 65,
+    memory: 78,
+    disk: 82,
+    uptime: 1209600 // 14 days in seconds
+  }
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -142,6 +150,12 @@ export default function EnhancedDashboardPage() {
               />
             </CardContent>
           </Card>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <ServerHealthScore metrics={serverMetrics} />
+          </div>
         </motion.div>
       </motion.main>
     </div>
