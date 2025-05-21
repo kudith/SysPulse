@@ -853,96 +853,96 @@ export default function Docs() {
                 
                 <h3 className="mt-6 text-[#6be5fd]">Notification Method</h3>
                 <p>
-                  SysPulse dapat mengirimkan notifikasi melalui berbagai saluran, seperti:
+                  SysPulse can send notifications through various channels, such as:
                 </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose mt-4">
                   <div className="bg-[#1e1e1e] p-4 rounded-lg border border-zinc-800/50">
                     <h4 className="text-[#d8dee9] font-semibold mb-2">Email</h4>
                     <p className="text-[#a8aebb]">
-                      Notifikasi terperinci dikirim ke alamat email yang ditentukan, dengan grafik dan informasi diagnostik.
+                      Detailed notifications are sent to the specified email address, including charts and diagnostic information.
                     </p>
                   </div>
                   
                   <div className="bg-[#1e1e1e] p-4 rounded-lg border border-zinc-800/50">
                     <h4 className="text-[#d8dee9] font-semibold mb-2">SMS</h4>
                     <p className="text-[#a8aebb]">
-                      Pesan teks singkat untuk peringatan kritis yang memerlukan tindakan segera.
+                      Short text messages for critical alerts that require immediate action.
                     </p>
                   </div>
                   
                   <div className="bg-[#1e1e1e] p-4 rounded-lg border border-zinc-800/50">
                     <h4 className="text-[#d8dee9] font-semibold mb-2">Webhook</h4>
                     <p className="text-[#a8aebb]">
-                      Kirim data peringatan ke URL webhook untuk integrasi dengan sistem pihak ketiga.
+                      Send alert data to a webhook URL for integration with third-party systems.
                     </p>
                   </div>
                   
                   <div className="bg-[#1e1e1e] p-4 rounded-lg border border-zinc-800/50">
                     <h4 className="text-[#d8dee9] font-semibold mb-2">Aplikasi Pesan</h4>
                     <p className="text-[#a8aebb]">
-                      Integrasi dengan Slack, Microsoft Teams, Telegram, dan platform komunikasi lainnya.
+                      Integration with Slack, Microsoft Teams, Telegram, and other communication platforms.
                     </p>
                   </div>
                 </div>
                 
                 <h3 className="mt-8 text-[#6be5fd]">Mengonfigurasi Peringatan</h3>
                 <p>
-                  Untuk mengonfigurasi peringatan baru, anda dapat mengikuti langkah-langkah berikut ini:
+                  To configure a new alert, you can follow these steps:
                 </p>
                 
                 <ol>
-                  <li>- Buka bagian "Pemberitahuan" dari menu utama</li>
-                  <li>- Klik tombol "Tambah Peringatan Baru"</li>
-                  <li>- Pilih jenis peringatan yang ingin anda buat</li>
-                  <li>- Konfigurasi kriteria peringatan:
+                  <li>- Open the "Notifications" section from the main menu</li>
+                  <li>- Click the "Add New Alert" button"</li>
+                  <li>- Choose the type of alert you want to create</li>
+                  <li>- Configure the alert criteria:
                     <ul>
-                      <li className="ml-6">1. Pilih server yang akan dipantau</li>
-                      <li className="ml-6">2. Pilih metrik untuk memicu peringatan</li>
-                      <li className="ml-6">3. Tetapkan kondisi dan ambang batas</li>
-                      <li className="ml-6">4. Tentukan durasi (berapa lama kondisi harus bertahan)</li>
+                      <li className="ml-6">1. Select the server to monitor</li>
+                      <li className="ml-6">2. Choose the metric to trigger the alert</li>
+                      <li className="ml-6">3. Set the condition and threshold</li>
+                      <li className="ml-6">4. pecify the duration (how long the condition must persist)</li>
                     </ul>
                   </li>
-                  <li>- Konfigurasikan saluran pemberitahuan (email, SMS, webhook, dll.)</li>
-                  <li>- Tetapkan tingkat keparahan (informasi, peringatan, kritis)</li>
-                  <li>- Tambahkan instruksi penyelesaian masalah opsional</li>
-                  <li>- Klik "Simpan" untuk mengaktifkan peringatan</li>
+                  <li>- Configure notification channels (email, SMS, webhook, etc.)</li>
+                  <li>- Set the severity level (info, warning, critical)</li>
+                  <li>- Add optional troubleshooting instructions</li>
+                  <li>- Click "Save" to activate the alert</li>
                 </ol>
                 
                 <div className="not-prose bg-[#ff79c6]/10 p-5 rounded-lg border border-[#ff79c6]/20 mt-6">
-                  <h4 className="text-[#ff79c6] font-semibold text-lg mb-2">Praktik Terbaik Peringatan</h4>
+                  <h4 className="text-[#ff79c6] font-semibold text-lg mb-2">Best Practices for Alerts</h4>
                   <ul className="list-disc pl-5 text-[#a8aebb] space-y-2">
                     <li>
-                      <strong>Hindari kelelahan peringatan</strong> - Jangan mengatur terlalu banyak peringatan atau ambang batas yang terlalu rendah
+                      <strong>Avoid alert fatigue</strong> - Don't set too many alerts or thresholds that are too low
                     </li>
                     <li>
-                      <strong>Tetapkan peringatan yang dapat ditindaklanjuti</strong> - Setiap peringatan harus memerlukan tindakan tertentu 
+                      <strong>Set actionable alerts</strong> - Every alert should require a specific action
                     </li>
                     <li>
-                      <strong>Gunakan tingkat keparahan dengan tepat</strong> - Simpan notifikasi "kritis" untuk masalah yang benar-benar memerlukan perhatian segera
+                      <strong>Use severity levels appropriately</strong> - Reserve "critical" notifications for issues that truly require immediate attention
                     </li>
                     <li>
-                      <strong>Sertakan konteks</strong> - Tambahkan informasi yang cukup untuk memahami mengapa peringatan dipicu
+                      <strong>Include context</strong> - Add enough information to understand why the alert was triggered
                     </li>
                     <li>
-                      <strong>Tinjau secara berkala</strong> - Evaluasi ulang peringatan secara teratur untuk menghilangkan false positive
+                      <strong>Review regularly</strong> - Periodically re-evaluate alerts to eliminate false positives
                     </li>
                   </ul>
                 </div>
                 
-                <h3 className="mt-8 text-[#6be5fd]">Riwayat Peringatan</h3>
+                <h3 className="mt-8 text-[#6be5fd]">Alert History</h3>
                 <p>
-                  SysPulse menyimpan riwayat lengkap semua peringatan yang dipicu, sehingga memungkinkan anda untuk:
+                  SysPulse keeps a complete history of all triggered alerts, allowing you to:
                 </p>
                 <ul>
-                  <li>- Melihat pola dalam masalah yang terjadi berulang</li>
-                  <li>- Menganalisis metrik pada saat peringatan dipicu</li>
-                  <li>- Melacak resolusi dan waktu respons</li>
-                  <li>- Mengidentifikasi area untuk perbaikan</li>
+                  <li>- Identify patterns in recurring issues</li>
+                  <li>- Analyze metrics at the time the alert was triggered</li>
+                  <li>- Track resolution and response times</li>
+                  <li>- Identify areas for improvement</li>
                 </ul>
                 <p>
-                  Untuk mengakses riwayat peringatan, buka bagian "Pemberitahuan" dan klik tab "Riwayat".
-                  Anda dapat memfilter berdasarkan server, jenis peringatan, tingkat keparahan, dan rentang tanggal.
+                  To access alert history, open the "Notifications" section and click the "History" tab.
+                  You can filter by server, alert type, severity level, and date range.
                 </p>
               </div>
             </section>
@@ -953,100 +953,100 @@ export default function Docs() {
                 <div className="w-10 h-10 rounded-lg bg-[#6be5fd]/10 flex items-center justify-center">
                   <Lock className="h-5 w-5 text-[#6be5fd]" />
                 </div>
-                <h2 className="text-2xl font-bold text-[#d8dee9]">Koneksi SSH</h2>
+                <h2 className="text-2xl font-bold text-[#d8dee9]">SSH Connection</h2>
               </div>
               
               <div className="prose prose-invert max-w-none prose-p:text-[#a8aebb] prose-li:text-[#a8aebb] prose-headings:text-[#d8dee9] prose-a:text-[#6be5fd] prose-a:no-underline hover:prose-a:text-[#8ff4ff]">
                 <p>
-                  SysPulse menggunakan protokol SSH (Secure Shell) untuk terhubung ke server jarak jauh secara aman.
-                  Bagian ini membahas cara melakukan koneksi SSH dan pemecahan masalah umum.
+                  SysPulse uses the SSH (Secure Shell) protocol to securely connect to remote servers.
+                  This section explains how to establish an SSH connection and troubleshoot common issues.
                 </p>
                 
-                <h3 className="font-bold text-[#6be5fd] mt-4">Informasi yang Diperlukan</h3>
-                <p>Untuk melakukan koneksi SSH ke server, Anda memerlukan informasi berikut:</p>
+                <h3 className="font-bold text-[#6be5fd] mt-4">Required Information</h3>
+                <p>To establish an SSH connection to a server, you will need the following information:</p>
                 <ul>
-                  <li><strong>- Host</strong>: Alamat IP atau nama domain server target</li>
-                  <li><strong>- Port</strong>: Port SSH (default: 22)</li>
-                  <li><strong>- Username</strong>: Nama pengguna untuk login ke server</li>
-                  <li><strong>- Private Key</strong>: Kunci pribadi untuk autentikasi (atau password jika autentikasi password diaktifkan)</li>
+                  <li><strong>- Host</strong>: The IP address or domain name of the target server</li>
+                  <li><strong>- Port</strong>: SSH port (default: 22)</li>
+                  <li><strong>- Username</strong>: The username to log in to the server</li>
+                  <li><strong>- Private Key</strong>: Private key for authentication (or password if password authentication is enabled)</li>
                 </ul>
                 
-                <h3 className='font-bold text-[#6be5fd] mt-4'>Langkah-langkah Koneksi</h3>
+                <h3 className='font-bold text-[#6be5fd] mt-4'>Connection Steps</h3>
                 <ol>
-                  <li>- Navigasi ke halaman "Koneksi" di menu utama</li>
-                  <li>- Klik tombol "Tambah Koneksi" atau "Hubungkan"</li>
-                  <li>- Masukkan detail koneksi dalam formulir:
+                  <li>- Navigate to the "Connections" page in the main menu</li>
+                  <li>- Click the "Add Connection" or "Connect" button</li>
+                  <li>- Enter the connection details in the form:
                     <ul>
-                      <li className="ml-4">1. Host: alamat IP atau hostname server</li>
-                      <li className="ml-4">2. Port: biasanya 22 (default)</li>
-                      <li className="ml-4">3. Username: nama pengguna SSH Anda</li>
-                      <li className="ml-4">4. Private Key: tempel kunci pribadi anda atau unggah file kunci</li>
-                      <li className="ml-4">Jika menggunakan passphrase, aktifkan opsi dan masukkan passphrase</li>
+                      <li className="ml-4">1. Host: server IP address or hostname</li>
+                      <li className="ml-4">2. Port: usually 22 (default)</li>
+                      <li className="ml-4">3. Username: your SSH username</li>
+                      <li className="ml-4">4. Private Key: paste your private key or upload the key file</li>
+                      <li className="ml-4">If using a passphrase, enable the option and enter your passphrase</li>
                     </ul>
                   </li>
-                  <li>- Klik "Hubungkan" untuk memulai koneksi</li>
-                  <li>- Setelah terhubung, anda akan dibawa ke dashboard atau halaman terminal</li>
+                  <li>- Click "Connect" to start the connection</li>
+                  <li>- Once connected, you will be taken to the dashboard or terminal page</li>
                 </ol>
                 
-                <h3 className="font-bold text-[#6be5fd] mt-4">Mendapatkan Private Key</h3>
+                <h3 className="font-bold text-[#6be5fd] mt-4">Get the Private Key</h3>
                 <p>
-                  Jika Anda belum memiliki private key, berikut cara mendapatkannya:
+                  If you don't have a private key yet, here's how to get one:
                 </p>
                 <ul>
                   <li>
-                    <strong>- Pada Linux/macOS</strong>: Kunci privat biasanya tersimpan di <code>~/.ssh/id_rsa</code>
+                    <strong>- On Linux/macOS</strong>: The private key is usually stored at <code>~/.ssh/id_rsa</code>
                   </li>
                   <li>
-                    <strong>- Pada Windows</strong>: Jika menggunakan PuTTY, kunci tersimpan sebagai file .ppk, 
-                    perlu dikonversi ke format OpenSSH
+                    <strong>- On Windows</strong>: If using PuTTY, the key is saved as a .ppk file 
+                    and needs to be converted to OpenSSH format
                   </li>
                   <li>
-                    <strong>- Untuk VM cloud</strong>: Kunci biasanya diunduh saat pertama kali membuat instance
+                    <strong>- For cloud VMs</strong>: The key is usually downloaded when you first create the instance
                   </li>
                   <li>
-                    <strong>- Membuat kunci baru</strong>: Gunakan perintah: <code>ssh-keygen -t rsa -b 4096</code>
+                    <strong>- To generate a new key</strong>: Use the command: <code>ssh-keygen -t rsa -b 4096</code>
                   </li>
                 </ul>
                 
                 <div className="not-prose bg-[#1e1e1e] p-5 rounded-lg border border-[#3fdaa4]/20 mt-6">
-                  <h4 className="text-[#d8dee9] font-semibold text-lg mb-3">Tips Format Kunci</h4>
+                  <h4 className="text-[#d8dee9] font-semibold text-lg mb-3">Key Format Tips</h4>
                   <p className="text-[#a8aebb] mb-4">
-                    SysPulse mendukung format kunci OpenSSH dan PEM. Jika Anda menggunakan kunci dalam format lain,
-                    Anda mungkin perlu mengonversinya terlebih dahulu. Kunci privat harus dimulai dengan
+                    SysPulse supports OpenSSH and PEM key formats. If you are using a key in another format,
+                    you may need to convert it first. The private key should start with
                     <code className="bg-[#282a36] px-2 py-0.5 mx-1 rounded text-[#ff79c6]">-----BEGIN RSA PRIVATE KEY-----</code>
-                    atau format serupa lainnya.
+                    or a similar format.
                   </p>
                 </div>
                 
-                <h3 className="font-bold text-[#6be5fd] mt-4">Pemecahan Masalah Koneksi</h3>
+                <h3 className="font-bold text-[#6be5fd] mt-4">Connection Troubleshooting</h3>
                 <p>
-                  Berikut ini adalah masalah koneksi SSH yang umum terjadi beserta solusinya:
+                  Here are some common SSH connection issues and their solutions:
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose">
                   <div className="bg-[#282a36]/70 p-4 rounded-lg border border-zinc-800/50">
                     <p className="font-medium text-[#ff79c6] pb-2 border-b border-zinc-700/50 mb-3">Connection Refused</p>
                     <ul className="list-disc pl-5 mt-1 space-y-2 text-[#a8aebb]">
-                      <li>Pastikan server SSH berjalan di server target</li>
-                      <li>Verifikasi port yang benar (biasanya 22)</li>
-                      <li>Periksa firewall atau aturan grup keamanan</li>
-                      <li>Pastikan alamat IP server benar</li>
+                      <li>Make sure the SSH server is running on the target server</li>
+                      <li>Verify the correct port (usually 22)</li>
+                      <li>Check firewall or security group rules</li>
+                      <li>Ensure the server IP address is correct</li>
                     </ul>
                   </div>
                   
                   <div className="bg-[#282a36]/70 p-4 rounded-lg border border-zinc-800/50">
                     <p className="font-medium text-[#ff79c6] pb-2 border-b border-zinc-700/50 mb-3">Permission Denied</p>
                     <ul className="list-disc pl-5 mt-1 space-y-2 text-[#a8aebb]">
-                      <li>Verifikasi username yang benar</li>
-                      <li>Pastikan private key yang benar digunakan</li>
-                      <li>Verifikasi passphrase jika digunakan</li>
-                      <li>Periksa bahwa kunci publik terdaftar di server</li>
+                      <li>Verify the correct username</li>
+                      <li>Make sure the correct private key is used</li>
+                      <li>Verify the passphrase if used</li>
+                      <li>Check that the public key is registered on the server</li>
                     </ul>
                   </div>
                 </div>
                 
                 <p className="mt-6">
-                  Untuk bantuan lebih lanjut dengan koneksi SSH, klik ikon bantuan pada halaman koneksi
-                  untuk melihat panduan mendetail.
+                  For further assistance with SSH connections, 
+                  click the help icon on the connection page to view detailed guidance.
                 </p>
               </div>
             </section>
@@ -1057,43 +1057,43 @@ export default function Docs() {
                 <div className="w-10 h-10 rounded-lg bg-[#c792ea]/10 flex items-center justify-center">
                   <ExternalLink className="h-5 w-5 text-[#c792ea]" />
                 </div>
-                <h2 className="text-2xl font-bold text-[#d8dee9]">Penggunaan Ngrok</h2>
+                <h2 className="text-2xl font-bold text-[#d8dee9]">Ngrok Usage</h2>
               </div>
               
               <div className="prose prose-invert max-w-none prose-p:text-[#a8aebb] prose-li:text-[#a8aebb] prose-headings:text-[#d8dee9] prose-a:text-[#6be5fd] prose-a:no-underline hover:prose-a:text-[#8ff4ff]">
                 <p>
-                  Ngrok adalah layanan yang memungkinkan Anda mengekspos server lokal ke internet melalui tunnel aman.
-                  Ini sangat berguna jika Anda ingin mengakses server yang berada di balik NAT atau firewall.
+                  Ngrok is a service that allows you to expose your local server to the internet through a secure tunnel.
+                  This is especially useful if you want to access a server that is behind NAT or a firewall.
                 </p>
                 
-                <h3 className="font-bold text-[#6be5fd] mt-4">Mengapa Menggunakan Ngrok dengan SysPulse?</h3>
+                <h3 className="font-bold text-[#6be5fd] mt-4">Why Use Ngrok with SysPulse?</h3>
                 <p>
-                  Saat menjalankan server di lingkungan lokal atau jaringan privat, anda mungkin tidak memiliki IP publik tetap.
-                  Oleh karena itu Ngrok membantu mengatasi masalah ini dengan membuat tunnel aman sehingga SysPulse dapat terhubung ke server anda.
+                  When running a server in a local environment or private network, you may not have a static public IP.
+                  Ngrok helps solve this problem by creating a secure tunnel so SysPulse can connect to your server.
                 </p>
                 
-                <h3 className="font-bold text-[#6be5fd] mt-4">Langkah-langkah Pengaturan Ngrok</h3>
+                <h3 className="font-bold text-[#6be5fd] mt-4">Ngrok Setup Steps</h3>
                 <ol>
                   <li>
-                    <strong>- Instal Ngrok</strong>
-                    <p>Kunjungi <a href="https://ngrok.com" target="_blank" rel="noopener noreferrer">ngrok.com</a> untuk mengunduh dan instal Ngrok</p>
+                    <strong>- Install Ngrok</strong>
+                    <p>Visit <a href="https://ngrok.com" target="_blank" rel="noopener noreferrer">ngrok.com</a> to download and install Ngrok</p>
                   </li>
                   <li>
-                    <strong>- Daftar Akun Ngrok</strong>
-                    <p>Buat akun dan dapatkan token autentikasi Anda</p>
+                    <strong>- Register a Ngrok Account</strong>
+                    <p>Create an account and get your authentication token</p>
                   </li>
                   <li>
-                    <strong>- Autentikasi Ngrok</strong>
-                    <p>Jalankan perintah: <code>ngrok authtoken YOUR_AUTH_TOKEN</code></p>
+                    <strong>- Authenticate Ngrok</strong>
+                    <p>Run the command: <code>ngrok authtoken YOUR_AUTH_TOKEN</code></p>
                   </li>
                   <li>
-                    <strong>- Buat Tunnel SSH</strong>
-                    <p>Untuk membuat tunnel SSH, jalankan: <code>ngrok tcp 22</code></p>
+                    <strong>- Create an SSH Tunnel</strong>
+                    <p>To create an SSH tunnel, run: <code>ngrok tcp 22</code></p>
                   </li>
                 </ol>
                 
                 <div className="bg-[#1e1e1e] p-5 rounded-lg border border-zinc-800/50 mt-6">
-                  <h4 className="text-[#6be5fd] font-semibold text-lg mb-3">Contoh Output Ngrok</h4>
+                  <h4 className="text-[#6be5fd] font-semibold text-lg mb-3">Ngrok Output Example</h4>
                   <div className="bg-[#121212] p-4 rounded-md text-[#d8dee9] overflow-x-auto">
                     <pre><code>ngrok by @inconshreveable                                                (Ctrl+C to quit)
                                                                                               
@@ -1109,21 +1109,21 @@ Connections                   ttl     opn     rt1     rt5     p50     p90
                               0       0       0.00    0.00    0.00    0.00</code></pre>
                   </div>
                   <p className="text-[#a8aebb] mt-4">
-                    Dalam contoh ini, gunakan <code className="bg-[#282a36] px-2 py-0.5 rounded text-[#ff79c6]">8.tcp.ngrok.io</code> sebagai host dan{' '}
-                    <code className="bg-[#282a36] px-2 py-0.5 rounded text-[#ff79c6]">12345</code> sebagai port dalam formulir koneksi SSH SysPulse.
+                    Dalam contoh ini, gunakan <code className="bg-[#282a36] px-2 py-0.5 rounded text-[#ff79c6]">8.tcp.ngrok.io</code> as host and{' '}
+                    <code className="bg-[#282a36] px-2 py-0.5 rounded text-[#ff79c6]">12345</code> as the port in the SysPulse SSH connection form.
                   </p>
                 </div>
                 
-                <h3 className="font-bold text-[#6be5fd] mt-4">Penggunaan Ngrok pada SysPulse</h3>
+                <h3 className="font-bold text-[#6be5fd] mt-4">Using Ngrok with SysPulse</h3>
                 <p>
-                  Setelah tunnel Ngrok berjalan, anda dapat mengikuti langkah-langkah berikut untuk terhubung menggunakan SysPulse:
+                  After the Ngrok tunnel is running, you can follow these steps to connect using SysPulse:
                 </p>
                 <ol>
-                  <li>- Buka halaman koneksi SSH di SysPulse</li>
-                  <li>- Di kolom host, masukkan URL Ngrok yang diberikan (mis., <code>8.tcp.ngrok.io</code>)</li>
-                  <li>- Di kolom port, masukkan port yang diberikan Ngrok (mis., <code>12345</code>)</li>
-                  <li>- Masukkan username dan private key Anda seperti biasa</li>
-                  <li>- Klik "Hubungkan" untuk memulai koneksi</li>
+                  <li>- Open the SSH connection page in SysPulse</li>
+                  <li>- In the host field, enter the provided Ngrok URL (e.g., <code>8.tcp.ngrok.io</code>)</li>
+                  <li>- In the port field, enter the port given by Ngrok (e.g., <code>12345</code>)</li>
+                  <li>- Enter your username and private key as usual</li>
+                  <li>- Click "Connect" to start the connection</li>
                 </ol>
                 
                 <div className="bg-[#ff79c6]/10 p-5 rounded-lg border border-[#ff79c6]/20 mt-6">
@@ -1131,20 +1131,20 @@ Connections                   ttl     opn     rt1     rt5     p50     p90
                     <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Catatan Penting
+                    Important Notes
                   </h4>
                   <ul className="list-disc pl-5 text-[#a8aebb] space-y-2">
                     <li>
-                      Alamat tunnel Ngrok <strong>berubah setiap kali Anda memulai ulang</strong> Ngrok dengan akun gratis
+                      The Ngrok tunnel address <strong>changes every time you restart</strong> Ngrok with a free account
                     </li>
                     <li>
-                      Untuk alamat tetap, pertimbangkan untuk berlangganan paket berbayar Ngrok
+                      For a static address, consider subscribing to a paid Ngrok plan
                     </li>
                     <li>
-                      Sesi Ngrok akan kedaluwarsa setelah beberapa jam dalam paket gratis
+                      Ngrok sessions will expire after a few hours on the free plan
                     </li>
                     <li>
-                      Pastikan server SSH Anda berjalan di port yang Anda tentukan (default: 22)
+                      Make sure your SSH server is running on the port you specify (default: 22)
                     </li>
                   </ul>
                 </div>
@@ -1157,30 +1157,30 @@ Connections                   ttl     opn     rt1     rt5     p50     p90
                 <div className="w-10 h-10 rounded-lg bg-[#6be5fd]/10 flex items-center justify-center">
                   <Database className="h-5 w-5 text-[#6be5fd]" />
                 </div>
-                <h2 className="text-2xl font-bold text-[#d8dee9]">Koneksi ke VM Cloud</h2>
+                <h2 className="text-2xl font-bold text-[#d8dee9]">Connecting to Cloud VMs</h2>
               </div>
               
               <div className="prose prose-invert max-w-none prose-p:text-[#a8aebb] prose-li:text-[#a8aebb] prose-headings:text-[#d8dee9] prose-a:text-[#6be5fd] prose-a:no-underline hover:prose-a:text-[#8ff4ff]">
                 <p>
-                  SysPulse dapat dengan mudah terhubung ke Virtual Machine (VM) yang dihosting di penyedia cloud populer.
-                  Bagian ini menjelaskan cara terhubung ke VM dari berbagai penyedia cloud.
+                  SysPulse can easily connect to Virtual Machines (VMs) hosted on popular cloud providers.
+                  This section explains how to connect to VMs from various cloud providers.
                 </p>
                 
                 <h3 className="font-bold text-[#6be5fd] mt-4">Amazon Web Services (AWS) EC2</h3>
                 <div className="bg-[#1e1e1e] p-5 rounded-lg border border-zinc-800/50 mt-2 mb-6">
-                  <h4 className="text-[#d8dee9] font-semibold text-lg mb-3">Langkah-langkah Koneksi</h4>
+                  <h4 className="text-[#d8dee9] font-semibold text-lg mb-3">Connection Steps</h4>
                   <ol className="list-decimal pl-5 text-[#a8aebb] space-y-2">
-                    <li>Di AWS Console, pastikan anda berjalan di instance EC2</li>
-                    <li>Catat Public DNS atau Public IP Address instance</li>
-                    <li>Pastikan grup keamanan mengizinkan lalu lintas SSH (port 22)</li>
-                    <li>Gunakan file .pem yang diunduh saat membuat instance sebagai private key</li>
+                    <li>In the AWS Console, make sure you are running an EC2 instance</li>
+                    <li>Note the instance's Public DNS or Public IP Address</li>
+                    <li>Ensure the security group allows SSH traffic (port 22)</li>
+                    <li>Use the .pem file downloaded when creating the instance as the private key</li>
                     <li>
-                      Username default tergantung pada AMI yang digunakan:
+                      The default username depends on the AMI used:
                       <ul className="list-disc pl-5 mt-1">
                         <li>Amazon Linux/RHEL: <code className="bg-[#282a36] px-2 py-0.5 rounded text-[#ff79c6]">ec2-user</code></li>
                         <li>Ubuntu: <code className="bg-[#282a36] px-2 py-0.5 rounded text-[#ff79c6]">ubuntu</code></li>
-                        <li>Debian: <code className="bg-[#282a36] px-2 py-0.5 rounded text-[#ff79c6]">admin</code> atau <code className="bg-[#282a36] px-2 py-0.5 rounded text-[#ff79c6]">debian</code></li>
-                        <li>SUSE: <code className="bg-[#282a36] px-2 py-0.5 rounded text-[#ff79c6]">ec2-user</code> atau <code className="bg-[#282a36] px-2 py-0.5 rounded text-[#ff79c6]">root</code></li>
+                        <li>Debian: <code className="bg-[#282a36] px-2 py-0.5 rounded text-[#ff79c6]">admin</code> or <code className="bg-[#282a36] px-2 py-0.5 rounded text-[#ff79c6]">debian</code></li>
+                        <li>SUSE: <code className="bg-[#282a36] px-2 py-0.5 rounded text-[#ff79c6]">ec2-user</code> or <code className="bg-[#282a36] px-2 py-0.5 rounded text-[#ff79c6]">root</code></li>
                       </ul>
                     </li>
                   </ol>
@@ -1188,35 +1188,35 @@ Connections                   ttl     opn     rt1     rt5     p50     p90
                 
                 <h3 className="font-bold text-[#6be5fd] mt-4">Google Cloud Platform (GCP)</h3>
                 <div className="bg-[#1e1e1e] p-5 rounded-lg border border-zinc-800/50 mt-2 mb-6">
-                  <h4 className="text-[#d8dee9] font-semibold text-lg mb-3">Langkah-langkah Koneksi</h4>
+                  <h4 className="text-[#d8dee9] font-semibold text-lg mb-3">Connection Steps</h4>
                   <ol className="list-decimal pl-5 text-[#a8aebb] space-y-2">
-                    <li>Di konsol GCP, navigasi ke Compute Engine {'>'}  Instances VM</li>
-                    <li>Catat alamat IP eksternal dari instance VM Anda</li>
-                    <li>Pastikan aturan firewall mengizinkan lalu lintas SSH (port 22)</li>
+                    <li>In the GCP console, navigate to Compute Engine {'>'}  Instances VM</li>
+                    <li>Note the external IP address of your VM instance</li>
+                    <li>Ensure firewall rules allow SSH traffic (port 22)</li>
                     <li>
-                      Untuk autentikasi, Anda memiliki dua opsi:
+                      For authentication, you have two options:
                       <ul className="list-disc pl-5 mt-1">
-                        <li>Gunakan kunci SSH yang ditambahkan melalui metadata project atau instance</li>
-                        <li>Gunakan OS Login jika diaktifkan di project anda</li>
+                        <li>Use an SSH key added via project or instance metadata</li>
+                        <li>Use OS Login if enabled on your project</li>
                       </ul>
                     </li>
-                    <li>Username biasanya adalah nama akun Google Anda atau nama yang dikonfigurasi saat membuat instance</li>
+                    <li>The username is usually your Google account name or the name configured when creating the instance</li>
                   </ol>
                 </div>
                 
                 <h3 className="font-bold text-[#6be5fd] mt-4">Microsoft Azure</h3>
                 <div className="bg-[#1e1e1e] p-5 rounded-lg border border-zinc-800/50 mt-2 mb-6">
-                  <h4 className="text-[#d8dee9] font-semibold text-lg mb-3">Langkah-langkah Koneksi</h4>
+                  <h4 className="text-[#d8dee9] font-semibold text-lg mb-3">Connection Steps</h4>
                   <ol className="list-decimal pl-5 text-[#a8aebb] space-y-2">
-                    <li>Di portal Azure, navigasi ke Virtual Machines</li>
-                    <li>Pilih VM Linux Anda dan catat alamat IP publik</li>
-                    <li>Pastikan Network Security Group (NSG) mengizinkan lalu lintas SSH (port 22)</li>
-                    <li>Gunakan username yang Anda konfigurasikan saat membuat VM</li>
+                    <li>In the Azure portal, navigate to Virtual Machines</li>
+                    <li>Select your Linux VM and note the public IP address</li>
+                    <li>Ensure the Network Security Group (NSG) allows SSH traffic (port 22)</li>
+                    <li>Use the username you configured when creating the VM</li>
                     <li>
-                      Untuk autentikasi, Anda dapat menggunakan:
+                      For authentication, you can use:
                       <ul className="list-disc pl-5 mt-1">
-                        <li>Kunci SSH yang Anda konfigurasi saat pembuatan VM</li>
-                        <li>Autentikasi kata sandi jika dikonfigurasi</li>
+                        <li>The SSH key you configured during VM creation</li>
+                        <li>Password authentication if configured</li>
                       </ul>
                     </li>
                   </ol>
@@ -1224,13 +1224,13 @@ Connections                   ttl     opn     rt1     rt5     p50     p90
                 
                 <h3 className="font-bold text-[#6be5fd] mt-4">Digital Ocean</h3>
                 <div className="bg-[#1e1e1e] p-5 rounded-lg border border-zinc-800/50 mt-2 mb-6">
-                  <h4 className="text-[#d8dee9] font-semibold text-lg mb-3">Langkah-langkah Koneksi</h4>
+                  <h4 className="text-[#d8dee9] font-semibold text-lg mb-3">Connection Steps</h4>
                   <ol className="list-decimal pl-5 text-[#a8aebb] space-y-2">
-                    <li>Di panel kontrol Digital Ocean, navigasi ke Droplets</li>
-                    <li>Pilih Droplet Anda dan catat alamat IP</li>
-                    <li>Username default biasanya adalah <code className="bg-[#282a36] px-2 py-0.5 rounded text-[#ff79c6]">root</code></li>
-                    <li>Gunakan kunci SSH yang dikonfigurasi saat membuat Droplet</li>
-                    <li>Jika Anda memilih autentikasi kata sandi, cek email untuk detail login</li>
+                    <li>In the Digital Ocean control panel, navigate to Droplets</li>
+                    <li>Select your Droplet and note the IP address</li>
+                    <li>The default username is usually <code className="bg-[#282a36] px-2 py-0.5 rounded text-[#ff79c6]">root</code></li>
+                    <li>Use the SSH key configured when creating the Droplet</li>
+                    <li>If you chose password authentication, check your email for login details</li>
                   </ol>
                 </div>
                 
@@ -1239,20 +1239,20 @@ Connections                   ttl     opn     rt1     rt5     p50     p90
                     <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                     </svg>
-                    Tips Keamanan
+                    Security Tips
                   </h4>
                   <ul className="list-disc pl-5 text-[#a8aebb] space-y-2">
                     <li>
-                      Selalu gunakan autentikasi berbasis kunci, hindari autentikasi berbasis kata sandi jika memungkinkan
+                      Always use key-based authentication; avoid password-based authentication whenever possible
                     </li>
                     <li>
-                      Batasi akses SSH hanya dari alamat IP yang diketahui melalui grup keamanan atau aturan firewall
+                      Restrict SSH access to known IP addresses only via security groups or firewall rules
                     </li>
                     <li>
-                      Pertimbangkan untuk mengubah port SSH default (22) ke port non-standar untuk mengurangi serangan otomatis
+                      Consider changing the default SSH port (22) to a non-standard port to reduce automated attacks
                     </li>
                     <li>
-                      Aktifkan multi-factor authentication (MFA) di akun cloud Anda untuk lapisan keamanan tambahan
+                      Enable multi-factor authentication (MFA) on your cloud account for an extra layer of security
                     </li>
                   </ul>
                 </div>
@@ -1266,60 +1266,60 @@ Connections                   ttl     opn     rt1     rt5     p50     p90
               <div className="w-10 h-10 rounded-lg bg-[#6be5fd]/10 flex items-center justify-center">
                 <Settings className="h-5 w-5 text-[#6be5fd]" />
               </div>
-              <h2 className="text-2xl font-bold text-[#d8dee9]">Lanjutan</h2>
+              <h2 className="text-2xl font-bold text-[#d8dee9]">Advance</h2>
             </div>
             <div className="prose prose-invert max-w-none prose-p:text-[#a8aebb] prose-li:text-[#a8aebb] prose-headings:text-[#d8dee9] prose-a:text-[#6be5fd] prose-a:no-underline hover:prose-a:text-[#8ff4ff]">
 
               <div className="flex items-center space-x-2 mt-10 mb-2">
                 <Code className="h-5 w-5 text-[#6be5fd]" />
-                <h3 id="integrasiApi" className="text-xl font-semibold text-[#6be5fd]">Integrasi API</h3>
+                <h3 id="integrasiApi" className="text-xl font-semibold text-[#6be5fd]">API Integration</h3>
               </div>
               <p>
-                SysPulse menyediakan API internal untuk mengambil dan mengelola data server secara efisien.
-                API ini digunakan oleh antarmuka pengguna untuk menampilkan informasi proses, sistem, dan eksekusi perintah langsung melalui koneksi SSH yang aman.
+                SysPulse provides an internal API to efficiently retrieve and manage server data.
+                This API is used by the user interface to display process information, system stats, and execute commands directly through a secure SSH connection.
               </p>
               <ul>
-                <li className="ml-6"><code>GET /process</code> - Mengambil daftar proses aktif dari server yang terhubung.</li>
-                <li className="ml-6"><code>POST /kill</code> - Menghentikan proses berdasarkan PID yang diberikan.</li>
-                <li className="ml-6"><code>GET /system</code> - Menyediakan statistik penggunaan CPU, memori, dan disk secara real-time.</li>
+                <li className="ml-6"><code>GET /process</code> - Retrieves the list of active processes from the connected server.</li>
+                <li className="ml-6"><code>POST /kill</code> - Terminates a process based on the given PID.</li>
+                <li className="ml-6"><code>GET /system</code> - Provides real-time statistics for CPU, memory, and disk usage.</li>
               </ul>
               <p>
-                API tidak terbuka untuk publik dan hanya dapat diakses selama sesi pengguna aktif berlangsung, menjaga keamanan dari penyalahgunaan eksternal.
+                The API is not public and can only be accessed during an active user session, ensuring security from external misuse.
               </p>
 
               <div className="flex items-center space-x-2 mt-10 mb-2">
                 <Shield className="h-5 w-5 text-[#6be5fd]" />
-                <h3 id="keamanan" className="text-xl font-semibold text-[#6be5fd]">Keamanan</h3>
+                <h3 id="keamanan" className="text-xl font-semibold text-[#6be5fd]">Security</h3>
               </div>
               <p>
-                Keamanan adalah prioritas utama dalam SysPulse. Sistem ini dibangun untuk memastikan bahwa semua data koneksi bersifat temporer dan aman.
+                Security is a top priority in SysPulse. The system is designed to ensure that all connection data is temporary and secure.
               </p>
               <ul>
-                <li>Private key tidak pernah disimpan di server — hanya digunakan saat sesi berlangsung.</li>
-                <li>Autentikasi menggunakan SSH Key, bukan password, untuk meminimalkan risiko serangan brute-force.</li>
-                <li>Session akan otomatis ditutup setelah periode tidak aktif untuk mencegah akses tidak sah.</li>
-                <li>Input dari pengguna tidak disimpan ke database atau log tanpa izin eksplisit.</li>
+                <li>The private key is never stored on the server — it is only used during the session.</li>
+                <li>Authentication uses SSH Key instead of passwords to minimize the risk of brute-force attacks.</li>
+                <li>Sessions are automatically closed after a period of inactivity to prevent unauthorized access.</li>
+                <li>User input is not stored in the database or logs without explicit permission.</li>
               </ul>
               <p>
-                Kami sangat menyarankan pengguna untuk menggunakan key dengan passphrase aktif dan selalu menjaga hak akses server dengan benar.
+                We strongly recommend users to use a key with an active passphrase and always maintain proper server access permissions.
               </p>
 
               <div className="flex items-center space-x-2 mt-10 mb-2">
                 <HelpCircle className="h-5 w-5 text-[#6be5fd]" />
-                <h3 id="pemecahanMasalah" className="text-xl font-semibold text-[#6be5fd]">Pemecahan Masalah</h3>
+                <h3 id="pemecahanMasalah" className="text-xl font-semibold text-[#6be5fd]">Troubleshooting</h3>
               </div>
               <p>
-                Jika anda mengalami kendala teknis saat menggunakan SysPulse, berikut beberapa solusi cepat yang bisa dicoba:
+                If you're experiencing technical issues while using SysPulse, here are some quick solutions you can try:
               </p>
               <ul>
-                <li><strong>- Koneksi SSH gagal:</strong> Verifikasi host, port, username, dan kunci privat Anda.</li>
-                <li><strong>- Tidak muncul data di dashboard:</strong> Pastikan server merespons perintah seperti <code>ps</code> dan <code>top</code>.</li>
-                <li><strong>- Kunci tidak cocok:</strong> Gunakan format OpenSSH dan hindari karakter aneh hasil copy-paste.</li>
-                <li><strong>- Proses tidak bisa dihentikan:</strong> Mungkin memerlukan hak sudo. Coba gunakan user dengan izin lebih tinggi.</li>
-                <li><strong>- Sistem tidak responsif:</strong> Refresh halaman, atau coba putuskan koneksi dan sambung ulang.</li>
+                <li><strong>- SSH connection failed:</strong>  Verify your host, port, username, and private key.</li>
+                <li><strong>- Data isn't appearing on the dashboard.:</strong> Ensure the server is responding to commands like <code>ps</code> and <code>top</code>.</li>
+                <li><strong>- Key does'nt match:</strong> Use OpenSSH format and avoid strange characters from copy-pasting.</li>
+                <li><strong>- Process cannot be stopped:</strong> This might require sudo privileges. Try using a user with higher permissions.</li>
+                <li><strong>- System unresponsive:</strong> Refresh the page, or try disconnecting and reconnecting.</li>
               </ul>
               <p>
-                Jika permasalahan belum terselesaikan, silakan hubungi tim pengembang melalui halaman bantuan atau kirimkan log dari halaman browser Anda.
+                If the problem persists, please contact the development team via the help page or send logs from your browser page.
               </p>
 
              </div>
