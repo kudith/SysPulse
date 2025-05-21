@@ -38,9 +38,9 @@ export default function Docs() {
       {/* Hero Section */}
       <div className="container mx-auto px-4 mb-12">
         <div className="flex flex-col max-w-5xl mx-auto">
-          <h1 className="text-4xl font-bold text-[#d8dee9] mb-4">Dokumentasi SysPulse</h1>
+          <h1 className="text-4xl font-bold text-[#d8dee9] mb-4">SysPulse Documentation</h1>
           <p className="text-[#a8aebb] text-lg mb-8">
-            Pelajari cara memantau dan mengelola sistem Anda dengan fitur dan alat komprehensif SysPulse.
+           Learn how to monitor and manage your system with SysPulse’s comprehensive features and tools.
           </p>
 
           {/* Search box */}
@@ -55,7 +55,7 @@ export default function Docs() {
                 className="w-full py-3 px-4 bg-transparent text-[#d8dee9] placeholder-[#a8aebb] outline-none"
               />
               <button className="px-5 py-3 bg-[#3fdaa4]/10 text-[#3fdaa4] font-medium hover:bg-[#3fdaa4]/20 transition-colors">
-                Cari
+                Search
               </button>
             </div>
           </div>
@@ -69,7 +69,7 @@ export default function Docs() {
           <div className="md:col-span-1">
             <div className="sticky top-24 space-y-6">
               <div className="space-y-2">
-                <h3 className="text-[#6be5fd] font-medium mb-2">Memulai</h3>
+                <h3 className="text-[#6be5fd] font-medium mb-2">Start</h3>
                 <ul className="space-y-2">
                   <li>
                   <Link 
@@ -80,7 +80,7 @@ export default function Docs() {
                         : 'text-[#a8aebb] hover:text-[#d8dee9] hover:bg-[#1e1e1e]'
                     }`}
                   >
-                    Pengenalan
+                    Introduction
                   </Link>
 
                   </li>
@@ -93,7 +93,7 @@ export default function Docs() {
                           : 'text-[#a8aebb] hover:text-[#d8dee9] hover:bg-[#1e1e1e]'
                       }`}
                     >
-                      Memulai dengan Dashboard
+                      Getting Started with the Dashboard
                     </Link>
                   </li>
                   <li>
@@ -105,14 +105,14 @@ export default function Docs() {
                           : 'text-[#a8aebb] hover:text-[#d8dee9] hover:bg-[#1e1e1e]'
                       }`}
                     >
-                      Panduan Cepat
+                      Quick Start Guide
                     </Link>
                   </li>
                 </ul>
               </div>
               
               <div className="space-y-2">
-                <h3 className="text-[#6be5fd] font-medium mb-2">Fitur Utama</h3>
+                <h3 className="text-[#6be5fd] font-medium mb-2">Main Features</h3>
                 <ul className="space-y-2">
                   <li>
                     <Link 
@@ -147,7 +147,7 @@ export default function Docs() {
                           : 'text-[#a8aebb] hover:text-[#d8dee9] hover:bg-[#1e1e1e]'
                       }`}
                       >
-                      Pemantauan
+                      Monitoring
                     </Link>
                   </li>
                   <li>
@@ -159,14 +159,14 @@ export default function Docs() {
                           : 'text-[#a8aebb] hover:text-[#d8dee9] hover:bg-[#1e1e1e]'
                       }`}
                     >
-                      Pemberitahuan & Notifikasi
+                      Alerts & Notifications
                     </Link>
                   </li>
                 </ul>
               </div>
               
               <div className="space-y-2">
-                <h3 className="text-[#6be5fd] font-medium mb-2">Koneksi</h3>
+                <h3 className="text-[#6be5fd] font-medium mb-2">Connections</h3>
                 <ul className="space-y-2">
                   <li>
                     <Link 
@@ -177,7 +177,7 @@ export default function Docs() {
                           : 'text-[#a8aebb] hover:text-[#d8dee9] hover:bg-[#1e1e1e]'
                       }`}
                     >
-                      Koneksi SSH
+                      SSH Connections
                     </Link>
                   </li>
                   <li>
@@ -189,7 +189,7 @@ export default function Docs() {
                           : 'text-[#a8aebb] hover:text-[#d8dee9] hover:bg-[#1e1e1e]'
                       }`}
                     >
-                      Penggunaan Ngrok
+                      Ngrok Setup
                     </Link>
                   </li>
                   <li>
@@ -208,7 +208,7 @@ export default function Docs() {
               </div>
               
               <div className="space-y-2">
-                <h3 className="text-[#6be5fd] font-medium mb-2">Lanjutan</h3>
+                <h3 className="text-[#6be5fd] font-medium mb-2">Advanced</h3>
                 <ul className="space-y-2">
                   <li>
                     <Link 
@@ -219,7 +219,7 @@ export default function Docs() {
                           : 'text-[#a8aebb] hover:text-[#d8dee9] hover:bg-[#1e1e1e]'
                       }`}
                     >
-                      Integrasi API
+                      API Integration
                     </Link>
                   </li>
                   <li>
@@ -231,7 +231,7 @@ export default function Docs() {
                           : 'text-[#a8aebb] hover:text-[#d8dee9] hover:bg-[#1e1e1e]'
                       }`}
                     >
-                      Keamanan
+                      Security
                     </Link>
                   </li>
                   <li>
@@ -243,7 +243,7 @@ export default function Docs() {
                           : 'text-[#a8aebb] hover:text-[#d8dee9] hover:bg-[#1e1e1e]'
                       }`}
                     >
-                      Pemecahan Masalah
+                      Troubleshooting
                     </Link>
                   </li>
                 </ul>
@@ -259,24 +259,24 @@ export default function Docs() {
                 <div className="w-10 h-10 rounded-lg bg-[#6be5fd]/10 flex items-center justify-center">
                   <HelpCircle className="h-5 w-5 text-[#6be5fd]" />
                 </div>
-                <h2 className="text-2xl font-bold text-[#d8dee9]">Pengenalan</h2>
+                <h2 className="text-2xl font-bold text-[#d8dee9]">Introduction</h2>
               </div>
               
               <div className="prose prose-invert max-w-none prose-p:text-[#a8aebb] prose-li:text-[#a8aebb] prose-headings:text-[#d8dee9] prose-a:text-[#6be5fd] prose-a:no-underline hover:prose-a:text-[#8ff4ff]">
                 <p>
-                  SysPulse adalah platform pemantauan dan pengelolaan sistem komprehensif yang dirancang untuk
-                  administrator sistem, insinyur DevOps, dan profesional TI. Platform ini memberikan
-                  wawasan real-time tentang kinerja server Anda, akses terminal yang aman, dan alat otomatisasi yang canggih.
+                  SysPulse is a comprehensive system monitoring and management platform designed for 
+                  system administrators, DevOps engineers, and IT professionals. The platform 
+                  provides real-time insights into your server performance, secure terminal access, and advanced automation tools.
                 </p>
                 
-                <h3 className="font-bolder text-[#6be5fd] mt-4">Fitur Utama</h3>
+                <h3 className="font-bolder text-[#6be5fd] mt-4">Main Features</h3>
                 <ul>
-                  <li>- Pemantauan sistem real-time dengan dasbor yang dapat disesuaikan</li>
-                  <li>- Akses terminal berbasis web yang aman ke server Anda</li>
-                  <li>- Sistem peringatan dan notifikasi untuk peristiwa penting</li>
-                  <li>- Analitik dan pelaporan data historis</li>
-                  <li>- Kontrol akses berbasis peran untuk kolaborasi tim</li>
-                  <li>- Integrasi API untuk otomatisasi alur kerja</li>
+                  <li>- Real-time system monitoring with customizable dashboards</li>
+                  <li>- Secure web-based terminal access to your servers</li>
+                  <li>- Alerting and notification system for critical events</li>
+                  <li>- Historical data analytics and reporting</li>
+                  <li>- Role-based access control for team collaboration</li>
+                  <li>- API integration for workflow automation</li>
                 </ul>
               </div>
             </section>
@@ -287,67 +287,67 @@ export default function Docs() {
                 <div className="w-10 h-10 rounded-lg bg-[#3fdaa4]/10 flex items-center justify-center">
                   <Server className="h-5 w-5 text-[#3fdaa4]" />
                 </div>
-                <h2 className="text-2xl font-bold text-[#d8dee9]">Memulai dengan Dashboard</h2>
+                <h2 className="text-2xl font-bold text-[#d8dee9]">Getting Started with the Dashboard</h2>
               </div>
               
               <div className="prose prose-invert max-w-none prose-p:text-[#a8aebb] prose-li:text-[#a8aebb] prose-headings:text-[#d8dee9] prose-a:text-[#6be5fd] prose-a:no-underline hover:prose-a:text-[#8ff4ff]">
                 <p>
-                  SysPulse adalah platform pemantauan sistem berbasis web yang tidak memerlukan instalasi khusus.
-                  Cukup akses melalui browser dan mulai pantau server Anda dengan mengikuti langkah-langkah berikut.
+                  SysPulse is a web-based system monitoring platform that requires no special installation.
+                  Simply access it through your browser and start monitoring your servers by following these steps.
                 </p>
                 
-                <h3>Persiapan Awal</h3>
+                <h3>Initial Preparation</h3>
                 <div className="bg-[#1e1e1e] p-5 rounded-lg border border-zinc-800/50 mt-4 mb-6">
                   <ol className="list-decimal pl-5 text-[#a8aebb] space-y-3">
                     <li>
-                      <strong className="text-[#d8dee9]">Buat Akun</strong>
-                      <p className="mt-1">Daftar untuk akun SysPulse baru atau masuk dengan akun yang sudah ada melalui halaman utama</p>
+                      <strong className="text-[#d8dee9]">Create Account</strong>
+                        <p className="mt-1">Sign up for a new SysPulse account or log in with your existing account on the hompage</p>
                     </li>
                     <li>
-                      <strong className="text-[#d8dee9]">Akses Dashboard</strong>
-                      <p className="mt-1">Setelah login, Anda akan diarahkan ke dashboard utama yang menampilkan ikhtisar sistem</p>
+                      <strong className="text-[#d8dee9]">Access the Dashboard</strong>
+                        <p className="mt-1">After logging in, you will be redirected to the main dashboard displaying a system overview.</p>
                     </li>
                     <li>
-                      <strong className="text-[#d8dee9]">Tambahkan Koneksi SSH</strong>
-                      <p className="mt-1">Untuk memantau server, Anda perlu menambahkan koneksi SSH melalui form yang disediakan</p>
+                      <strong className="text-[#d8dee9]">Add SSH Connection</strong>
+                      <p className="mt-1">To monitor your server, you need to add an SSH connection using the provided form</p>
                     </li>
                   </ol>
                 </div>
                 
-                <h3 className=" font-bold text-[#d8dee9] text-[#6be5fd]">Form Koneksi SSH</h3>
+                <h3 className=" font-bold text-[#d8dee9] text-[#6be5fd]">SSH Connection Form</h3>
                 <p>
-                  Untuk menghubungkan server Anda ke SysPulse, isi form SSH dengan informasi berikut:
+                  To connect your server to SysPulse, fill out the SSH form with the following information:
                 </p>
                 
                 <div className="bg-[#1e1e1e] p-5 rounded-lg border border-zinc-800/50 mt-4 mb-6 text-[green]">
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <h4 className="text-[#d8dee9] font-semibold mb-3">Informasi Koneksi</h4>
+                      <h4 className="text-[#d8dee9] font-semibold mb-3">Connection Information</h4>
                       <ul className="list-disc pl-5 text-[#a8aebb] space-y-3">
                         <li>
                           <strong className="text-[#d8dee9]">Host:</strong>
-                          <p className="mt-1">Alamat IP atau hostname server Anda</p>
+                          <p className="mt-1">Your server's IP address or hostname</p>
                         </li>
                         <li>
                           <strong className="text-[#d8dee9]">Username:</strong>
-                          <p className="mt-1">Nama pengguna untuk login SSH</p>
+                          <p className="mt-1">Username for SSH login</p>
                         </li>
                         <li>
                           <strong className="text-[#d8dee9]">Port:</strong>
-                          <p className="mt-1">Port SSH (default: 22)</p>
+                          <p className="mt-1">SSH port(default: 22)</p>
                         </li>
                       </ul>
                     </div>
                     <div>
-                      <h4 className="text-[#d8dee9] font-semibold mb-3">Autentikasi</h4>
+                      <h4 className="text-[#d8dee9] font-semibold mb-3">Authentication</h4>
                       <ul className="list-disc pl-5 text-[#a8aebb] space-y-3">
                         <li>
                           <strong className="text-[#d8dee9]">Private Key:</strong>
-                          <p className="mt-1">Tempel private key SSH Anda atau upload dari file</p>
+                          <p className="mt-1">Paste your SSH private key or upload from a file</p>
                         </li>
                         <li>
-                          <strong className="text-[#d8dee9]">Passphrase (opsional):</strong>
-                          <p className="mt-1">Jika private key dilindungi dengan passphrase</p>
+                          <strong className="text-[#d8dee9]">Passphrase (optional):</strong>
+                          <p className="mt-1">If your private key is protected with a passphrase</p>
                         </li>
                       </ul>
                     </div>
@@ -358,42 +358,42 @@ export default function Docs() {
                       <svg className="h-5 w-5 text-[#ff79c6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <span className="text-[#ff79c6] font-medium">Catatan Keamanan</span>
+                      <span className="text-[#ff79c6] font-medium">Security Note</span>
                     </div>
-                    <p className="text-[#a8aebb]">Private key Anda hanya digunakan untuk koneksi dan tidak pernah disimpan di server SysPulse. Selalu gunakan kunci dengan izin terbatas dan aktifkan passphrase untuk keamanan ekstra.</p>
+                    <p className="text-[#a8aebb]">Your private key is only used for the connection and is never stored on the SysPulse server. Always use a key with limited permissions and enable a passphrase for extra security.</p>
                   </div>
                 </div>
                 
-                <h3 className="font-bold text-[#6be5fd]">Langkah-Langkah Koneksi</h3>
+                <h3 className="font-bold text-[#6be5fd]">Connection Steps</h3>
                 <div className="bg-[#1e1e1e] p-5 rounded-lg border border-zinc-800/50 mt-4 mb-6">
                   <ol className="list-decimal pl-5 text-[#a8aebb] space-y-4">
                     <li>
                       <div className="flex items-center space-x-2">
                         <div className="w-6 h-6 rounded-full bg-[#3fdaa4]/20 flex items-center justify-center text-[#3fdaa4] font-medium">1</div>
-                        <span className="text-[#d8dee9] font-medium">Buka Halaman SSH</span>
+                        <span className="text-[#d8dee9] font-medium">Open SSH Page</span>
                       </div>
-                      <p className="mt-1 ml-8">Navigasi ke menu "Koneksi" di panel navigasi utama dan pilih "Tambah Server"</p>
+                      <p className="mt-1 ml-8">Navigate to the "Connections" menu in the main navigation panel and select "Add Server"</p>
                     </li>
                     <li>
                       <div className="flex items-center space-x-2">
                         <div className="w-6 h-6 rounded-full bg-[#3fdaa4]/20 flex items-center justify-center text-[#3fdaa4] font-medium">2</div>
-                        <span className="text-[#d8dee9] font-medium">Isi Form Koneksi</span>
+                        <span className="text-[#d8dee9] font-medium">Fill Connection Form</span>
                       </div>
-                      <p className="mt-1 ml-8">Masukkan detail koneksi server Anda (host, username, port, dan private key)</p>
+                      <p className="mt-1 ml-8">Enter your server connection details (host, username, port, and private key)</p>
                     </li>
                     <li>
                       <div className="flex items-center space-x-2">
                         <div className="w-6 h-6 rounded-full bg-[#3fdaa4]/20 flex items-center justify-center text-[#3fdaa4] font-medium">3</div>
-                        <span className="text-[#d8dee9] font-medium">Hubungkan</span>
+                        <span className="text-[#d8dee9] font-medium">Connect</span>
                       </div>
-                      <p className="mt-1 ml-8">Klik tombol "Hubungkan" dan tunggu hingga koneksi berhasil dibuat</p>
+                      <p className="mt-1 ml-8">Click the "Connect" button and wait until the connection is successfully established</p>
                     </li>
                     <li>
                       <div className="flex items-center space-x-2">
                         <div className="w-6 h-6 rounded-full bg-[#3fdaa4]/20 flex items-center justify-center text-[#3fdaa4] font-medium">4</div>
-                        <span className="text-[#d8dee9] font-medium">Akses Dashboard</span>
+                        <span className="text-[#d8dee9] font-medium">Access Dashboard</span>
                       </div>
-                      <p className="mt-1 ml-8">Setelah terhubung, Anda akan melihat dashboard pemantauan server</p>
+                      <p className="mt-1 ml-8">Once connected, you will see the server monitoring dashboard</p>
                     </li>
                   </ol>
                 </div>
@@ -406,124 +406,124 @@ export default function Docs() {
                 <div className="w-10 h-10 rounded-lg bg-[#c792ea]/10 flex items-center justify-center">
                   <Zap className="h-5 w-5 text-[#c792ea]" />
                 </div>
-                <h2 className="text-2xl font-bold text-[#d8dee9]">Panduan Cepat</h2>
+                <h2 className="text-2xl font-bold text-[#d8dee9]">Quick Start Guide</h2>
               </div>
               
               <div className="prose prose-invert max-w-none prose-p:text-[#a8aebb] prose-li:text-[#a8aebb] prose-headings:text-[#d8dee9] prose-a:text-[#6be5fd] prose-a:no-underline hover:prose-a:text-[#8ff4ff]">
                 <p>
-                  Setelah berhasil terhubung, Anda dapat langsung menggunakan fitur-fitur SysPulse. Panduan cepat ini akan membantu Anda 
-                  memahami cara menggunakan dasbor pemantauan dan mengakses fitur utama.
+                  After successfully connecting, you can immediately use SysPulse features. This quick guide will help you 
+                  understand how to use the monitoring dashboard and access the main features.
                 </p>
                 
-                <h3 className="font-bold text-[#6be5fd] mt-4">Navigasi Dashboard</h3>
+                <h3 className="font-bold text-[#6be5fd] mt-4">Dashboard Navigation</h3>
                 <div className="bg-[#1e1e1e] p-5 rounded-lg border border-zinc-800/50 mt-4 mb-6">
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <h4 className="text-[#d8dee9] font-semibold mb-3">Panel Navigasi Utama</h4>
+                      <h4 className="text-[#d8dee9] font-semibold mb-3">Main Navigation Panel</h4>
                       <ul className="list-disc pl-5 text-[#a8aebb] space-y-3">
                         <li>
                           <strong className="text-[#d8dee9]">Dashboard</strong>
-                          <p className="mt-1">Ikhtisar semua metrik server dalam tampilan terpadu</p>
+                          <p className="mt-1">Overview of all server metrics in a unified view</p>
                         </li>
                         <li>
                           <strong className="text-[#d8dee9]">Terminal</strong>
-                          <p className="mt-1">Akses terminal berbasis web untuk mengelola server</p>
+                          <p className="mt-1">Web-based terminal access to manage the server</p>
                         </li>
                         <li>
-                          <strong className="text-[#d8dee9]">Pemantauan</strong>
-                          <p className="mt-1">Tampilan detail metrik sistem (CPU, memori, disk, jaringan)</p>
+                          <strong className="text-[#d8dee9]">Monitoring</strong>
+                          <p className="mt-1">Detailed view of system metrics (CPU, memory, disk, network)</p>
                         </li>
                         <li>
-                          <strong className="text-[#d8dee9]">Pemberitahuan</strong>
-                          <p className="mt-1">Kelola dan konfigurasi peringatan sistem</p>
+                          <strong className="text-[#d8dee9]">Alert</strong>
+                          <p className="mt-1">Manage and configure system alerts</p>
                         </li>
                       </ul>
                     </div>
                     <div>
-                      <h4 className="text-[#d8dee9] font-semibold mb-3">Pengaturan Server</h4>
+                      <h4 className="text-[#d8dee9] font-semibold mb-3">Server Settings</h4>
                       <ul className="list-disc pl-5 text-[#a8aebb] space-y-3">
                         <li>
-                          <strong className="text-[#d8dee9]">Koneksi</strong>
-                          <p className="mt-1">Kelola koneksi SSH server</p>
+                          <strong className="text-[#d8dee9]">Connections</strong>
+                          <p className="mt-1">Manage server SSH connections</p>
                         </li>
                         <li>
-                          <strong className="text-[#d8dee9]">Keamanan</strong>
-                          <p className="mt-1">Pengaturan keamanan dan akses server</p>
+                          <strong className="text-[#d8dee9]">Security</strong>
+                          <p className="mt-1">Security and server access setting</p>
                         </li>
                         <li>
-                          <strong className="text-[#d8dee9]">Log</strong>
-                          <p className="mt-1">Lihat dan analisis log sistem server</p>
+                          <strong className="text-[#d8dee9]">Logs</strong>
+                          <p className="mt-1">View and analyze server system logs</p>
                         </li>
                         <li>
-                          <strong className="text-[#d8dee9]">Preferensi</strong>
-                          <p className="mt-1">Sesuaikan tampilan dan pengaturan dashboard</p>
+                          <strong className="text-[#d8dee9]">Preference</strong>
+                          <p className="mt-1">Customize dashboard appearance and settings</p>
                         </li>
                       </ul>
                     </div>
                   </div>
                 </div>
                 
-                <h3 className="font-bold text-[#6be5fd] mt-4">Penggunaan Dashboard</h3>
+                <h3 className="font-bold text-[#6be5fd] mt-4">Dashboard Usage</h3>
                 <p>
-                  Dashboard SysPulse dirancang untuk memberikan gambaran lengkap tentang kesehatan server anda, yaitu meliputi:
+                  The SysPulse dashboard is designed to provide a complete overview of your server's health, including:
                 </p>
                 <div className="bg-[#1e1e1e] p-5 rounded-lg border border-zinc-800/50 mt-4 mb-6">
                   <ol className="list-decimal pl-5 text-[#a8aebb] space-y-4">
                     <li>
                       <div className="flex items-center space-x-2">
-                        <span className="text-[#d8dee9] font-medium">Melihat Metrik Utama</span>
+                        <span className="text-[#d8dee9] font-medium">View Key Metrics</span>
                       </div>
-                      <p className="mt-1">Dashboard menampilkan widget dengan metrik penting seperti penggunaan CPU, memori, dan ruang disk</p>
+                      <p className="mt-1">The dashboard displays widgets with important metrics such as CPU, memory, and disk usage</p>
                     </li>
                     <li>
                       <div className="flex items-center space-x-2">
-                        <span className="text-[#d8dee9] font-medium">Menyesuaikan Tampilan</span>
+                        <span className="text-[#d8dee9] font-medium">Customize Layout</span>
                       </div>
                       <p className="mt-1">Drag-and-drop widget untuk menyusun ulang, serta ubah ukuran dengan menarik sudut widget</p>
                     </li>
                     <li>
                       <div className="flex items-center space-x-2">
-                        <span className="text-[#d8dee9] font-medium">Menambahkan Widget</span>
+                        <span className="text-[#d8dee9] font-medium">Add Widgets</span>
                       </div>
-                      <p className="mt-1">Klik tombol "+" di sudut kanan atas untuk menambahkan widget baru ke dashboard</p>
+                      <p className="mt-1">Click the "+" button in the top right corner to add new widgets to the dashboard</p>
                     </li>
                     <li>
                       <div className="flex items-center space-x-2">
-                        <span className="text-[#d8dee9] font-medium">Detail Mendalam</span>
+                        <span className="text-[#d8dee9] font-medium">Detailed Insights</span>
                       </div>
-                      <p className="mt-1">Klik widget untuk melihat detail dan grafik historis dari metrik tersebut</p>
+                      <p className="mt-1">Click widget to view details and historical graphs for that metric</p>
                     </li>
                   </ol>
                 </div>
                 
-                <h3 className="font-bold text-[#6be5fd]">Terminal Web</h3>
+                <h3 className="font-bold text-[#6be5fd]">Web Terminal</h3>
                 <p>
-                  Akses terminal berbasis web untuk mengelola server tanpa perlu SSH client terpisah:
+                  Access a web-based terminal to manage your server without a separate SSH client:
                 </p>
                 <div className="bg-[#1e1e1e] p-5 rounded-lg border border-zinc-800/50 mt-4 mb-6">
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <h4 className="text-[#d8dee9] font-semibold mb-3">Cara Mengakses</h4>
+                      <h4 className="text-[#d8dee9] font-semibold mb-3">How to Access</h4>
                       <ol className="list-decimal pl-5 text-[#a8aebb] space-y-2">
-                        <li>Klik menu "Terminal" di panel navigasi</li>
-                        <li>Atau klik tombol "Terminal" di halaman detail server</li>
-                        <li>Terminal akan terbuka di jendela baru</li>
+                        <li>Click the "Terminal" menu in the navigation panel</li>
+                        <li>Or click the "Terminal" button on the server detail page</li>
+                        <li>The terminal will open in a new window</li>
                       </ol>
                     </div>
                     <div>
-                      <h4 className="text-[#d8dee9] font-semibold mb-3">Perintah Umum</h4>
+                      <h4 className="text-[#d8dee9] font-semibold mb-3">Common Commands</h4>
                       <div className="bg-[#121212] p-3 rounded-md text-[#d8dee9] font-mono text-sm overflow-x-auto">
                         <div className="grid grid-cols-[1fr,auto] gap-x-4 gap-y-2">
                           <span>clear</span>
-                          <span className="text-[#6272a4]"># Bersihkan layar</span>
+                          <span className="text-[#6272a4]"># Clear screen</span>
                           <span>exit</span>
-                          <span className="text-[#6272a4]"># Keluar dari terminal</span>
+                          <span className="text-[#6272a4]"># Exit the terminal</span>
                           <span>htop</span>
-                          <span className="text-[#6272a4]"># Monitor proses interaktif</span>
+                          <span className="text-[#6272a4]"># Interactive process monitor</span>
                           <span>df -h</span>
-                          <span className="text-[#6272a4]"># Cek ruang disk</span>
+                          <span className="text-[#6272a4]"># Check disk space</span>
                           <span>free -m</span>
-                          <span className="text-[#6272a4]"># Cek penggunaan memori</span>
+                          <span className="text-[#6272a4]"># Check memory usage</span>
                         </div>
                       </div>
                     </div>
@@ -541,16 +541,16 @@ export default function Docs() {
               </div>
               <div className="prose prose-invert max-w-none prose-p:text-[#a8aebb] prose-li:text-[#a8aebb] prose-headings:text-[#d8dee9] prose-a:text-[#6be5fd] prose-a:no-underline hover:prose-a:text-[#8ff4ff]">
                 <p>
-                  Dashboard adalah pusat kendali visual dalam SysPulse yang memberikan gambaran langsung terhadap kondisi server secara real-time. Di sini, pengguna dapat memantau metrik performa inti seperti CPU, RAM, disk, dan jaringan secara interaktif.
+                  The dashboard is the visual control center in SysPulse that provides a real-time overview of your server condition. Here, users can interactively monitor core performance metrics such as CPU, RAM, disk, and network.
                 </p>
                 <ul>
-                  <li>- Menyediakan grafik dan visualisasi pemakaian sumber daya sistem</li>
-                  <li>- Memperlihatkan status koneksi SSH dan identitas server yang sedang aktif</li>
-                  <li>- Akses cepat ke fungsi monitoring lainnya seperti Terminal dan Proses</li>
-                  <li>- Menampilkan notifikasi langsung jika ada anomali atau peringatan sistem</li>
+                  <li>- Provides graphs and visualizations of system resource usage</li>
+                  <li>- Shows SSH connection status and the identity of the active server</li>
+                  <li>- Quick access to other monitoring functions such as Terminal and Processes</li>
+                  <li>- Displays instant notifications if there are anomalies or system alerts</li>
                 </ul>
                 <p>
-                  Dashboard ini dirancang agar adaptif dan responsif, memastikan pengalaman pemantauan yang intuitif baik untuk pengguna teknis maupun non-teknis.
+                  This dashboard is designed to be adaptive and responsive, ensuring an intuitive monitoring experience for both technical and non-technical users.
                 </p>
              </div>
             </section>
@@ -566,47 +566,47 @@ export default function Docs() {
               
               <div className="prose prose-invert max-w-none prose-p:text-[#a8aebb] prose-li:text-[#a8aebb] prose-headings:text-[#d8dee9] prose-a:text-[#6be5fd] prose-a:no-underline hover:prose-a:text-[#8ff4ff]">
                 <p>
-                  Terminal SysPulse memberikan akses aman berbasis web ke server Anda dari mana saja.
-                  Fitur ini memungkinkan Anda mengelola sistem jarak jauh melalui antarmuka terminal yang familier.
+                  The SysPulse terminal provides secure web-based access to your server from anywhere.
+                  This feature allows you to manage your system remotely through a familiar terminal interface.
                 </p>
                 
-                <h3 className="font-bold text-[#6be5fd] mt-4">Fitur Utama Terminal</h3>
+                <h3 className="font-bold text-[#6be5fd] mt-4">Terminal Main Features</h3>
                 <ul>
-                  <li><strong>- Akses Terminal Berbasis Web</strong>: Akses server dari browser apa pun tanpa perlu SSH client terpisah</li>
-                  <li><strong>- Sesi Persisten</strong>: Sesi terminal tetap aktif bahkan jika Anda menutup browser dan kembali nanti</li>
-                  <li><strong>- Histori Perintah</strong>: Akses histori perintah lengkap untuk referensi cepat</li>
-                  <li><strong>- Transfer File</strong>: Unggah dan unduh file langsung dari terminal</li>
-                  <li><strong>- Berbagi Sesi</strong>: Bagikan sesi terminal dengan pengguna lain untuk kolaborasi</li>
+                    <li><strong>- Web-based Terminal Access</strong>: Access your server from any browser without a separate SSH client</li>
+                    <li><strong>- Persistent Sessions</strong>: Terminal sessions remain active even if you close your browser and return later</li>
+                    <li><strong>- Command History</strong>: Access a complete command history for quick reference</li>
+                    <li><strong>- File Transfer</strong>: Upload and download files directly from the terminal</li>
+                    <li><strong>- Session Sharing</strong>: Share terminal sessions with other users for collaboration</li>
                 </ul>
                 
-                <h3 className="font-bold text-[#6be5fd] mt-4">Penggunaan Terminal</h3>
+                <h3 className="font-bold text-[#6be5fd] mt-4">Using the Terminal</h3>
                 <p>
-                  Setelah terhubung ke server, anda dapat mengkses terminal dengan cara berikut:
+                  After connected to the   server, you can access the terminal as follows:
                 </p>
                 <ol>
-                  <li>- Buka halaman Server dari navigasi utama</li>
-                  <li>- Pilih server yang ingin diakses</li>
-                  <li>- Klik tombol "Terminal" di panel kontrol server</li>
-                  <li>- Terminal interaktif akan terbuka di jendela baru</li>
+                  <li>- Open the Server page from the main navigation</li>
+                  <li>- Select the server you want to access</li>
+                  <li>- Click the "Terminal" button in the server control panel</li>
+                  <li>- The interactive terminal will open in a new window</li>
                 </ol>
                 
                 <div className="not-prose bg-[#ff79c6]/10 p-5 rounded-lg border border-[#ff79c6]/20 mt-6">
-                  <h4 className="text-[#ff79c6] font-semibold text-lg mb-3">Peringatan Keamanan</h4>
+                  <h4 className="text-[#ff79c6] font-semibold text-lg mb-3">Security Warning</h4>
                   <p className="text-[#a8aebb] mb-4">
-                    Saat menggunakan terminal web, pastikan untuk selalu keluar dari sesi Anda saat selesai untuk mencegah akses tidak sah.
-                    SysPulse secara otomatis mengakhiri sesi yang tidak aktif setelah 30 menit, tetapi praktik terbaik adalah keluar secara manual.
+                    When using the web terminal, always log out of your session when finished to prevent unauthorized access.
+                    SysPulse will automatically terminate inactive sessions after 30 minutes, but best practice is to log out manually.
                   </p>
                 </div>
                 
-                <h3 className="font-bold text-[#6be5fd] mt-4">Perintah Berguna</h3>
-                <p>Berikut ini adalah perintah khusus pada sistem SysPulse yang tersedia di terminal:</p>
+                <h3 className="font-bold text-[#6be5fd] mt-4">Useful Commands</h3>
+                <p>Here are special SysPulse system commands available in the terminal:</p>
                 <pre className="bg-[#121212] p-4 rounded-md text-[#d8dee9] overflow-x-auto">
                   <code>
-                    clear           # Bersihkan layar terminal<br/>
-                    exit            # Keluar dari sesi terminal<br/>
-                    upload &lt;file&gt;   # Unggah file ke server<br/>
-                    download &lt;file&gt; # Unduh file dari server<br/>
-                    help            # Tampilkan bantuan untuk perintah yang tersedia
+                    clear           # Clear the terminal screen<br/>
+                    exit            # Exit the terminal session<br/>
+                    upload &lt;file&gt;   # Upload file to the server<br/>
+                    download &lt;file&gt; # Download a file from the server<br/>
+                    help            # Show help for available commands
                   </code>
                 </pre>
               </div>
@@ -618,18 +618,18 @@ export default function Docs() {
                 <div className="w-10 h-10 rounded-lg bg-[#3fdaa4]/10 flex items-center justify-center">
                   <Activity className="h-5 w-5 text-[#3fdaa4]" />
                 </div>
-                <h2 className="text-2xl font-bold text-[#d8dee9]">Pemantauan Sistem</h2>
+                <h2 className="text-2xl font-bold text-[#d8dee9]">Sistem Monitoring</h2>
               </div>
               
               <div className="prose prose-invert max-w-none prose-p:text-[#a8aebb] prose-li:text-[#a8aebb] prose-headings:text-[#d8dee9] prose-a:text-[#6be5fd] prose-a:no-underline hover:prose-a:text-[#8ff4ff]">
                 <p>
-                  Fitur pemantauan sistem SysPulse memberikan visibilitas real-time ke dalam kinerja server Anda.
-                  Anda dapat memantau berbagai metrik, menyiapkan dasbor kustom, dan menerima peringatan saat terjadi masalah.
+                  The SysPulse system monitoring feature provides real-time visibility into your server performance.
+                  You can monitor various metrics, set up custom dashboards, and receive alerts when issues occur.
                 </p>
                 
-                <h3 className="font-bold text-[#6be5fd] mt-4">Metrik yang Dipantau</h3>
+                <h3 className="font-bold text-[#6be5fd] mt-4">Monitored Metrics</h3>
                 <p>
-                  SysPulse mengumpulkan dan menampilkan berbagai metrik sistem, termasuk:
+                   SysPulse collects and displays a variety of system metrics, including:
                 </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 not-prose mt-4">
@@ -641,11 +641,11 @@ export default function Docs() {
                       <h4 className="text-[#d8dee9] font-semibold text-lg">CPU</h4>
                     </div>
                     <ul className="list-disc pl-5 text-[#a8aebb] space-y-1.5">
-                      <li>Penggunaan CPU (total dan per core)</li>
-                      <li>Beban rata-rata (1, 5, dan 15 menit)</li>
-                      <li>Waktu CPU (user, system, idle, iowait)</li>
-                      <li>Proses yang menggunakan CPU tertinggi</li>
-                      <li>Suhu CPU (jika didukung oleh hardware)</li>
+                      <li>CPU usage (total and per core)</li>
+                      <li>Load average (1, 5, and 15 minutes)</li>
+                      <li>CPU time (user, system, idle, iowait)</li>
+                      <li>Top processes by CPU usage</li>
+                      <li>CPU temperature (if supported by hardware)</li>
                     </ul>
                   </div>
                   
@@ -654,14 +654,14 @@ export default function Docs() {
                       <div className="w-8 h-8 rounded-lg bg-[#6be5fd]/10 flex items-center justify-center">
                         <Server className="h-4 w-4 text-[#6be5fd]" />
                       </div>
-                      <h4 className="text-[#d8dee9] font-semibold text-lg">Memori</h4>
+                      <h4 className="text-[#d8dee9] font-semibold text-lg">Memory</h4>
                     </div>
                     <ul className="list-disc pl-5 text-[#a8aebb] space-y-1.5">
-                      <li>Penggunaan memori fisik (total, terpakai, bebas)</li>
-                      <li>Penggunaan swap</li>
-                      <li>Buffer dan cache</li>
-                      <li>Proses yang menggunakan memori tertinggi</li>
-                      <li>Pengelompokan penggunaan memori berdasarkan aplikasi</li>
+                      <li>Physical memory usage (total, used, free)</li>
+                      <li>Swap usage</li> 
+                      <li>Buffers and cache</li>
+                      <li>Top processes by memory usage</li>
+                      <li>Memory usage grouped by application</li>
                     </ul>
                   </div>
                   
@@ -673,12 +673,12 @@ export default function Docs() {
                       <h4 className="text-[#d8dee9] font-semibold text-lg">Disk</h4>
                     </div>
                     <ul className="list-disc pl-5 text-[#a8aebb] space-y-1.5">
-                      <li>Penggunaan ruang disk (total, terpakai, bebas)</li>
-                      <li>IOPS (operasi I/O per detik)</li>
-                      <li>Throughput disk (baca/tulis)</li>
-                      <li>Waktu respons disk</li>
-                      <li>Penggunaan inode</li>
-                      <li>Status SMART untuk pemantauan kesehatan disk</li>
+                      <li>Disk usage (total, used, free)</li>
+                      <li>IOPS (input/output operations per second)</li>
+                      <li>Disk throughput (read/write)</li>
+                      <li>Disk response time</li>
+                      <li>Inode usage</li>
+                      <li>SMART status for disk health monitoring</li>
                     </ul>
                   </div>
                   
@@ -687,90 +687,91 @@ export default function Docs() {
                       <div className="w-8 h-8 rounded-lg bg-[#3fdaa4]/10 flex items-center justify-center">
                         <Wifi className="h-4 w-4 text-[#3fdaa4]" />
                       </div>
-                      <h4 className="text-[#d8dee9] font-semibold text-lg">Jaringan</h4>
+                      <h4 className="text-[#d8dee9] font-semibold text-lg">Network</h4>
                     </div>
                     <ul className="list-disc pl-5 text-[#a8aebb] space-y-1.5">
-                      <li>Bandwidth jaringan (masuk/keluar)</li>
-                      <li>Paket jaringan (dikirim/diterima)</li>
-                      <li>Koneksi aktif</li>
-                      <li>Status port jaringan</li>
-                      <li>Statistik TCP/UDP</li>
-                      <li>Latensi jaringan</li>
+                      <li>Network bandwidth (inbound/outbound)</li>
+                      <li>Network packets (sent/received)</li>
+                      <li>Active connections</li>
+                      <li>Network port status</li>
+                      <li>TCP/UDP statistics</li>
+                      <li>Network latency</li>
                     </ul>
                   </div>
                 </div>
                 
-                <h3 className="mt-8 text-[#6be5fd]">Dasbor Kustom</h3>
+                <h3 className="mt-8 text-[#6be5fd]">Custom Dashboard</h3>
                 <p>
-                  SysPulse memungkinkan anda membuat dasbor kustom untuk memantau metrik yang paling penting bagi anda, dengan langkah-langkah berikut ini:
+                  SysPulse allows you to create custom dashboards to monitor the metrics that matter most to you, with the following steps:
                 </p>
                 <ol>
-                  <li>- Navigasi ke bagian "Dasbor" di menu utama</li>
-                  <li>- Klik tombol "Buat Dasbor Baru"</li>
-                  <li>- Beri nama dasbor anda dan pilih tata letak</li>
-                  <li>- Tambahkan widget dengan mengklik tombol "+" di area dasbor</li>
-                  <li>- Untuk setiap widget, pilih:
+                  <li>- Navigate to the "Dashboard" section in the main menu</li>
+                  <li>- Click the "Create New Dashboard" button</li>
+                  <li>- Name your dashboard and choose a layout</li>
+                  <li>- Add widgets by clicking the "+" button in the dashboard area</li>
+                  <li>- For each widget, select:
                     <ul>
-                      <li className="ml-6">1. Jenis metrik (CPU, memori, disk, dsb.)</li>
-                      <li className="ml-6">2. Server yang ingin dipantau</li>
-                      <li className="ml-6">3. Interval waktu (waktu nyata, 1 jam terakhir, 1 hari, dsb.)</li>
-                      <li className="ml-6">4. Jenis visualisasi (grafik, gauge, tabel, dsb.)</li>
+                      <li className="ml-6">1. Metric type (CPU, memory, disk, etc.)</li>
+                      <li className="ml-6">2. Server to monitor</li>
+                      <li className="ml-6">3. Time interval (real-time, last 1 hour, 1 day, etc.)</li>
+                      <li className="ml-6">4. Visualization type (chart, gauge, table, etc.)</li>
                     </ul>
                   </li>
-                  <li>- Atur tata letak dengan cara drag-and-drop widget</li>
-                  <li>- Klik "Simpan" untuk menyimpan dasbor anda</li>
+                      <li>- Arrange the layout by dragging and dropping widgets</li>
+                      <li>- Click "Save" to save your dashboard</li>
                 </ol>
                 
                 <div className="bg-[#282a36] p-5 rounded-lg border border-zinc-800/50 mt-6">
-                  <h4 className="text-[#d8dee9] font-semibold text-lg mb-3">Contoh Dasbor</h4>
+                    <h4 className="text-[#d8dee9] font-semibold text-lg mb-3">Dashboard Example</h4>
                   <div className="flex justify-center bg-[#161616] p-4 rounded-md">
                     <div className="w-full h-64 flex items-center justify-center text-[#a8aebb]">
-                      [Gambar dasbor pemantauan sistem]
+                      [System monitoring dashboard illustration]
                     </div>
                   </div>
                   <p className="text-[#a8aebb] mt-4">
-                    Contoh dasbor pemantauan server dengan widget untuk CPU, memori, disk, dan metrik jaringan.
-                    Dasbor dapat dikonfigurasi sepenuhnya untuk menampilkan metrik yang paling relevan untuk kasus penggunaan anda.
+                    Example of a server monitoring dashboard with widgets for CPU, memory, disk, and network metrics.
+                    The dashboard can be fully configured to display the most relevant metrics for your use case.
                   </p>
                 </div>
                 
-                <h3 className="mt-8 text-[#6be5fd]">Melihat Histori dan Tren</h3>
+                <h3 className="mt-8 text-[#6be5fd]">Viewing History and Trends</h3>
                 <p>
-                  SysPulse menyimpan data historis untuk semua metrik yang dikumpulkan, sehingga memungkinkan anda untuk:
+                  SysPulse stores historical data for all collected metrics, allowing you to:
                 </p>
                 <ul>
-                  <li>- Melihat tren kinerja dalam jangka panjang</li>
-                  <li>- Mengidentifikasi masalah yang terjadi berulang</li>
-                  <li>- Merencanakan kapasitas berdasarkan data historis</li>
-                  <li>- Membandingkan kinerja saat ini dengan periode sebelumnya</li>
+                  <li>- View long-term performance trends</li>
+                  <li>- Identify recurring issues</li>
+                  <li>- Plan capacity based on historical data</li>
+                  <li>- Compare current performance with previous periods</li>
                 </ul>
                 
                 <p>
-                  Untuk melihat data historis, buka widget dasbor apa pun dan sesuaikan rentang waktu menggunakan pemilih rentang di pojok kanan atas.
-                  Anda dapat memilih interval waktu preset atau menentukan rentang tanggal/waktu kustom.
+                  
+                  To view historical data, open any dashboard widget and adjust the time range using the range selector in the top right corner.
+                  You can select a preset time interval or specify a custom date/time range.
                 </p>
                 
-                <h3 className="mt-8 text-[#6be5fd]">Pengaturan Agen Pemantauan</h3>
+                <h3 className="mt-8 text-[#6be5fd]">Monitoring Agent Settings</h3>
                 <p>
-                  Agen pemantauan SysPulse berjalan di server anda untuk mengumpulkan metrik kinerja, mencakup:
+                  The SysPulse monitoring agent runs on your server to collect performance metrics, including:
                 </p>
                 <ul>
                   <li>
-                    <strong>- Interval Pengumpulan</strong>: Sesuaikan seberapa sering metrik dikumpulkan (default: setiap 10 detik)
+                    <strong>- Collection Interval</strong>: Adjust how often metrics are collected (default: every 10 seconds)
                   </li>
                   <li>
-                    <strong>- Retensi Data</strong>: Konfigurasikan berapa lama data historis disimpan
+                    <strong>- Data Retention</strong>: Configure how long historical data is stored
                   </li>
                   <li>
-                    <strong>- Filter Metrik</strong>: Pilih metrik spesifik yang ingin Anda kumpulkan
+                    <strong>- Metric Filter</strong>: Select specific metrics you want to collect
                   </li>
                   <li>
-                    <strong>- Skrip Kustom</strong>: Tambahkan skrip pemantauan kustom untuk metrik aplikasi spesifik
+                    <strong>- Custom Scripts</strong>: Add custom monitoring scripts for specific application metrics
                   </li>
                 </ul>
                 
                 <p>
-                  Untuk mengakses pengaturan agen, navigasi ke Pengaturan → Pemantauan → Agen dan pilih server yang ingin dikonfigurasi.
+                  To access agent settings, navigate to Settings → Monitoring → Agent and select the server you want to configure.
                 </p>
                 
                 <div className="bg-[#3fdaa4]/10 p-5 rounded-lg border border-[#3fdaa4]/20 mt-6">
@@ -778,20 +779,20 @@ export default function Docs() {
                     <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                     </svg>
-                    Tips Pengoptimalan
+                    Optimization Tips
                   </h4>
                   <ul className="list-disc pl-5 text-[#a8aebb] space-y-2">
                     <li>
-                      Sesuaikan interval pengumpulan berdasarkan kebutuhan anda - interval yang lebih pendek memberikan pemantauan yang lebih terperinci tetapi memerlukan lebih banyak sumber daya
+                      Adjust the collection interval based on your needs - shorter intervals provide more detailed monitoring but require more resources
                     </li>
                     <li>
-                      Untuk server dengan sumber daya terbatas, pertimbangkan untuk mengumpulkan hanya metrik penting
+                      For servers with limited resources, consider collecting only essential metrics
                     </li>
                     <li>
-                      Gunakan tampilan agregat untuk memantau banyak server sekaligus
+                      Use aggregate views to monitor multiple servers at once
                     </li>
                     <li>
-                      Buat dasbor terpisah untuk kasus penggunaan berbeda (pemantauan produksi vs. pengembangan)
+                      Create separate dashboards for different use cases (production vs. development monitoring)
                     </li>
                   </ul>
                 </div>
@@ -804,53 +805,53 @@ export default function Docs() {
                 <div className="w-10 h-10 rounded-lg bg-[#ff79c6]/10 flex items-center justify-center">
                   <Bell className="h-5 w-5 text-[#ff79c6]" />
                 </div>
-                <h2 className="text-2xl font-bold text-[#d8dee9]">Pemberitahuan & Notifikasi</h2>
+                <h2 className="text-2xl font-bold text-[#d8dee9]">Alerts & Notifications</h2>
               </div>
               
               <div className="prose prose-invert max-w-none prose-p:text-[#a8aebb] prose-li:text-[#a8aebb] prose-headings:text-[#d8dee9] prose-a:text-[#6be5fd] prose-a:no-underline hover:prose-a:text-[#8ff4ff]">
                 <p>
-                  Sistem pemberitahuan SysPulse memungkinkan anda menerima peringatan tentang masalah potensial 
-                  sebelum berdampak pada sistem anda. Anda dapat mengonfigurasi peringatan untuk berbagai kondisi 
-                  dan menerimanya melalui berbagai saluran.
+                  The SysPulse notification system allows you to receive alerts about potential issues 
+                  before they impact your system. You can configure alerts for various conditions 
+                  and receive them through multiple channels.
                 </p>
                 
-                <h3 className=" mt-4 text-[#6be5fd]">Jenis Peringatan</h3>
+                <h3 className="mt-4 text-[#6be5fd]">Alert Types</h3>
                 <p>
-                  SysPulse mendukung berbagai jenis peringatan berdasarkan metrik yang dikumpulkan, meliputi:
+                  SysPulse supports various types of alerts based on collected metrics, including:
                 </p>
                 
                 <ul>
                   <li>
-                    <strong>- Peringatan Ambang Batas</strong>: Aktifkan saat metrik melebihi nilai tertentu
+                    <strong>- Threshold Alerts</strong>: Triggered when a metric exceeds a certain value
                     <ul>
-                      <li>Contoh: CPU &gt; 90% selama 5 menit</li>
-                      <li>Contoh: Ruang disk bebas &lt; 10%</li>
+                      <li>Example: CPU &gt; 90% for 5 minutes</li>
+                      <li>Example: Free disk space &lt; 10%</li>
                     </ul>
                   </li>
                   <li>
-                    <strong>- Peringatan Perubahan</strong>: Aktifkan ketika metrik berubah dengan jumlah tertentu dalam interval waktu
+                    <strong>- Change Alerts</strong>: Triggered when a metric changes by a certain amount within a time interval
                     <ul>
-                      <li>Contoh: Penggunaan memori meningkat &gt; 30% dalam 10 menit</li>
-                      <li>Contoh: Lalu lintas jaringan turun &gt; 90% (kemungkinan masalah konektivitas)</li>
+                      <li>Example: Memory usage increases &gt; 30% within 10 minutes</li>
+                      <li>Example: Network traffic drops &gt; 90% (possible connectivity issue)</li>
                     </ul>
                   </li>
                   <li>
-                    <strong>- Peringatan Status</strong>: Aktifkan ketika status layanan berubah
+                    <strong>- Status Alerts</strong>: Triggered when a service status changes
                     <ul>
-                      <li>Contoh: Layanan web berhenti</li>
-                      <li>Contoh: Server menjadi tidak dapat dijangkau</li>
+                      <li>Example: Web service stopped</li>
+                      <li>Example: Server becomes unreachable</li>
                     </ul>
                   </li>
                   <li>
-                    <strong>- Peringatan Anomali</strong>: Aktifkan ketika metrik berperilaku tidak seperti biasanya
+                    <strong>- Anomaly Alerts</strong>: Triggered when a metric behaves abnormally
                     <ul>
-                      <li>Contoh: Pola penggunaan CPU yang tidak biasa dibandingkan dengan baseline historis</li>
-                      <li>Contoh: Lonjakan tiba-tiba dalam koneksi jaringan</li>
+                      <li>Example: Unusual CPU usage pattern compared to historical baseline</li>
+                      <li>Example: Sudden spike in network connections</li>
                     </ul>
                   </li>
                 </ul>
                 
-                <h3 className="mt-6 text-[#6be5fd]">Metode Notifikasi</h3>
+                <h3 className="mt-6 text-[#6be5fd]">Notification Method</h3>
                 <p>
                   SysPulse dapat mengirimkan notifikasi melalui berbagai saluran, seperti:
                 </p>
@@ -1331,13 +1332,13 @@ Connections                   ttl     opn     rt1     rt5     p50     p90
                 className="px-4 py-2 bg-[#161616] border border-[#3fdaa4]/20 rounded-md text-[#a8aebb] hover:text-[#d8dee9] hover:border-[#3fdaa4]/40 flex items-center transition-colors"
               >
                 <ArrowRight className="h-4 w-4 mr-2 transform rotate-180" />
-                <span>Sebelumnya: Pengenalan</span>
+                <span>Previous: Introduction</span>
               </Link>
               <Link 
                 href="#pemantauan" 
                 className="px-4 py-2 bg-[#161616] border border-[#3fdaa4]/20 rounded-md text-[#a8aebb] hover:text-[#d8dee9] hover:border-[#3fdaa4]/40 flex items-center transition-colors"
               >
-                <span>Selanjutnya: Pemantauan</span>
+                <span>Next: Monitoring</span>
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Link>
             </div>
@@ -1345,9 +1346,9 @@ Connections                   ttl     opn     rt1     rt5     p50     p90
             {/* Breadcrumb Navigation */}
             <div className="container mx-auto px-4 mb-4">
               <div className="text-sm text-[#a8aebb]">
-                <span className="hover:text-[#d8dee9] cursor-pointer">Beranda</span>
+                <span className="hover:text-[#d8dee9] cursor-pointer">Home</span>
                 <span className="mx-2">/</span>
-                <span className="text-[#6be5fd] font-medium">Dokumentasi</span>
+                <span className="text-[#6be5fd] font-medium">Dokumentation</span>
               </div>
             </div>
 
@@ -1359,25 +1360,25 @@ Connections                   ttl     opn     rt1     rt5     p50     p90
       <div className="container mx-auto px-4 mt-20">
         <div className="max-w-5xl mx-auto border-t border-[#3fdaa4]/10 pt-8">
           <div className="flex flex-col items-center">
-            <h3 className="text-xl font-medium text-[#d8dee9] mb-4">Apakah dokumentasi ini membantu?</h3>
+            <h3 className="text-xl font-medium text-[#d8dee9] mb-4">Was this documentation helpful?</h3>
 
             <div className="flex space-x-4">
             <button
-              onClick={() => alert('Terima kasih atas apresiasinya! Kami senang dokumentasi ini bermanfaat untuk Anda.')}
+              onClick={() => alert('Thank you for your feedback! We are glad this documentation was helpful for you.')}
               className="px-6 py-2 bg-[#161616] border border-[#3fdaa4]/20 rounded-md text-[#d8dee9] hover:bg-[#1e1e1e] hover:border-[#3fdaa4]/40 transition-colors"
             >
-              Ya, sangat membantu
+              Yes, very helpful
             </button>
 
             <button
               onClick={() => {
-                if (confirm('Kami mohon maaf. Ingin memberi saran atau masukan langsung ke developer?')) {
+                if (confirm('We are sorry. Would you like to give suggestions or feedback directly to the developer?')) {
                   window.location.href = '/feedback';
                 }
             }}
             className="px-6 py-2 bg-[#161616] border border-[#3fdaa4]/20 rounded-md text-[#d8dee9] hover:bg-[#1e1e1e] hover:border-[#3fdaa4]/40 transition-colors"
           >
-            Tidak, saya butuh info lebih
+            No, I need more info
           </button>
         </div>
       </div>
