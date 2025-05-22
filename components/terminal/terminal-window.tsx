@@ -105,16 +105,28 @@ export const TerminalWindow = forwardRef<HTMLDivElement, TerminalWindowProps>(({
       fitAddonRef.current = fit;
       
       // Add WebLinks addon for clickable links
-      const weblinks = new WebLinksAddon((event, uri) => {
-        // Open links in a new tab
-        window.open(uri, '_blank');
-      }, { 
-        // Fix: Use a proper RegExp object instead of a string pattern with flags
-        urlRegex: new RegExp('(https?:\\/\\/[^\\s]+)', 'i'),
-        tooltipCallback: (text: string) => `Click to open: ${text}`,
-        leaveCallback: () => {/* empty */},
-        priority: 0
-      });
+      interface WebLinksAddonOptions {
+        urlRegex?: RegExp;
+        tooltipCallback?: (text: string) => string;
+        leaveCallback?: () => void;
+        priority?: number;
+      }
+
+      type WebLinksAddonCallback = (event: MouseEvent, uri: string) => void;
+
+      const weblinks = new WebLinksAddon(
+        (event: MouseEvent, uri: string) => {
+          // Open links in a new tab
+          window.open(uri, '_blank');
+        }, 
+        { 
+          // Fix: Use a proper RegExp object instead of a string pattern with flags
+          urlRegex: new RegExp('(https?:\\/\\/[^\\s]+)', 'i'),
+          tooltipCallback: (text: string) => `Click to open: ${text}`,
+          leaveCallback: () => {/* empty */},
+          priority: 0
+        } as WebLinksAddonOptions
+      );
       term.loadAddon(weblinks);
       weblinksAddonRef.current = weblinks;
       
@@ -157,7 +169,20 @@ export const TerminalWindow = forwardRef<HTMLDivElement, TerminalWindowProps>(({
       let lastInputTime = 0;
       const INPUT_THROTTLE_MS = 5; // 5ms throttle for smoother input
       
-      term.onData(data => {
+      interface TerminalInputEvent {
+        data: string;
+      }
+
+      interface SSHService {
+        isSSHConnected: () => boolean;
+        sendData: (data: string) => void;
+        setTerminal: (term: any | null) => void;
+        resize: (cols: number, rows: number) => void;
+        onError: (callback: (errorMsg: string) => void) => void;
+        onConnected: (callback: () => void) => void;
+      }
+
+      term.onData((data: string) => {
         const now = Date.now();
         // Log key presses only for debugging
         if (data.length === 1) {
@@ -167,17 +192,17 @@ export const TerminalWindow = forwardRef<HTMLDivElement, TerminalWindowProps>(({
         }
         
         // If connected and enough time has passed, send data directly
-        if (connected && sshService.isSSHConnected() && now - lastInputTime > INPUT_THROTTLE_MS) {
-          sshService.sendData(data);
+        if (connected && (sshService as SSHService).isSSHConnected() && now - lastInputTime > INPUT_THROTTLE_MS) {
+          (sshService as SSHService).sendData(data);
           lastInputTime = now;
         } 
         // Otherwise buffer the input
-        else if (connected && sshService.isSSHConnected()) {
+        else if (connected && (sshService as SSHService).isSSHConnected()) {
           inputBuffer += data;
           
           // If we have a buffer and haven't sent recently, send the buffer
           if (inputBuffer && now - lastInputTime > INPUT_THROTTLE_MS) {
-            sshService.sendData(inputBuffer);
+            (sshService as SSHService).sendData(inputBuffer);
             inputBuffer = '';
             lastInputTime = now;
           }

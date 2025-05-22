@@ -104,7 +104,8 @@ export function SSHForm() {
     setIsConnected(isSSHConnected);
     
     // Force re-emit of connection state in case events were missed
-    sshService.emitConnectionState();
+    // Removed invalid method call as it does not exist on SSHService
+    console.warn("[SSHForm] emitConnectionState method does not exist on SSHService.");
     
     if (isSSHConnected) {
       // Get connection info from session storage
@@ -167,6 +168,9 @@ export function SSHForm() {
         timerRef.current = setInterval(updateDurationDisplay, 1000);
       }
       
+      // Explicitly notify the parent via global event - this helps update all components immediately
+      window.dispatchEvent(new Event('ssh-connection-change'));
+      
       toast({
         title: "Connection successful",
         description: message,
@@ -189,6 +193,9 @@ export function SSHForm() {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
       }
+      
+      // Explicitly notify the parent via global event
+      window.dispatchEvent(new Event('ssh-connection-change'));
       
       toast({
         title: "Disconnected",
