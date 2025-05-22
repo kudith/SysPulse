@@ -722,7 +722,7 @@ const autoTunePerformance = (): void => {
 const initSocket = (): void => {
   try {
     // Connect to the WebSocket server with environment-specific URL
-    const socketUrl = "http://localhost:3001"; // Replace with actual URL
+    const socketUrl = process.env.NEXT_PUBLIC_SSH_SERVER_URL; // Replace with actual URL
 
     console.log(`[SSH Service] Connecting to WebSocket server at ${socketUrl}`);
 
