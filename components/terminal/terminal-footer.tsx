@@ -146,42 +146,55 @@ export function TerminalFooter({
     }
     
     try {
-      // Fetch disk usage
-      const diskCommand = "df -h / | awk 'NR==2 {print $5}' | tr -d '%'";
-      const diskResponse = await sshService.executeCommand(diskCommand);
-      const parsedDiskUsage = parseFloat(diskResponse.trim());
-      if (!isNaN(parsedDiskUsage)) {
-        setDiskUsage(parsedDiskUsage);
+      // Run all commands silently in the background
+      const commands = [
+        "df -h / | awk 'NR==2 {print $5}' | tr -d '%'", // Disk usage
+        "hostname",                                     // Hostname
+        "who | wc -l",                                  // User count
+        "uptime -p"                                     // Uptime
+      ];
+      
+      // Execute all commands in background
+      const results = await sshService.executeBackgroundBatch(commands, 'low');
+      
+      // Process results - order is preserved in the Map
+      let index = 0;
+      for (const [command, output] of results.entries()) {
+        const trimmedOutput = output.trim();
+        
+        switch(index) {
+          case 0: // Disk usage
+            const parsedDiskUsage = parseFloat(trimmedOutput);
+            if (!isNaN(parsedDiskUsage)) {
+              setDiskUsage(parsedDiskUsage);
+            }
+            break;
+            
+          case 1: // Hostname
+            setHostname(trimmedOutput);
+            break;
+            
+          case 2: // User count
+            const usersCount = parseInt(trimmedOutput);
+            if (!isNaN(usersCount)) {
+              setUsers(usersCount);
+            }
+            break;
+            
+          case 3: // Uptime
+            setUptime(trimmedOutput.replace('up ', ''));
+            break;
+        }
+        index++;
       }
       
-      // Fetch hostname
-      const hostnameCommand = "hostname";
-      const hostnameResponse = await sshService.executeCommand(hostnameCommand);
-      setHostname(hostnameResponse.trim());
-      
-      // Fetch logged in users count
-      const usersCommand = "who | wc -l";
-      const usersResponse = await sshService.executeCommand(usersCommand);
-      const usersCount = parseInt(usersResponse.trim());
-      if (!isNaN(usersCount)) {
-        setUsers(usersCount);
-      }
-      
-      // Fetch uptime
-      const uptimeCommand = "uptime -p";
-      const uptimeResponse = await sshService.executeCommand(uptimeCommand);
-      setUptime(uptimeResponse.trim().replace('up ', ''));
-      
-      // Also trigger a system stats refresh
+      // Also trigger a system stats refresh (which will now use background commands too)
       systemMonitoring.refreshStats();
       
-      // Set loading to false once we have data
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching system info:", error);
-      // Don't set loading to false here to avoid UI flashing
       
-      // If this is a connection error, try to reconnect
       if (error instanceof Error && error.message.includes("connection")) {
         console.log("Connection error while fetching system info, checking connection status");
         const isConnected = sshService.isSSHConnected();

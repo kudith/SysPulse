@@ -1,60 +1,38 @@
 import sshService from "../ssh-service";
 import type { Process } from "@/lib/types";
 
-export type StatPoint = {
-  time: string; // Using string instead of Date to be compatible with existing code
+export interface SystemStats {
+  cpu: {
+    time: string;
     value: number;
-};
-
-export type SystemStats = {
-  cpu: StatPoint[];
-  memory: StatPoint[];
-  disk: StatPoint[];
-  uptime: number;
-  processes: Process[]; // Keep Process[] type as per existing code
-  users: number;
-  hostname: string;
-};
+  }[];
+  memory: {
+    time: string;
+    value: number;
+  }[];
+  processes: Process[];
+}
 
 class SystemMonitoringService {
   private statsCache: SystemStats = {
     cpu: [],
     memory: [],
-    disk: [],
-    uptime: 0,
-    processes: [],
-    users: 0,
-    hostname: ''
+    processes: []
   };
   
   private listeners: Set<(data: SystemStats) => void> = new Set();
   private pollingInterval: NodeJS.Timeout | null = null;
   private isPolling = false;
   private lastPollingStartTime = 0;
-  private minimumPollingInterval = 2000; // Reduced from 5s to 2s for more responsive updates
-  private pollingDelay = 5000; // 5 seconds between regular polls (decreased from 15s for more real-time feel)
-  private lastUpdateTime = 0;
-  private isFetching = false;
-  private forceRefreshQueued = false;
-  private MAX_POINTS = 60;
+  private minimumPollingInterval = 1000; // 1 second minimum between polls  
+  private pollingDelay = 1000; // Update to 1 second for more real-time data
+  private websocketEnabled = true; // Flag to enable WebSocket updates
   
   // Command to get CPU usage (top for 1 cycle in batch mode, with CPU summary)
   private CPU_COMMAND = "top -bn1 | grep '%Cpu' | awk '{print $2}'";
   
   // Command to get memory usage percentage
   private MEMORY_COMMAND = "free | grep Mem | awk '{print ($3/$2) * 100.0}'";
-  
-  // Command to get disk usage percentage
-  private DISK_COMMAND = "df -h / | awk 'NR==2 {print $5}' | tr -d '%'";
-  
-  // Command to get uptime in seconds
-  private UPTIME_COMMAND = "cat /proc/uptime | awk '{print $1}'";
-  
-  // Command to get users count
-  private USERS_COMMAND = "who | wc -l";
-  
-  // Command to get hostname
-  private HOSTNAME_COMMAND = "hostname";
   
   // Command to get process list with CPU and memory usage
   private PROCESS_COMMAND = "ps aux --sort=-%cpu | head -20";
@@ -63,10 +41,6 @@ class SystemMonitoringService {
   private BATCH_COMMANDS = [
     "top -bn1 | grep '%Cpu' | awk '{print $2}'",
     "free | grep Mem | awk '{print ($3/$2) * 100.0}'",
-    "df -h / | awk 'NR==2 {print $5}' | tr -d '%'",
-    "cat /proc/uptime | awk '{print $1}'",
-    "who | wc -l",
-    "hostname",
     "ps aux --sort=-%cpu | head -20"
   ];
   
@@ -84,25 +58,13 @@ class SystemMonitoringService {
         time: initialTimePoint,
         value: 0
       });
-      
-      this.statsCache.disk.push({
-        time: initialTimePoint,
-        value: 0
-      });
     }
+
+    // Set up WebSocket event listeners for real-time monitoring
+    this.setupWebSocketListeners();
     
-    // Add connection state listener to automatically refresh when connected
-    if (typeof window !== 'undefined') {
-      sshService.onConnected((message: string) => {
-        console.log("[SystemMonitoringService] SSH connected, refreshing stats");
-        this.refreshStats();
-        
-        // Start polling if we have listeners
-        if (this.listeners.size > 0 && !this.isPolling) {
-          this.startPolling();
-        }
-      });
-    }
+    // Use 1-second polling interval to match WebSocket frequency
+    this.pollingDelay = 1000;  // Update to 1 second for more real-time data
   }
   
   public subscribe(callback: (data: SystemStats) => void): () => void {
@@ -123,11 +85,117 @@ class SystemMonitoringService {
       }
     };
   }
+
+  // Set up WebSocket event listeners for real-time updates
+  private setupWebSocketListeners() {
+    if (typeof window === 'undefined') return;
+
+    // Get socket instance from sshService
+    const socket = sshService.getSocket();
+    
+    if (!socket) {
+      console.log("WebSocket not available, will rely on polling");
+      return;
+    }
+
+    // Listen for real-time system stats events from the server
+    socket.on("monitoring-data", (data: any) => {
+      if (data.type === "system-stats" && data.stats) {
+        // Process real-time stats from WebSocket immediately
+        this.processWebSocketStats(data.stats);
+        
+        // Log incoming real-time data for verification
+        console.log("Received real-time stats:", 
+          data.stats.cpu ? `CPU: ${data.stats.cpu.value.toFixed(1)}%` : 'No CPU data',
+          data.stats.memory ? `Memory: ${data.stats.memory.value.toFixed(1)}%` : 'No Memory data');
+      }
+    });
+
+    // Listen for SSH connection events to re-establish listeners if needed
+    sshService.onConnected(() => {
+      console.log("SSH connected, setting up real-time monitoring listeners");
+      const socket = sshService.getSocket();
+      if (socket) {
+        // Remove any existing listeners to avoid duplicates
+        socket.off("monitoring-data");
+        
+        socket.on("monitoring-data", (data: any) => {
+          if (data.type === "system-stats" && data.stats) {
+            this.processWebSocketStats(data.stats);
+          }
+        });
+        
+        // Request immediate system stats after connection
+        this.pollSystemStats();
+      }
+    });
+  }
+
+  // Generate a current timestamp with more precision
+  private generateTimestamp(): string {
+    return new Date().toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      second: '2-digit',
+      hour12: false // Use 24-hour format for consistent ordering
+    });
+  }
+
+  // Process WebSocket stats and update the cache
+  private processWebSocketStats(stats: any) {
+    let updated = false;
+    const currentTime = this.generateTimestamp();
+
+    console.log("WebSocket stats received:", stats); // Debug the incoming data structure
+    
+    // Process CPU data
+    if (stats.cpu) {
+      const { value } = stats.cpu;
+      console.log("CPU value type:", typeof value, "value:", value); // Debug CPU value
+      if (!isNaN(value)) {
+        // Add new data point with current timestamp
+        this.statsCache.cpu.push({ 
+          time: currentTime, 
+          value 
+        });
+        
+        // Keep only the last 20 data points
+        if (this.statsCache.cpu.length > 20) {
+          this.statsCache.cpu.shift();
+        }
+        updated = true;
+      }
+    }
+    
+    // Process Memory data
+    if (stats.memory) {
+      const { value } = stats.memory;
+      if (!isNaN(value)) {
+        // Add new data point with current timestamp
+        this.statsCache.memory.push({ 
+          time: currentTime, 
+          value 
+        });
+        
+        // Keep only the last 20 data points
+        if (this.statsCache.memory.length > 20) {
+          this.statsCache.memory.shift();
+        }
+        updated = true;
+      }
+    }
+
+    console.log("Should notify listeners?", updated, "Listener count:", this.listeners.size);
+    
+    // If data was updated, notify listeners
+    if (updated) {
+      this.notifyListeners();
+    }
+  }
   
   private notifyListeners() {
     const stats = { ...this.statsCache };
-    const now = Date.now();
-    this.lastUpdateTime = now;
+    console.log("Notifying listeners:", this.listeners.size, "Last CPU:", stats.cpu[stats.cpu.length-1]?.value);
     
     this.listeners.forEach(listener => {
       try {
@@ -141,29 +209,24 @@ class SystemMonitoringService {
   private startPolling() {
     if (this.isPolling) return;
     
-    if (!sshService.isSSHConnected()) {
-      console.log("[SystemMonitoringService] Not starting polling: SSH not connected");
-      return;
-    }
-    
-    console.log("[SystemMonitoringService] Starting polling");
     this.isPolling = true;
     
     // Initial poll immediately
     this.pollSystemStats();
     
-    // Set up regular polling interval with a more frequent update
+    // Set up regular polling interval with a shorter delay
     this.pollingInterval = setInterval(() => {
-      this.pollSystemStats();
+      // Only poll if WebSocket isn't available or is disabled
+      if (!this.websocketEnabled || !sshService.getSocket()?.connected) {
+        this.pollSystemStats();
+      }
     }, this.pollingDelay);
   }
   
-  private stopPolling() {
+    private stopPolling() {
     if (!this.isPolling) return;
     
-    console.log("[SystemMonitoringService] Stopping polling");
-    
-    if (this.pollingInterval) {
+    if (this.pollingInterval) {  // Fixed: Added opening parenthesis
       clearInterval(this.pollingInterval);
       this.pollingInterval = null;
     }
@@ -173,42 +236,26 @@ class SystemMonitoringService {
   
   private async pollSystemStats() {
     if (!sshService.isSSHConnected()) {
-      console.warn("[SystemMonitoringService] Cannot poll system stats: SSH not connected");
-      this.stopPolling();
-      return;
-    }
-    
-    // If already fetching data, queue a refresh for when it's done
-    if (this.isFetching) {
-      this.forceRefreshQueued = true;
+      console.warn("Cannot poll system stats: SSH not connected");
       return;
     }
     
     // Implement rate limiting to prevent too frequent polls
     const now = Date.now();
     if (now - this.lastPollingStartTime < this.minimumPollingInterval) {
-      console.log(`[SystemMonitoringService] Skipping poll: too soon (${now - this.lastPollingStartTime}ms since last poll)`);
+      console.log(`Skipping poll: too soon (${now - this.lastPollingStartTime}ms since last poll)`);
       return;
     }
     
     this.lastPollingStartTime = now;
     
     try {
-      this.isFetching = true;
       // Use batch command execution for efficiency
       await this.fetchStatsInBatch();
       
       this.notifyListeners();
     } catch (error) {
-      console.error("[SystemMonitoringService] Error polling system stats:", error);
-    } finally {
-      this.isFetching = false;
-      
-      // If a refresh was queued while we were fetching, do it now
-      if (this.forceRefreshQueued) {
-        this.forceRefreshQueued = false;
-        setTimeout(() => this.pollSystemStats(), 100);
-      }
+      console.error("Error polling system stats:", error);
     }
   }
   
@@ -223,7 +270,7 @@ class SystemMonitoringService {
         const cpuUsage = parseFloat(cpuResponse.trim());
         
         if (!isNaN(cpuUsage)) {
-          const currentTime = new Date().toLocaleTimeString();
+          const currentTime = this.generateTimestamp();
           
           // Add new data point
           this.statsCache.cpu.push({
@@ -244,7 +291,7 @@ class SystemMonitoringService {
         const memoryUsage = parseFloat(memoryResponse.trim());
         
         if (!isNaN(memoryUsage)) {
-          const currentTime = new Date().toLocaleTimeString();
+          const currentTime = this.generateTimestamp();
           
           // Add new data point
           this.statsCache.memory.push({
@@ -257,45 +304,6 @@ class SystemMonitoringService {
             this.statsCache.memory.shift();
           }
         }
-      }
-      
-      // Process Disk data
-      const diskResponse = results.get(this.DISK_COMMAND);
-      if (diskResponse) {
-        const diskUsage = parseFloat(diskResponse.trim());
-        
-        if (!isNaN(diskUsage)) {
-          const currentTime = new Date().toLocaleTimeString();
-          
-          // Add new data point
-          this.statsCache.disk.push({
-            time: currentTime,
-            value: diskUsage
-          });
-          
-          // Keep only the last 20 data points
-          if (this.statsCache.disk.length > 20) {
-            this.statsCache.disk.shift();
-          }
-        }
-      }
-      
-      // Process uptime
-      const uptimeResponse = results.get(this.UPTIME_COMMAND);
-      if (uptimeResponse) {
-        this.statsCache.uptime = Math.floor(parseFloat(uptimeResponse.trim()));
-      }
-      
-      // Process users count
-      const usersResponse = results.get(this.USERS_COMMAND);
-      if (usersResponse) {
-        this.statsCache.users = parseInt(usersResponse.trim(), 10);
-      }
-      
-      // Process hostname
-      const hostnameResponse = results.get(this.HOSTNAME_COMMAND);
-      if (hostnameResponse) {
-        this.statsCache.hostname = hostnameResponse.trim();
       }
       
       // Process Process list
@@ -338,7 +346,7 @@ class SystemMonitoringService {
         this.statsCache.processes = processes;
       }
     } catch (error) {
-      console.error("[SystemMonitoringService] Error fetching stats in batch:", error);
+      console.error("Error fetching stats in batch:", error);
       
       // If batch fails, we could try individual fetches as fallback
       // but for now we'll just throw to be handled by caller
@@ -373,7 +381,7 @@ class SystemMonitoringService {
         }
       }
     } catch (error) {
-      console.error('Error fetching CPU stats:', error);
+      console.error("Error fetching CPU stats:", error);
     }
   }
   
@@ -389,7 +397,10 @@ class SystemMonitoringService {
       const memoryUsage = parseFloat(response.trim());
       
       if (!isNaN(memoryUsage)) {
-        const currentTime = new Date().toLocaleTimeString();
+        // Replace this line:
+        // const currentTime = new Date().toLocaleTimeString();
+        // With this:
+        const currentTime = this.generateTimestamp();
         
         // Add new data point
         this.statsCache.memory.push({
@@ -403,7 +414,7 @@ class SystemMonitoringService {
         }
       }
     } catch (error) {
-      console.error('Error fetching memory stats:', error);
+      console.error("Error fetching memory stats:", error);
     }
   }
   
@@ -452,60 +463,42 @@ class SystemMonitoringService {
       // Update the processes list
       this.statsCache.processes = processes;
     } catch (error) {
-      console.error('Error fetching process list:', error);
+      console.error("Error fetching process list:", error);
     }
   }
   
-  // Public API
+  // Method to get the current cached stats without polling
   public getCurrentStats(): SystemStats {
     return { ...this.statsCache };
   }
   
+  // Force an immediate refresh with rate limiting
   public async refreshStats(): Promise<SystemStats> {
-    if (!sshService.isSSHConnected()) {
-      console.warn("[SystemMonitoringService] Cannot refresh stats: SSH not connected");
-      return this.statsCache;
-    }
-    
-    // If already fetching, wait until it's done and then get the latest stats
-    if (this.isFetching) {
-      this.forceRefreshQueued = true;
-      return this.statsCache;
-    }
-    
-    try {
+    const now = Date.now();
+    // Only allow refresh if enough time has passed since last poll
+    if (now - this.lastPollingStartTime >= this.minimumPollingInterval) {
       await this.pollSystemStats();
-    return { ...this.statsCache };
-    } catch (error) {
-      console.error("[SystemMonitoringService] Error refreshing stats:", error);
-      return this.statsCache;
+    } else {
+      console.log(`Refresh throttled: ${now - this.lastPollingStartTime}ms since last poll`);
     }
+    return { ...this.statsCache };
   }
   
+  // Check if we're currently polling
   public isActive(): boolean {
     return this.isPolling;
   }
   
+  // Get number of subscribers
   public getSubscriberCount(): number {
     return this.listeners.size;
   }
   
-  // Get the time of the last successful update
-  public getLastUpdateTime(): number {
-    return this.lastUpdateTime;
-  }
-  
-  // Force restart polling if it should be running but isn't
-  public ensurePollingActive(): void {
-    if (this.listeners.size > 0 && !this.isPolling && sshService.isSSHConnected()) {
-      console.log("[SystemMonitoringService] Restarting polling");
-      this.startPolling();
-    }
+  // Method to toggle WebSocket updates
+  public setWebSocketUpdates(enabled: boolean): void {
+    this.websocketEnabled = enabled;
   }
 }
 
-// Create a singleton instance
 const systemMonitoring = new SystemMonitoringService();
-
-// Export the singleton
 export default systemMonitoring;
