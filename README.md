@@ -1,196 +1,390 @@
 # SysPulse
+## 📋 About This Project
 
-<p align="center">
-  <img src="public/assets/syspulse-logo.png" alt="SysPulse Logo" width="200"/>
-</p>
+SysPulse was developed as a final project for the Operating Systems course. It demonstrates practical application of operating system concepts including process management, system monitoring, and remote system administration through a modern web interface.
 
-<p align="center">
-  <a href="https://github.com/kudith/SysPulse/actions"><img src="https://github.com/kudith/SysPulse/workflows/build/badge.svg" alt="Build Status"></a>
-  <a href="https://github.com/kudith/SysPulse/blob/main/LICENSE"><img src="https://img.shields.io/github/license/kudith/SysPulse" alt="License"></a>
-  <a href="https://github.com/kudith/SysPulse/releases"><img src="https://img.shields.io/github/v/release/kudith/SysPulse" alt="Latest Release"></a>
-</p>
+### 👨‍💻 Project Team
+
+| Team Member 
+|-------------|
+| Ginanjar Aditiya Prianata |
+| Azka Hasyyati Bayan |
+| Andi Rafiyan |
+| Kevin Ibrahimovic |
+| Angra Advian Maulana |
 
 ## 📊 Overview
 
-SysPulse is a modern web-based dashboard interface for managing Linux processes through Secure Shell (SSH). It provides a user-friendly interface for monitoring, controlling, and managing system processes remotely, offering real-time data and command execution capabilities.
+SysPulse is a modern Next.js-based web dashboard for monitoring and managing Linux processes through SSH connections. It provides a user-friendly interface for real-time system monitoring, process control, and server management with secure authentication and responsive design.
 
 **Related Repositories:**
 - [SysPulse_websocket](https://github.com/kudith/SysPulse_websocket) - WebSocket server for real-time communication
 
-## ✨ Features
+## ✨ Key Features
 
-- **Remote Process Management**: Monitor and manage Linux processes through a secure SSH connection
-- **Real-time System Monitoring**: View CPU, memory usage, and system load in real-time
-- **Process Control**: Start, stop, kill, and renice processes directly from the web interface
-- **Interactive Terminal**: Built-in web terminal for direct command execution
-- **Multi-server Support**: Connect to and manage multiple Linux servers from a single dashboard
-- **Secure Authentication**: Role-based access control with Next Auth authentication system
-- **Responsive Design**: Fully responsive interface that works on desktop and mobile devices
+- **🖥️ Remote Process Management**: Monitor and manage Linux processes through secure SSH connections
+- **📊 Real-time System Monitoring**: View CPU, memory usage, and system load with live updates
+- **⚡ Process Control**: Start, stop, kill, and renice processes directly from the web interface
+- **💻 Interactive Terminal**: Built-in web terminal with XTerm.js for direct command execution
+- **🌐 Multi-server Support**: Connect to and manage multiple Linux servers from a single dashboard
+- **🔒 Secure Authentication**: NextAuth-based authentication with role-based access control
+- **📱 Responsive Design**: Fully responsive interface optimized for desktop and mobile devices
+
+## 🎓 Academic Relevance
+
+This project implements key Operating System concepts:
+- **Process Management**: Real-time monitoring and control of processes
+- **Resource Management**: CPU, memory, and I/O monitoring
+- **Signals and IPC**: Process signaling (kill, pause, resume)
+- **Scheduling**: Process priority management through renice
+- **Terminal Emulation**: Full terminal access with command execution
+- **System Administration**: Remote system management via SSH
 
 ## 🖥️ Screenshots
 
 <p align="center">
-  <img src="public/assets/dashboard-preview.png" alt="Dashboard Preview" width="700"/>
+  <img src="public/assets/dashboard-preview.png" alt="Dashboard Preview" width="400"/>
+  <img src="public/assets/terminal-preview.png" alt="Terminal Preview" width="400"/>
 </p>
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js (v16 or higher)
-- npm or yarn
-- MongoDB (for user authentication)
-- SSH access to Linux server(s)
+- **Node.js** (v16 or higher)
+- **npm** or **yarn**
+- **MongoDB** (for user authentication)
+- **SSH access** to target Linux servers
 
 ### Installation
 
-1. Clone the main repository:
+1. **Clone the main repository:**
 ```bash
 git clone https://github.com/kudith/SysPulse.git
 cd SysPulse
 ```
 
-2. Clone the WebSocket repository ([SysPulse_websocket](https://github.com/kudith/SysPulse_websocket)):
+2. **Clone the WebSocket repository** ([SysPulse_websocket](https://github.com/kudith/SysPulse_websocket)):
 ```bash
+# Clone in the same parent directory as SysPulse
+cd ..
 git clone https://github.com/kudith/SysPulse_websocket.git
 ```
 
-3. Install dependencies for both repositories:
+3. **Install dependencies for both repositories:**
 ```bash
-# For main repository
+# Install dependencies for main repository
 cd SysPulse
 npm install
 
-# For WebSocket repository
+# Install dependencies for WebSocket repository
 cd ../SysPulse_websocket
 npm install
 ```
 
-4. Configure environment variables:
+4. **Configure environment variables:**
+
+**For main repository (SysPulse):**
 ```bash
-# For main repository
 cd SysPulse
 cp .env.example .env
-# Edit .env file with your MongoDB connection string, Next Auth settings, etc.
+```
 
-# For WebSocket repository
+Edit the `.env` file with your configuration:
+```env
+# Database Configuration
+MONGODB_URI=mongodb://localhost:27017/syspulse
+
+# NextAuth Configuration
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-nextauth-secret-key
+
+# SSH Configuration (optional)
+DEFAULT_SSH_PORT=22
+SSH_TIMEOUT=30000
+```
+
+**For WebSocket repository:**
+```bash
 cd ../SysPulse_websocket
 cp .env.example .env
-# Edit .env file with your WebSocket configuration
 ```
 
-5. Start the development servers:
+Edit the WebSocket `.env` file:
+```env
+# WebSocket Server Configuration
+WEBSOCKET_PORT=8080
+CORS_ORIGIN=http://localhost:3000
+
+# SSH Configuration
+SSH_TIMEOUT=30000
+MAX_CONNECTIONS=10
+```
+
+5. **Start the development servers:**
+
+**Terminal 1 - Main Application:**
 ```bash
-# Start main application
 cd SysPulse
 npm run dev
-
-# Start WebSocket server (in a separate terminal)
-cd SysPulse_websocket
-npm run dev
 ```
 
-6. Start the SSH server:
+**Terminal 2 - SSH Server:**
 ```bash
 cd SysPulse
 npm run ssh-server
 ```
 
-7. Open your browser and navigate to `http://localhost:3000`
+**Terminal 3 - WebSocket Server:**
+```bash
+cd ../SysPulse_websocket
+npm run dev
+```
 
-## 🛠️ Technologies
+6. **Access the application:**
+   Open your browser and navigate to `http://localhost:3000`
+
+## 🛠️ Tech Stack
 
 ### Core Technologies
-- **Next.js**: React framework for building efficient and modern web interfaces with server-side rendering and API routing capabilities
-- **Tailwind CSS**: Utility-first CSS framework for rapid UI development with consistent and responsive design
-- **Node.js**: JavaScript runtime for server-side operations, handling SSH connections and processing requests
-- **TypeScript**: Static typing to ensure code stability and maintainability, especially in a collaborative environment
-- **SSH2 (Node.js)**: Library for establishing SSH connections to Linux servers and executing remote commands
+- **Next.js 15** - React framework with server-side rendering and API routing capabilities
+- **React 19** - Modern UI library for building interactive interfaces
+- **TypeScript 5** - Static typing for code stability and maintainability
+- **Tailwind CSS** - Utility-first CSS framework for rapid UI development
+- **Node.js** - JavaScript runtime for server-side operations and SSH connections
 
 ### Authentication & Database
-- **Next Auth**: Complete authentication solution supporting multiple providers
-- **MongoDB**: NoSQL database for storing user authentication data and application configuration
+- **NextAuth 4** - Complete authentication solution with multiple provider support
+- **MongoDB** - NoSQL database for storing user authentication data and configuration
+- **Mongoose** - MongoDB object modeling with schema validation
+
+### SSH & System Monitoring
+- **SSH2** - Node.js library for establishing SSH connections to Linux servers
+- **Express** - Web framework for handling HTTP requests and API routes
+- **dotenv** - Environment variable management
 
 ### Real-time Communication
-- **WebSockets**: Protocol for real-time communication between client and server
-- **Socket.io**: Real-time bidirectional event-based communication for live updates
-- **[SysPulse_websocket](https://github.com/kudith/SysPulse_websocket)**: Dedicated WebSocket server in a separate repository
+- **Socket.io** - Real-time bidirectional event-based communication
+- **WebSockets** - Protocol for real-time client-server communication
+- **[SysPulse_websocket](https://github.com/kudith/SysPulse_websocket)** - Dedicated WebSocket server
 
-### UI Components
-- **XTerm.js**: Terminal emulator component for browser-based command execution
-- **Radix UI**: Unstyled, accessible components for building high-quality UI
+### UI Components & Libraries
+- **Radix UI** - Unstyled, accessible components for building high-quality design systems
+- **Lucide React** - Beautiful and customizable SVG icons
+- **Framer Motion** - Production-ready motion library for React
+- **XTerm.js** - Terminal emulator component for browser-based command execution
+- **Recharts** - Composable charting library for React applications
+- **React Hook Form** - Performant forms with easy validation
+- **Zod** - TypeScript-first schema validation library
 
 ## 📊 System Architecture
 
 ```mermaid
 graph TD
-    A[Web Browser] -->|HTTP| B[Next.js Frontend]
-    B -->|API Calls| C[Node.js Backend]
+    A[Web Browser] -->|HTTP/HTTPS| B[Next.js Frontend]
+    B -->|API Routes| C[Node.js Backend]
     C -->|SSH Connection| D[Linux Server]
-    C -->|Authentication| E[MongoDB]
-    B -->|WebSocket Connection| F[SysPulse_websocket Server]
-    F -->|Real-time Updates| B
+    C -->|Auth & Data| E[MongoDB Database]
+    B -->|WebSocket| F[SysPulse_websocket Server]
+    F -->|Real-time Data| B
     F -->|SSH Events| D
+    G[SSH Server] -->|Process Data| C
+    H[System Monitoring] -->|Live Stats| F
 ```
 
 ## 💻 Key Capabilities
 
-- **Process Listing**: View all running processes with details like PID, CPU usage, memory usage
-- **Process Filtering**: Search and filter processes by name, user, resource usage
-- **Process Control**: Send signals to processes (kill, terminate, pause, resume)
-- **Resource Monitoring**: Real-time charts of system resources (CPU, Memory, Disk, Network)
-- **Terminal Access**: Direct terminal access for command execution
-- **Job Scheduling**: Schedule and manage cron jobs
-- **User Management**: Control SSH user access and permissions
+### Process Management
+- **📋 Process Listing**: View all running processes with detailed information (PID, CPU, memory usage)
+- **🔍 Process Filtering**: Search and filter processes by name, user, or resource usage
+- **⚡ Process Control**: Send signals to processes (kill, terminate, pause, resume)
+- **🎯 Priority Management**: Change process priorities using renice functionality
 
-## 🔌 WebSocket Server
+### System Monitoring
+- **📈 Resource Monitoring**: Real-time charts for CPU, Memory, Disk, and Network usage
+- **📊 System Statistics**: Comprehensive system information and performance metrics
+- **⏱️ Performance Metrics**: Continuous monitoring of system performance indicators
+
+### Terminal & Command Execution
+- **💻 Web Terminal**: Direct terminal access for command execution with full XTerm.js integration
+- **🔗 Interactive Shell**: Fully-featured terminal emulator with command history
+- **📝 Session Management**: Persistent terminal sessions across connections
+
+### User Management & Security
+- **🔐 SSH Authentication**: Secure SSH user access control and permission management
+- **👥 Multi-user Support**: Support for multiple users with role-based access control
+- **🛡️ Secure Connections**: Encrypted SSH connections with authentication validation
+
+## 🔌 WebSocket Server Integration
 
 The real-time functionality is powered by a separate WebSocket server repository:
-- Repository: [https://github.com/kudith/SysPulse_websocket](https://github.com/kudith/SysPulse_websocket)
-- Purpose: Handles real-time communication between clients and Linux servers
-- Features:
-  - Live system metrics streaming
-  - Real-time process updates
-  - Terminal session management
-  - Event-based notifications
+
+- **Repository**: [SysPulse_websocket](https://github.com/kudith/SysPulse_websocket)
+- **Purpose**: Handles real-time communication between clients and Linux servers
+- **Key Features**:
+  - 📡 Live system metrics streaming
+  - 🔄 Real-time process updates
+  - 💻 Terminal session management
+  - 🔔 Event-based notifications
+  - ⚡ Low-latency data transmission
 
 ## 🚀 Project Structure
 
 ```
 SysPulse/
-├── app/               # Next.js application routes and components
-├── components/        # Reusable UI components
-├── lib/               # Utility functions and shared logic
-├── public/            # Static assets
-└── server/            # Server-side code for SSH connections
+├── app/                    # Next.js 13+ App Router
+│   ├── terminal/          # Terminal page and components
+│   ├── api/               # API routes for backend functionality
+│   ├── page.tsx           # Main dashboard page
+│   └── globals.css        # Global styles and CSS variables
+├── components/            # Reusable UI components
+│   ├── ui/               # Base UI components (Radix UI primitives)
+│   ├── terminal/         # Terminal-specific components
+│   ├── control-panel.tsx # Process control panel with kill/renice
+│   ├── process-table.tsx # Process listing and management table
+│   └── header.tsx        # Application header and navigation
+├── lib/                  # Utility functions and shared logic
+│   ├── ssh-service.ts    # SSH connection management service
+│   ├── system-monitoring/ # System statistics monitoring utilities
+│   ├── types.ts          # TypeScript type definitions
+│   └── utils.ts          # General utility functions
+├── public/               # Static assets and resources
+│   └── assets/           # Images, icons, and static files
+├── hooks/                # Custom React hooks
+└── package.json          # Project dependencies and scripts
 
-SysPulse_websocket/    # Separate repository: https://github.com/kudith/SysPulse_websocket
-├── src/               # WebSocket server source code
-├── lib/               # WebSocket utilities
-└── config/            # WebSocket server configuration
+SysPulse_websocket/       # Separate WebSocket server repository
+├── src/                  # WebSocket server source code
+├── lib/                  # WebSocket utility functions
+└── config/               # Server configuration files
 ```
+
+## 🔧 Configuration
+
+### Environment Variables
+
+**SysPulse (Main Application):**
+```env
+# Database Configuration
+MONGODB_URI=mongodb://localhost:27017/syspulse
+
+# NextAuth Configuration
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-nextauth-secret-key
+
+# SSH Configuration
+DEFAULT_SSH_PORT=22
+SSH_TIMEOUT=30000
+
+# Application Configuration
+NODE_ENV=development
+PORT=3000
+```
+
+**SysPulse_websocket (WebSocket Server):**
+```env
+# WebSocket Server Configuration
+WEBSOCKET_PORT=8080
+CORS_ORIGIN=http://localhost:3000
+
+# SSH Configuration
+SSH_TIMEOUT=30000
+MAX_CONNECTIONS=10
+
+# Security Configuration
+ALLOWED_HOSTS=localhost,127.0.0.1
+```
+
+### Available Scripts
+
+**Main Application (SysPulse):**
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run ssh-server` - Start SSH server component
+
+**WebSocket Server:**
+- `npm run dev` - Start WebSocket development server
+- `npm run build` - Build WebSocket server
+- `npm run start` - Start WebSocket production server
 
 ## 🤝 Contributing
 
 Contributions are always welcome! Please read our [contribution guidelines](CONTRIBUTING.md) first.
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit your changes: `git commit -m 'Add some amazing feature'`
-4. Push to the branch: `git push origin feature/amazing-feature`
-5. Open a pull request
+### Development Workflow
+
+1. **Fork the repository**
+2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
+3. **Commit your changes**: `git commit -m 'Add some amazing feature'`
+4. **Push to the branch**: `git push origin feature/amazing-feature`
+5. **Open a Pull Request**
+
+### Development Guidelines
+
+- Use TypeScript for type safety and better developer experience
+- Follow consistent naming conventions throughout the codebase
+- Add comprehensive documentation for new features
+- Test changes thoroughly before submitting
+- Ensure code meets linting and formatting standards
+- Write meaningful commit messages
+
+### Code Style
+
+- Use Prettier for code formatting
+- Follow ESLint rules for code quality
+- Use meaningful variable and function names
+- Add JSDoc comments for complex functions
+- Keep components small and focused
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👥 Team
+## 📞 Contact & Support
 
-- **Kudith** - *Project Lead & Developer* - [GitHub Profile](https://github.com/kudith)
+If you have any questions or need help:
 
-## 📞 Contact
+- 🐛 **Bug Reports**: [Create an issue](https://github.com/kudith/SysPulse/issues/new?template=bug_report.md)
+- 💡 **Feature Requests**: [Create an issue](https://github.com/kudith/SysPulse/issues/new?template=feature_request.md)
+- 📧 **Email**: [contact@example.com](mailto:contact@example.com)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/kudith/SysPulse/discussions)
 
-If you have any questions, feel free to reach out:
+## 🎓 Academic Context
 
-- Create an [issue](https://github.com/kudith/SysPulse/issues)
-- Send an email to [contact@example.com](mailto:contact@example.com)
+This project was developed as a final examination project for the Operating Systems course. It demonstrates practical application of key operating system concepts including:
+
+- Process management and control
+- System resource monitoring
+- Signal handling and inter-process communication
+- User access control and security
+- Terminal emulation and command execution
+- Remote system administration
+
+## 🚀 Roadmap
+
+- [ ] **Docker Containerization** - Easy deployment with Docker and Docker Compose
+- [ ] **Internationalization (i18n)** - Multi-language support for global users
+- [ ] **Advanced Monitoring Dashboards** - Enhanced visualizations and metrics
+- [ ] **Plugin System** - Extensible architecture for custom functionality
+- [ ] **Mobile App Companion** - Native mobile app for iOS and Android
+- [ ] **Enhanced Security Features** - Two-factor authentication, audit logs
+- [ ] **Performance Optimizations** - Improved loading times and resource usage
+- [ ] **API Documentation** - Comprehensive API docs with Swagger/OpenAPI
+- [ ] **Automated Testing** - Unit, integration, and E2E test coverage
+- [ ] **Cloud Deployment** - One-click deployment to major cloud providers
+
+## 🏆 Acknowledgments
+
+- Thanks to all team members who contributed to this project
+- Special thanks to our Operating Systems course instructor for guidance
+- Appreciation for the open-source community and the tools that made this project possible
+- Inspired by modern system administration and DevOps practices
+
+---
+
+<p align="center">
+  <strong>Built with ❤️ by the SysPulse Team</strong><br>
+  Operating Systems Course Final Project
+</p>
