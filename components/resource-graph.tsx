@@ -41,6 +41,7 @@ export function ResourceGraph({ refreshTrigger = 0 }) {
     if (index === dataLength - 1) {
       return (
         <circle
+          key={`dot-${index}`}
           cx={cx}
           cy={cy}
           r={4}
@@ -51,7 +52,7 @@ export function ResourceGraph({ refreshTrigger = 0 }) {
       );
     }
     // Return an empty SVG element instead of null
-    return <circle cx={0} cy={0} r={0} fill="none" />;
+    return <circle key={`dot-${index}`} cx={0} cy={0} r={0} fill="none" />;
   };
 
   // Subscribe to system monitoring service to get real-time updates
@@ -66,21 +67,23 @@ export function ResourceGraph({ refreshTrigger = 0 }) {
     // Check initial connection status - IMPROVED VERSION
     const checkConnection = () => {
       const isConnected = sshService.isSSHConnected();
-      
+
       // Only log and update if the state actually changes
       if (isConnected !== connected) {
         console.log("Connection status changed to:", isConnected);
         setConnected(isConnected);
-        
+
         if (isConnected) {
-          console.log("ResourceGraph: Triggering initial data refresh after connection");
+          console.log(
+            "ResourceGraph: Triggering initial data refresh after connection"
+          );
           // If we just detected connection, refresh stats
           setTimeout(() => {
-            systemMonitoring.refreshStats().then(stats => {
+            systemMonitoring.refreshStats().then((stats) => {
               // Force update with latest data
               setCpuHistory([...stats.cpu]);
               setMemoryHistory([...stats.memory]);
-              setUpdateCounter(prev => prev + 1);
+              setUpdateCounter((prev) => prev + 1);
             });
           }, 500);
         }
@@ -120,13 +123,18 @@ export function ResourceGraph({ refreshTrigger = 0 }) {
 
       // Make sure we have valid arrays with data
       const validCpuData = Array.isArray(stats.cpu) && stats.cpu.length > 0;
-      const validMemoryData = Array.isArray(stats.memory) && stats.memory.length > 0;
+      const validMemoryData =
+        Array.isArray(stats.memory) && stats.memory.length > 0;
 
       console.log("Resource graph received update:", {
         cpuPoints: stats.cpu.length,
         memoryPoints: stats.memory.length,
-        latestCpu: validCpuData ? stats.cpu[stats.cpu.length - 1]?.value : 'none',
-        latestMemory: validMemoryData ? stats.memory[stats.memory.length - 1]?.value : 'none',
+        latestCpu: validCpuData
+          ? stats.cpu[stats.cpu.length - 1]?.value
+          : "none",
+        latestMemory: validMemoryData
+          ? stats.memory[stats.memory.length - 1]?.value
+          : "none",
         timestamp: new Date().toLocaleTimeString(),
       });
 
@@ -135,7 +143,7 @@ export function ResourceGraph({ refreshTrigger = 0 }) {
       setMemoryHistory([...stats.memory]);
 
       // Force a re-render
-      setUpdateCounter(prev => prev + 1);
+      setUpdateCounter((prev) => prev + 1);
 
       // Update connected status if needed (data receipt confirms connection)
       if (!connected && sshService.isSSHConnected()) {
@@ -146,11 +154,9 @@ export function ResourceGraph({ refreshTrigger = 0 }) {
     // Setup fallback polling for when WebSocket fails
     const pollInterval = setInterval(() => {
       if (sshService.isSSHConnected()) {
-        systemMonitoring
-          .refreshStats()
-          .catch((err) => {
-            console.log("Fallback polling error:", err);
-          });
+        systemMonitoring.refreshStats().catch((err) => {
+          console.log("Fallback polling error:", err);
+        });
       }
     }, 3000); // Poll every 3 seconds as fallback
 
@@ -234,13 +240,13 @@ export function ResourceGraph({ refreshTrigger = 0 }) {
         </div>
       )}
 
-      {/* Add current time display */}
+      {/* Add current time display
       <div className="flex justify-end mb-2">
         <span className="text-xs text-[#a8aebb]">
           Current time:{" "}
           <span className="text-[#6be5fd] font-mono">{currentTime}</span>
         </span>
-      </div>
+      </div> */}
 
       <Tabs
         defaultValue="cpu"
@@ -275,7 +281,11 @@ export function ResourceGraph({ refreshTrigger = 0 }) {
           )}
           {cpuHistory.length > 0 && (
             <div className="text-xs text-[#6be5fd] mb-2">
-              {`${cpuHistory.length} data points available (latest: ${cpuHistory[cpuHistory.length-1]?.value.toFixed(1)}%)`}
+              {`${
+                cpuHistory.length
+              } data points available (latest: ${cpuHistory[
+                cpuHistory.length - 1
+              ]?.value.toFixed(1)}%)`}
             </div>
           )}
           <motion.div
@@ -351,7 +361,11 @@ export function ResourceGraph({ refreshTrigger = 0 }) {
           )}
           {memoryHistory.length > 0 && (
             <div className="text-xs text-[#6be5fd] mb-2">
-              {`${memoryHistory.length} data points available (latest: ${memoryHistory[memoryHistory.length-1]?.value.toFixed(1)}%)`}
+              {`${
+                memoryHistory.length
+              } data points available (latest: ${memoryHistory[
+                memoryHistory.length - 1
+              ]?.value.toFixed(1)}%)`}
             </div>
           )}
           <motion.div

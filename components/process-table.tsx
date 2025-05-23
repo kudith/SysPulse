@@ -17,6 +17,18 @@ import { Badge } from "@/components/ui/badge";
 import sshService from "@/lib/ssh-service";
 import systemMonitoring from "@/lib/system-monitoring/system-stats";
 import { debounce } from "lodash"; // Make sure to install lodash
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { AlertCircle, Scissors, Activity } from "lucide-react";
+import { toast } from "sonner"; // Ensure this import exists at the top
 
 interface ProcessTableProps {
   onSelectProcess: (process: Process | null) => void;
@@ -31,6 +43,12 @@ export function ProcessTable({
   const [processes, setProcesses] = useState<Process[]>([]);
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [killDialogOpen, setKillDialogOpen] = useState(false);
+  const [reniceDialogOpen, setReniceDialogOpen] = useState(false);
+  const [processingAction, setProcessingAction] = useState(false);
+  const [targetProcess, setTargetProcess] = useState<Process | null>(null);
+  const [newPriority, setNewPriority] = useState(0);
+  const [killStatus, setKillStatus] = useState("");
 
   // Debounce search for better performance
   const debouncedSearchTerm = useMemo(() => {
@@ -152,6 +170,98 @@ export function ProcessTable({
     }
   };
 
+  const handleKillClick = useCallback(
+    (process: Process, e: React.MouseEvent) => {
+      e.stopPropagation(); // Prevent row selection when clicking the button
+      setTargetProcess(process);
+      setKillDialogOpen(true);
+    },
+    []
+  );
+
+  const handleReniceClick = useCallback(
+    (process: Process, e: React.MouseEvent) => {
+      e.stopPropagation(); // Prevent row selection when clicking the button
+      setTargetProcess(process);
+      setNewPriority(0); // Reset priority to default
+      setReniceDialogOpen(true);
+    },
+    []
+  );
+
+  const executeKill = useCallback(
+    async (signal: number = 15) => {
+      if (!targetProcess) return;
+
+      setProcessingAction(true);
+      setKillStatus(`Terminating process ${targetProcess.pid}...`);
+
+      try {
+        // Show immediate feedback with toast
+        toast.loading(`Terminating process ${targetProcess.pid}...`, {
+          id: `kill-${targetProcess.pid}`,
+        });
+
+        // Execute kill command
+        const result = await sshService.killProcess(targetProcess.pid, signal);
+
+        // Force close the dialog immediately on success
+        setKillDialogOpen(false);
+
+        // Show success toast after dialog is closed
+        setTimeout(() => {
+          toast.success(`Process ${targetProcess.pid} terminated successfully`, {
+            id: `kill-${targetProcess.pid}`,
+          });
+        }, 100);
+
+        // Force refresh process list immediately in background
+        systemMonitoring.refreshStats()
+          .catch(err => console.error("Failed to refresh stats:", err));
+
+        // If this was the selected process, clear the selection
+        if (selectedProcess?.pid === targetProcess.pid) {
+          onSelectProcess(null);
+        }
+      } catch (error) {
+        console.error("Kill process error:", error);
+        // Show error toast
+        toast.error(
+          `Failed to kill process: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`,
+          { id: `kill-${targetProcess.pid}` }
+        );
+      } finally {
+        setProcessingAction(false);
+        setKillStatus("");
+      }
+    },
+    [targetProcess, selectedProcess, onSelectProcess]
+  );
+
+  const executeRenice = useCallback(async () => {
+    if (!targetProcess) return;
+
+    setProcessingAction(true);
+    try {
+      await sshService.reniceProcess(targetProcess.pid, newPriority);
+      toast.success(`Priority changed for process ${targetProcess.pid}`);
+      setReniceDialogOpen(false);
+
+      // Force refresh process list immediately
+      await systemMonitoring.refreshStats();
+    } catch (error) {
+      toast.error(
+        `Failed to change process priority: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    } finally {
+      setProcessingAction(false);
+    }
+  }, [targetProcess, newPriority]);
+
   return (
     <div className="space-y-4 relative">
       {/* Loading indicator */}
@@ -204,13 +314,16 @@ export function ProcessTable({
               <TableHead className="text-[#6be5fd] font-medium text-center">
                 STATUS
               </TableHead>
+              <TableHead className="text-[#6be5fd] font-medium text-center">
+                ACTIONS
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {!connected ? (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={7}
                   className="text-center py-6 text-[#d8dee9]/50"
                 >
                   No SSH connection established
@@ -219,7 +332,7 @@ export function ProcessTable({
             ) : filteredProcesses.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={7}
                   className="text-center py-6 text-[#d8dee9]/50"
                 >
                   {searchTerm
@@ -290,6 +403,35 @@ export function ProcessTable({
                         ></span>
                       </div>
                     </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex justify-center space-x-2">
+                        {/* Add these buttons */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-100/10"
+                          onClick={(e) => handleKillClick(process, e)}
+                          title="Kill process"
+                        >
+                          <Scissors className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-blue-500 hover:text-blue-700 hover:bg-blue-100/10"
+                          onClick={(e) => handleReniceClick(process, e)}
+                          title="Change process priority"
+                        >
+                          <Activity className="h-4 w-4" />
+                        </Button>
+                        <span
+                          className={`h-2 w-2 rounded-full ${getStatusColor(
+                            process.cpu,
+                            process.memory
+                          )} shadow-glow`}
+                        ></span>
+                      </div>
+                    </TableCell>
                   </motion.tr>
                 ))}
               </AnimatePresence>
@@ -297,6 +439,139 @@ export function ProcessTable({
           </TableBody>
         </Table>
       </div>
+
+      {/* Kill Process Dialog */}
+      <Dialog open={killDialogOpen} onOpenChange={setKillDialogOpen}>
+        <DialogContent className="bg-[#282a36] border-zinc-700 text-[#f8f8f2]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center text-[#f8f8f2]">
+              <AlertCircle className="h-5 w-5 text-[#ec6a88] mr-2" /> Terminate
+              Process
+            </DialogTitle>
+            <DialogDescription className="text-[#d8dee9]">
+              Are you sure you want to terminate process {targetProcess?.pid}?
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Process command code block - moved outside DialogDescription */}
+          <div className="mt-2 bg-[#1e1e1e] p-2 rounded border border-zinc-700">
+            <code className="text-[#d8dee9] font-mono">
+              {targetProcess?.command}
+            </code>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <Button
+              variant="outline"
+              className="bg-[#ec6a88]/10 text-[#ec6a88] border-[#ec6a88]/30 hover:bg-[#ec6a88]/20"
+              onClick={() => executeKill(9)}
+              disabled={processingAction}
+            >
+              {processingAction ? (
+                <div className="flex items-center space-x-2">
+                  <div className="h-4 w-4 border-2 border-t-transparent rounded-full animate-spin"></div>
+                  <span>Processing...</span>
+                </div>
+              ) : (
+                "Force Kill (-9)"
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              className="bg-[#6be5fd]/10 text-[#6be5fd] border-[#6be5fd]/30 hover:bg-[#6be5fd]/20"
+              onClick={() => executeKill(15)}
+              disabled={processingAction}
+            >
+              {processingAction ? (
+                <div className="flex items-center space-x-2">
+                  <div className="h-4 w-4 border-2 border-t-transparent rounded-full animate-spin"></div>
+                  <span>Processing...</span>
+                </div>
+              ) : (
+                "Terminate (-15)"
+              )}
+            </Button>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => setKillDialogOpen(false)}
+              disabled={processingAction}
+              className="text-[#d8dee9]"
+            >
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Renice Process Dialog */}
+      <Dialog open={reniceDialogOpen} onOpenChange={setReniceDialogOpen}>
+        <DialogContent className="bg-[#282a36] border-zinc-700 text-[#f8f8f2]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center text-[#f8f8f2]">
+              <Activity className="h-5 w-5 text-[#6be5fd] mr-2" /> Change Process
+              Priority
+            </DialogTitle>
+            <DialogDescription className="text-[#d8dee9]">
+              Adjust the priority of process {targetProcess?.pid}
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Process command code block - moved outside DialogDescription */}
+          <div className="mt-2 bg-[#1e1e1e] p-2 rounded border border-zinc-700">
+            <code className="text-[#d8dee9] font-mono">
+              {targetProcess?.command}
+            </code>
+          </div>
+
+          <div className="space-y-4 mt-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[#3fdaa4]">Higher Priority (-20)</span>
+              <span className="text-[#ec6a88]">Lower Priority (19)</span>
+            </div>
+            <Slider
+              defaultValue={[0]}
+              min={-20}
+              max={19}
+              step={1}
+              value={[newPriority]}
+              onValueChange={(value) => setNewPriority(value[0])}
+              className="w-full"
+            />
+            <div className="text-center text-[#f8f8f2] font-mono">
+              New Priority: {newPriority}
+            </div>
+            <p className="text-sm text-[#d8dee9]/70">
+              Lower values give higher priority. Only root can set negative values.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => setReniceDialogOpen(false)}
+              disabled={processingAction}
+              className="text-[#d8dee9]"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={executeRenice}
+              disabled={processingAction}
+              className="bg-[#3fdaa4]/10 text-[#3fdaa4] border-[#3fdaa4]/30 hover:bg-[#3fdaa4]/20"
+            >
+              {processingAction ? (
+                <div className="flex items-center space-x-2">
+                  <div className="h-4 w-4 border-2 border-t-[#3fdaa4] rounded-full animate-spin"></div>
+                  <span>Processing...</span>
+                </div>
+              ) : (
+                "Apply Priority"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <style jsx global>{`
         .shadow-glow {

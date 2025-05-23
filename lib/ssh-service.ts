@@ -1982,6 +1982,64 @@ export const getSocket = (): Socket | null => {
   return serviceState.socket;
 };
 
+// Add these to the ssh-service.ts exports
+export const killProcess = async (pid: number, signal: number = 15): Promise<string> => {
+  if (!serviceState.isConnected) {
+    throw new Error("SSH not connected");
+  }
+  
+  console.log(`[SSH Service] Killing process ${pid} with signal ${signal}`);
+  
+  try {
+    // Execute kill command with minimum timeout
+    const killCommand = `kill -${signal} ${pid} 2>&1 || echo "Kill failed"`;
+    const output = await executeCommand(killCommand, { 
+      timeout: 3000, // Very short timeout
+      background: false,
+      priority: "high" // Use high priority queue
+    });
+    
+    // Don't wait for verification, let UI update immediately
+    // But start a background check to update the process list if needed
+    setTimeout(async () => {
+      try {
+        await executeCommand(`ps -p ${pid} > /dev/null 2>&1 || systemctl reset-failed`, { 
+          background: true,
+          timeout: 1000
+        });
+        
+        // Force refresh process list in background
+        if (serviceState.socket) {
+          serviceState.socket.emit("refresh-processes");
+        }
+      } catch (checkError) {
+        // Ignore background check errors
+      }
+    }, 500); // Shorter check delay
+    
+    return output;
+  } catch (error) {
+    console.error(`[SSH Service] Kill command failed:`, error);
+    
+    // Don't try with sudo automatically, return the error
+    throw error;
+  }
+};
+
+export const reniceProcess = async (pid: number, priority: number): Promise<string> => {
+  if (!serviceState.isConnected) {
+    throw new Error("SSH not connected");
+  }
+  
+  // Validate priority (-20 to 19, with -20 being highest priority and 19 lowest)
+  if (priority < -20 || priority > 19) {
+    throw new Error("Priority must be between -20 and 19");
+  }
+  
+  console.log(`[SSH Service] Renicing process ${pid} to priority ${priority}`);
+  return executeCommand(`renice ${priority} -p ${pid}`, { background: false });
+};
+
 // Initialize the service
 initService();
 
@@ -2005,6 +2063,8 @@ export default {
   getTerminal,
   restartShell,
   refreshConnection,
+  killProcess,
+  reniceProcess,
   executeCommand,
   queueCommand: queueCommandForBatch,
   getQueueStatus,

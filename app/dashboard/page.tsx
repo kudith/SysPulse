@@ -55,8 +55,8 @@ export default function EnhancedDashboardPage() {
     const handleConnected = (message: string) => {
       console.log("SSH connected event received:", message);
       setSSHConnected(true); // Update state when connected
-      setLastUpdated(Date.now()); // Force refresh of components
-      setRenderKey(prev => prev + 1); // Increment render key instead of using timestamp
+      setLastUpdated(Date.now());
+      setRenderKey(prev => prev + 1);
     };
 
     const handleDisconnected = (message: string) => {
@@ -69,15 +69,15 @@ export default function EnhancedDashboardPage() {
     // Listen for global connection events too
     const handleGlobalEvent = () => {
       const currentConnected = sshService.isSSHConnected();
-      if (currentConnected !== sshConnected) {
-        setSSHConnected(currentConnected);
-        if (currentConnected) {
-          setLastUpdated(Date.now());
-          setRenderKey(prev => prev + 1);
-        } else {
-          setSelectedProcess(null);
-          setRenderKey(prev => prev + 1);
-        }
+      console.log("Global SSH event - current status:", currentConnected);
+      setSSHConnected(currentConnected);
+      
+      if (currentConnected) {
+        setLastUpdated(Date.now());
+        setRenderKey(prev => prev + 1);
+      } else {
+        setSelectedProcess(null);
+        setRenderKey(prev => prev + 1);
       }
     };
 
@@ -86,15 +86,13 @@ export default function EnhancedDashboardPage() {
     sshService.onDisconnected(handleDisconnected);
     window.addEventListener('ssh-connection-change', handleGlobalEvent);
 
-    // Removed the auto-refresh interval
-
     // Cleanup event handlers on unmount
     return () => {
       sshService.onConnected(() => {});
       sshService.onDisconnected(() => {});
       window.removeEventListener('ssh-connection-change', handleGlobalEvent);
     };
-  }, [sshConnected]); // Removed refreshInterval from dependencies
+  }, []); // Remove sshConnected from dependencies
 
   // Animations
   const containerVariants = {
@@ -120,13 +118,13 @@ export default function EnhancedDashboardPage() {
 
       {/* Global SSH Status */}
       <div className="text-sm text-[#a8aebb] px-4 pt-2 text-right container mx-auto">
-        Status SSH:{" "}
+        SSH Status:{" "}
         <span
           className={`font-medium ${
             sshConnected ? "text-green-400" : "text-red-500"
           }`}
         >
-          {sshConnected ? "Tersambung" : "Tidak tersambung"}
+          {sshConnected ? "Connected" : "Not connected"}
         </span>
       </div>
 
@@ -145,23 +143,13 @@ export default function EnhancedDashboardPage() {
                   System Resources
                 </CardTitle>
                 {/* Display last updated time and manual refresh button */}
-                <div className="flex items-center gap-2">
+                {/* <div className="flex items-center gap-2">
                   {isClientSide && lastUpdated && (
                     <span className="text-xs text-[#a8aebb]">
                       Last updated: {new Date(lastUpdated).toLocaleTimeString()}
                     </span>
                   )}
-                  {/* Added manual refresh button */}
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    onClick={handleManualRefresh}
-                    disabled={!sshConnected}
-                    className="text-xs bg-transparent border-zinc-700 hover:bg-zinc-800"
-                  >
-                    Refresh
-                  </Button>
-                </div>
+                </div> */}
               </CardHeader>
               <CardContent className="p-4">
                 {/* Use stable key for initial render, then include renderKey for refresh */}
@@ -186,13 +174,13 @@ export default function EnhancedDashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="mt-4 border border-zinc-800/50 bg-[#1e1e1e] shadow-lg overflow-hidden">
+            {/* <Card className="mt-4 border border-zinc-800/50 bg-[#1e1e1e] shadow-lg overflow-hidden">
               <CardHeader className="pb-2 border-b border-zinc-800/30">
                 <CardTitle className="text-[#3fdaa4] text-base font-medium">
                   Server Info
                 </CardTitle>
               </CardHeader>
-              {/* <CardContent className="text-[#a8aebb] text-sm">
+              <CardContent className="text-[#a8aebb] text-sm">
                 {!sshConnected ? (
                   <div className="py-2 text-zinc-500 italic">
                     Connect to SSH to view server information
@@ -202,61 +190,19 @@ export default function EnhancedDashboardPage() {
                 ) : (
                   <div>Loading server info...</div>
                 )}
-              </CardContent> */}
-            </Card>
-
-            <Card className="mt-4 border border-zinc-800/50 bg-[#1e1e1e] shadow-lg overflow-hidden">
-              <CardHeader className="pb-2 border-b border-zinc-800/30">
-                <CardTitle className="text-[#ff79c6] text-base font-medium">
-                  Preferensi
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <label className="block text-sm text-[#a8aebb] mb-1">
-                  Refresh Mode
-                </label>
-                <Select
-                  defaultValue="manual"
-                  onValueChange={(val) => setRefreshMode(val)}
-                >
-                  <SelectTrigger className="bg-[#161616] border-zinc-700 text-[#d8dee9]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="manual">Manual refresh only</SelectItem>
-                  </SelectContent>
-                </Select>
               </CardContent>
-            </Card>
+            </Card> */}
+
+            
           </motion.div>
         </div>
 
         <motion.div variants={itemVariants}>
-          <Card className="border border-zinc-800/50 bg-[#1e1e1e] shadow-lg overflow-hidden mx-auto max-w-7xl">
+          <Card className="border border-zinc-800/50 bg-[#1e1e1e] shadow-lg overflow-hidden mx-auto max-w-7l">
             <CardHeader className="pb-2 border-b border-zinc-800/30 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <CardTitle className="text-[#3fdaa4] text-lg font-medium">
                 Process Management
               </CardTitle>
-              <div className="flex items-center gap-2">
-                <Input
-                  placeholder="Cari proses..."
-                  className="bg-[#161616] border border-zinc-700 text-[#d8dee9] w-full md:w-64"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  disabled={!sshConnected}
-                />
-                {/* Added refresh button for processes */}
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={handleManualRefresh}
-                  disabled={!sshConnected}
-                  className="text-xs bg-transparent border-zinc-700 hover:bg-zinc-800"
-                >
-                  Refresh
-                </Button>
-              </div>
-              {selectedProcess && <ControlPanel process={selectedProcess} />}
             </CardHeader>
             <CardContent className="p-4">
               {isClientSide ? (
